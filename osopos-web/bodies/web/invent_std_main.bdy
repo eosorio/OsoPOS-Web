@@ -9,15 +9,15 @@
     echo "  <th>&nbsp;</th>\n";
 
     echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=codigo&order=";
-    printf("%d&alm=%d",  $order_by=="codigo" && !$order, $alm);
+    printf("%d",  $order_by=="codigo" && !$order);
     echo "$href_dept$href_prov\">C&oacute;digo</a></th>\n";
 
     echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=descripcion&order=";
-    printf("%d&alm=%d",  $order_by=="descripcion" && !$order, $alm);
+    printf("%d",  $order_by=="descripcion" && !$order);
     echo "$href_dept$href_prov\">Descripci&oacute;n</a></th>\n";
 
     echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=pu&order=";
-    printf("%d&alm=%d",  $order_by=="pu" && !$order, $alm);
+    printf("%d",  $order_by=="pu" && !$order);
     echo "$href_dept$href_prov\">Precio</a></th>\n";
 
     if (isset($alm) && $alm>0) {
@@ -28,16 +28,16 @@
 <?
     } else if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
       echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=id_prov&order=";
-      printf("%d&alm=%d",  $order_by=="id_prov" && !$order, $alm);
+      printf("%d",  $order_by=="id_prov" && !$order);
       echo "$href_dept$href_prov\">Proveedor</a></th>";
     }
 
     echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=id_dept&order=";
-    printf("%d&alm=%d",  $order_by=="id_dept" && !$order, $alm);
+    printf("%d",  $order_by=="id_dept" && !$order);
     echo "$href_dept$href_prov\">Departamento</a></th>\n";
     if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
       echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=prov_clave&order=";
-      printf("%d&alm=%d",  $order_by=="p_costo" && !$order, $alm);
+      printf("%d",  $order_by=="p_costo" && !$order);
       echo "$href_dept$href_prov\">Clave Prov.</a></th>\n";
     }
 
@@ -79,7 +79,6 @@
       echo "     <input type=\"hidden\" name=\"offset\" value=\"$offset\"\n";
       echo "     <input type=\"hidden\" name=\"order\" value=\"$order\">\n";
       echo "     <input type=\"hidden\" name=\"order_by\" value=\"$order_by\">\n";
-      echo "     <input type=\"hidden\" name=\"alm\" value=\"$alm\">\n";
       printf("     <input type=\"hidden\" name=\"codigo\" value=\"%s\">\n", $reng->codigo);
       echo "     <input type=\"hidden\" name=\"qt\" value=1>\n";
       echo "     <input type=\"image\" src=\"imagenes/carrito.png\">\n";
@@ -88,7 +87,7 @@
       if (puede_hacer($conn, $user->user, "invent_borrar_item")) {
         echo "  <td>\n";
         echo "   <a href=\"$PHP_SELF?order_by=$order_by&order=$order&action=borrar&offset=$offset";
-        echo "$href_dept$href_prov&alm=$alm&codigo=";
+        echo "$href_dept$href_prov&codigo=";
         echo str_replace(" ", "%20", htmlentities($reng->codigo));
         echo "\" border=0><img src=\"imagenes/borrar.gif\" border=0></a></td>";
           }
@@ -97,7 +96,7 @@
       echo "&order_by=$order_by&order=$order&action=muestra&offset=$offset$href_dept$href_prov";
           if ($debug)
                 echo "&debug=1";
-          echo "&alm=$alm\">";
+          echo "\">";
       echo stripslashes($codigo) . "</a></td>\n";
       printf("  <td%s>%s</td>\n",
              $td_fondo, stripslashes($descripcion));
