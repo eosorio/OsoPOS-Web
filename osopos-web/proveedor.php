@@ -10,7 +10,7 @@
 }
 
 ?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//ES"
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
       "http://www.w3.org/TR/REC-html40/loose.dtd">
  
 <HTML><HEAD><TITLE>OsoPOS Web - Subm&oacute;dulo de proveedores</TITLE></HEAD>
@@ -57,7 +57,7 @@
       if ($tel[$i]) {
         $peticion = "INSERT INTO telefonos_proveedor VALUES (";
         $peticion.= sprintf("%2d, %2d, %2d, %2d,", $id, $clave_ld[$i], $tel[$i], $ext[$i]);
-        if ($tel_fax[$i])
+        if ($es_fax[$i])
           $peticion.= "'t'";
         else
           $peticion.= "'f'";
@@ -101,7 +101,7 @@
         exit();
       }
       if ($num_ren = db_num_rows($resultado)) {
-        for ($i=0;  $i<3 && $i<$num_ren; $i++) {
+        for ($i=0;  $i<4 && $i<$num_ren; $i++) {
           $reng = db_fetch_object($resultado, $i);
           $val_clave_ld[$i] = "value=\"" . $reng->clave_ld . "\"";
           $val_tel[$i] =      "value=\"" . $reng->numero . "\"";
@@ -116,51 +116,15 @@
     else {
       $val_submit = "value=\"Agregar proveedor\"";
       $acc = "inserta";
+	  $peticion = "SELECT max(id) as id FROM proveedores";
+	  if (!$resultado = db_query($peticion, $conn)) {
+		echo "Error al ejecutar $peticion<br>\n";
+		exit();
+	  }
+	  $renglon = db_fetch_object($resultado, 0);
+	  $id = $renglon->id + 1;
     }
-    echo "<table width=\"100%\">\n";
-    echo " <form action=\"$PHP_SELF?accion=$acc\" method=\"post\">\n";
-    echo " <tr>\n";
-    echo "  <td>ID.</td><td><input type=\"hidden\" name=id value=$id>$id</td>\n";
-    echo " </tr>\n";
-    echo " <tr>\n";
-    echo "  <td>Nick</td><td colspan=4><input type=text name=nick maxlength=15 size=15 $val_nick></td>\n";
-    echo "  <td>Raz&oacute;n soc.</td><td colspan=4>";
-    echo "<input type=text name=razon_soc maxlength=30 size=30 $val_razon></td>\n";
-    echo " </tr>\n";
-    echo " <tr>\n";
-    echo "  <td>Calle</td><td colspan=4><input type=text name=calle maxlength=30 size=30 $val_calle></td>\n";
-    echo "  <td>Colonia</td><td colspan=4><input type=text name=colonia maxlength=25 size=25 $val_colonia></td>\n";
-    echo " </tr>\n";
-    echo " <tr>\n";
-    echo "  <td>Ciudad</td><td colspan=4><input type=text name=ciudad maxlength=30 size=30 $val_ciudad></td>\n";
-    echo "  <td>Estado</td><td colspan=4><input type=text name=estado maxlength=30 size=30 $val_estado></td>\n";
-    echo " </tr>\n";
-    echo " <tr><td>&nbsp;<td>Area<td>N&uacute;mero<td>Ext.<td>&iquest;Fax?";
-    echo "   <td>&nbsp;<td>Area<td>N&uacute;mero<td>Ext.<td>&iquest;Fax?";
-    echo " <tr>\n";
-    echo "  <td><img src=\"imagenes/telefono.gif\" width=\"30\" heigth=\"30\"></td>\n";
-    echo "  <td><input type=\"text\" name=clave_ld[0] maxlength=3 size=3 $val_clave_ld[0]></td>\n";
-    echo "  <td><input type=text name=tel[0] maxlength=7 size=7 $val_tel[0]></td>\n";
-    echo "  <td><input type=text name=ext[0] maxlength=5 size=4 $val_ext[0]></td>\n";
-    echo "  <td><input type=checkbox name=tel_fax[] $val_tel_fax[0]></td>\n";
-    echo "  <td><img src=\"imagenes/telefono.gif\" width=\"30\" heigth=\"30\"></td>\n";
-    echo "  <td><input type=\"text\" name=clave_ld[1] maxlength=3 size=3 $val_clave_ld[1]></td>\n";
-    echo "  <td><input type=text name=tel[1] maxlength=7 size=7 $val_tel[1]></td>\n";
-    echo "  <td><input type=text name=ext[1] maxlength=5 size=4 $val_ext[1]></td>\n";
-    echo "  <td><input type=checkbox name=tel_fax[] $val_tel_fax[1]></td>\n";
-    echo " </tr>\n <tr>\n";
-    echo "  <td><img src=\"imagenes/telefono.gif\" width=\"30\" heigth=\"30\"></td>\n";
-    echo "  <td><input type=\"text\" name=clave_ld[2] maxlength=[2] size=3 $val_clave_ld[2]></td>\n";
-    echo "  <td><input type=text name=tel[2] maxlength=7 size=7 $val_tel[2]></td>\n";
-    echo "  <td><input type=text name=ext[2] maxlength=5 size=4 $val_ext[2]></td>\n";
-    echo "  <td><input type=checkbox name=tel_fax[] $val_tel_fax[2]></td>\n";
-    echo " </tr>\n";
-    echo " <tr>\n";
-    echo "  <td>Contacto</td>\n";
-    echo "  <td colspan=4><input type=text name=contacto maxlength=40 size=40 $val_contacto></td>\n";
-    echo "  <td>&nbsp;</td><td colspan=4><input type=submit $val_submit></td>\n";
-    echo " </tr>\n";
-    echo "</table>\n";
+    include ("forms/proveedor.inc");
     echo "<hr>\n";
   }
   else if ($accion == "inserta") {
@@ -180,15 +144,16 @@
     }
     $renglon = db_fetch_object($resultado, 0);
     $id = $renglon->max_id;
-    if ($SQL_TYPE == "postgres")
+    if ($SQL_TYPE != "postgres")
       $id++;
     
-    for ($k=0; $k<3; $k++) {
+    for ($k=0; $k<4; $k++) {
       if ($tel[$k]) {
-        if ($tel_fax[$k] == "on")
-          $tel_fax = 't';
+        if (in_array($k, $tel_fax)) {
+          $es_fax = 't';
+        }
         else
-          $tel_fax = 'f';
+          $es_fax = 'f';
         $peticion = "INSERT INTO telefonos_proveedor (id_proveedor";
         if ($clave_ld[$k])
           $peticion.= ", clave_ld";
@@ -202,7 +167,7 @@
         $peticion.= ", " . $tel[$k];
         if ($ext[$k])
           $peticion.= ", " . $ext[$k];
-        $peticion.= ", '$tel_fax')";
+        $peticion.= ", '$es_fax')";
 
         if (!$resultado = db_query($peticion, $conn)) {
           echo "Error al ejecutar $peticion<br>\n";
