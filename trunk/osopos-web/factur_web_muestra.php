@@ -17,7 +17,7 @@ GNU junto con este programa; de no ser así, escriba a Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA. 
 
 */ 
-/* PENDIENTE: Activar selección de proveedor */
+
 {
   include("include/general_config.inc");
   include("invent_web.config");
@@ -27,12 +27,24 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   else {
   include("include/passwd.inc");
   }
+  if (empty($table))
+    $table = "facturas_ingresos";
+
 }
 ?>
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
 <HTML>
 
-<HEAD><TITLE>OsoPOS - Factur Web v. <? echo $factur_web_vers ?></TITLE></HEAD>
+<HEAD>
+  <TITLE>OsoPOS - Factur Web v. <? echo $factur_web_vers ?></TITLE>
+  <style type="text/css">
+    td#nm_campo {font-face: helvetica,arial}
+  td#right_b {font-face: helvetica, arial; text-align: right}
+  td.number {font-face: helvetica, arial; text-align: right}
+   </style>
+
+</HEAD>
 <BODY BGCOLOR="white" BACKGROUND="imagenes/fondo.gif" <?
   if ($action == "muestra") {
     echo "onload=\"document.articulo.descripcion.focus()\"";
@@ -52,82 +64,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     $order_by = "id";
   if (!isset($order))
      $order = 1; /* Ascendente */
-  if(isset($depto)) {
-    if ($depto!="Todos") {
-      $query = "SELECT id AS id_dept FROM departamento WHERE nombre='$depto'";
-      if (!$result = pg_exec($conn, $query)) {
-        echo "Error al ejecutar $query<br>\n";
-        exit();
-      }
-      $id_dept = pg_result($result, 0, "id_dept");
-    }
-    else
-      unset($id_dept);
-  }
-  if (isset($prov)) {
-    if ($prov == "Todos")
-      unset($id_prov);
-    else {
-      $query = "SELECT id FROM proveedores WHERE nick='$prov'";
-      if (!$result = pg_exec($conn, $query)) {
-        echo "Error al ejecutar $query<br>\n";
-        exit();
-      }
-      $id_prov = pg_result($result, 0, "id");
-    }
-  }
 
-  $query = "SELECT id,nick FROM proveedores";
-  $query.= " ORDER BY id";
-  if (!$result = pg_exec($conn, $query)) {
-    echo "Error al ejecutar $query<br>\n";
-    exit();
-  }
-  $num_ren_prov = pg_numrows($result);
-
-  $nick_prov = array();
-  for ($i=0; $i<$num_ren_prov; $i++) {
-    $reng = pg_fetch_object($result, $i);
-    $id = $reng->id;
-    $nick_prov[$id] = $reng->nick;
-  }
-
-  $query = "SELECT id,nombre FROM departamento ORDER BY id";
-  if (!$result = pg_exec($conn, $query)) {
-    echo "Error al ejecutar $query<br>\n";
-    exit();
-  }
-
-  $num_ren_depto = pg_numrows($result);
-
-  $nm_depto = array();
-  for ($i=0; $i<$num_ren_depto; $i++) {
-    $reng = pg_fetch_object($result, $i);
-    $id = $reng->id;
-    $nm_depto[$id] = $reng->nombre;
-  }
 
 
   if ($action == "inserta") {
-    $query = "SELECT id FROM departamento WHERE nombre='$depto'";
-    if (!$result = pg_exec($conn, $query)) {
-      echo "Error al buscar departamento.<br>\n$query<br>\n";
-      exit();
-    }
-    if (pg_numrows($result))
-      $id_dept = pg_result($result, 0, id);
-    else
-      $id_dept = 0;
-
-    $query = "SELECT id FROM proveedores WHERE nick='$prov'";
-    if (!$result = pg_exec($conn, $query)) {
-      echo "Error al consultar proveedores.<br>\n$query<br>\n";
-      exit();
-    }
-    if (pg_numrows($result))
-      $id_prov = pg_result($result, 0, id);
-    else
-      $id_prov = 0;
 
     $query = "INSERT INTO articulos VALUES ('$codigo', ";
     if (strlen($descripcion))
@@ -149,112 +89,71 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   
   if ($action == "muestra"  ||  $action == "agrega") {
     if ($action == "muestra") {
-      $query = "SELECT id,fecha,rfc,iva,subtotal FROM facturas_ingresos ";
-      $query.= " WHERE id=$folio";
+      $query = "SELECT id,fecha,rfc,iva,subtotal FROM $table ";
+      $query.= " WHERE id=$id";
       if (!$result = pg_exec($conn, $query)) {
         echo "Error al ejecutar $query<br>" . pg_errormessage($conn);
         exit();
       }
       $reng = pg_fetch_object($result, 0);
-      $val_cod = "value=\"$codigo\"";
-      $val_desc = "value=\"$reng->descripcion\"";
-      $val_pu = "value=" . $reng->pu;
-      $val_p_costo = "value=" . $reng->p_costo;
-      $val_disc = "value=" . $reng->descuento;
-      $val_ex = "value=" . $reng->cant;
-      $val_min = "value=" . $reng->min;
-      $val_max = "value=" . $reng->max;
-      $val_iva_porc =  "value=\"" . $reng->iva_porc . "\"";
+      $val_id = "value=\"$id\"";
+      $val_fecha = sprintf("value=\"%s\"", $reng->fecha);
+      $val_rfc = "value=" . $reng->rfc;
+      $val_iva = "value=" . $reng->iva;
+      $val_subt = "value=" . $reng->subtotal;
+      $val_iva = "value=" . $reng->iva;
       $val_submit = "value=\"Cambiar datos\"";
-      $form_action = "$PHP_SELF?order_by=$order_by&action=cambia&offset=$offset&order=$order";
+      $form_action = "$PHP_SELF?table=$table&order_by=$order_by&action=cambia&offset=$offset&order=$order";
     }
     else if ($action == "agrega") {
       $val_submit = "value=\"Agregar producto\"";
-      $form_action = "$PHP_SELF?order_by=$order_by&action=inserta&order=$order";
+      $form_action = "$PHP_SELF?table=$table&order_by=$order_by&action=inserta&order=$order";
     }
 
     echo "<table width=\"100%\">\n";
     echo "<form action=\"$form_action\" name=\"articulo\" method=POST>\n";
     echo " <tr>\n";
-    echo "  <td><font face=\"helvetica, arial\">C&oacute;digo</font>\n";
-    if (isset($codigo)) {
-      echo "<td><font face=\"helvetica, arial\">$codigo</font> <input type=hidden name=codigo $val_cod>\n";
+    echo "  <td><font face=\"helvetica, arial\">Folio</font></td>\n";
+    if (isset($id)) {
+      echo "<td><font face=\"helvetica, arial\">$id</font> <input type=hidden name=id $val_id></td>\n";
     }
     else {
-      echo "  <td><font face=\"helvetica, arial\"><input type=\"text\" name=codigo maxlength=20></font>\n";
+      echo "  <td><font face=\"helvetica, arial\"><input type=\"text\" name=id maxlength=20></font></td>\n";
     }
-    echo "  <td><font face=\"helvetica, arial\">Descripci&oacute;n</font>";
-    echo "  <td colspan=3><font face=\"helvetica, arial\"><input type=text name=descripcion maxlength=50";
-    echo " size=30 $val_desc></font>\n";
-    echo " <tr>\n";
-    echo "  <td><font face=\"helvetica, arial\">P.U.</font>\n";
-    echo "  <td><font face=\"helvetica, arial\"><input type=text name=pu size=10 $val_pu></font>";
-    echo "  <td><font face=\"helvetica, arial\">I.V.A.</font>";
-    echo "  <td><font face=\"helvetica, arial\"><input type=text name=iva_porc size=2 $val_iva_porc>%</font>\n";
-    echo "  <td><font face=\"helvetica, arial\">Descuento</font>\n";
-    echo "  <td><font face=\"helvetica, arial\"><input type=text name=descuento size=5 $val_disc";
-    echo ">%</font>\n";
-    echo " \n";
-    echo " <tr>\n";
-    echo "  <td><font face=\"helvetica, arial\">Existencia actual</font>\n";
-    echo "  <td><font face=\"helvetica, arial\"><input type=text name=ex size=4 $val_ex>\n</font>";
-    echo "  <td><font face=\"helvetica, arial\">Existencia min./font>\n";
-    echo "  <td><font face=\"helvetica, arial\"><input type=text size=4 name=ex_min $val_min></font>\n";
-    echo "  <td><font face=\"helvetica, arial\">Existencia max.</font>\n";
-    echo "  <td><font face=\"helvetica, arial\"><input type=text size=4 name=ex_max $val_max></font>\n";
-    echo " <tr>\n";
-    echo "  <td><font face=\"helvetica, arial\">Proveedor</font>\n";
-    echo "  <td><font face=\"helvetica, arial\"><select name=prov>\n";
-    for ($i=0; $i<$num_ren_prov; $i++) {
-      if (strlen($nick_prov[$i])) {
-        echo "   <option";
-        if ($i == $reng->id_prov)
-          echo " selected";
-        echo ">$nick_prov[$i]</option>\n";
-      }
-    }
-    echo "  </select></font>\n";
-    echo "  <td><font face=\"helvetica, arial\">&nbsp;</font>\n";
-    echo "  <td><font face=\"helvetica, arial\">&nbsp;</font>\n";
-    echo "  <td><font face=\"helvetica, arial\">P. Costo</font>\n";
-    echo "  <td><font face=\"helvetica, arial\"><input type=text name=p_costo size=10 $val_p_costo></font>\n";
-    echo " <tr><td colspan=2><font face=\"helvetica, arial\"><input type=submit $val_submit></font>\n";
+?>
+    <td>Fecha <small>(aaaa/mm/dd)</small></td>
+    <td><input type="text" name="fecha" maxlength=10 size=10 <? echo $val_fecha ?>></td>
+    <td>R.F.C.</td>
+    <td>
+    <input type="text" name="rfc" size=13 maxlength=13 <? echo $val_rfc ?>></td>
+   </tr>
+   <tr>
+     <td>Subtotal:</td>
+     <td><input type="text" name="subtotal" size=10 <? echo $val_subt ?>></td>
+     <td>I.V.A.</td>
+     <td><input type="text" name="iva" size=10 <? echo $val_iva ?>></td>
+<?
+    echo "  <td><font face=\"helvetica, arial\">Total</font></td>\n";
+    echo "  <td><font face=\"helvetica, arial\"><input type=text name=descuento size=10 $val_disc";
+    echo "></font></td>\n";
+    echo " </tr>\n";
+    echo " <tr><td colspan=2><font face=\"helvetica, arial\"><input type=submit $val_submit></font></td></tr>\n";
     echo "</table>\n";
     echo "</form>\n";
     echo "<hr>\n";
   }
   else
   if ($action == "cambia") {
-    $query = "SELECT id FROM departamento WHERE nombre='$depto'";
-    if (!$result = pg_exec($conn, $query)) {
-      echo "Error al consultar departamentos.<br>\n$query<br>\n";
-      exit();
-    }
-    if (pg_numrows($result))
-      $id_dept = pg_result($result, 0, id);
-    else
-      $id_dept = 0;
 
-    $query = "SELECT id FROM proveedores WHERE nick='$prov'";
+    $query = "UPDATE facturas_ingresos SET rfc='$rfc', subtotal=$subtotal, iva=$iva,";
+	$query.= " fecha='$fecha' ";
+    $query.= " WHERE id='$id'";
     if (!$result = pg_exec($conn, $query)) {
-      echo "Error al consultar proveedores.<br>\n$query<br>\n";
-      exit();
-    }
-    if (pg_numrows($result))
-      $id_prov = pg_result($result, 0, id);
-    else
-      $id_prov = 0;
-
-    $query = "UPDATE articulos SET descripcion='$descripcion', pu=$pu, descuento=$descuento,";
-    $query.= "cant=$ex, min=$ex_min, max=$ex_max, id_prov=";
-    $query.= "$id_prov, id_depto=$id_dept,";
-    $query.= "p_costo=$p_costo WHERE codigo='$codigo'";
-    if (!$result = pg_exec($conn, $query)) {
-      echo "Error al actualizar articulos.<br>\n$query<br>\n";
+      echo "Error al actualizar factura.<br>\n$query<br>\n";
       exit();
     }
     else {
-      echo "<b>Art&iacute;culo <i>$codigo $descripcion</i> actualizado.</b><br>\n";
+      echo "<b>Factura <i>$id $rfc</i> actualizada.</b><br>\n";
     }
   }
   if ($action == "borrar") {
@@ -268,23 +167,24 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     }
   }
 
-  $query = "SELECT * FROM facturas_ingresos";
-  if (isset($id_dept) || isset($id_prov))
+  $query = "SELECT * FROM $table";
+/*  if (isset($id_dept) || isset($id_prov))
      $query .= " WHERE ";
   $query.= isset($id_dept) ? sprintf("id_depto=%d", $id_dept) : "";
   if (isset($id_dept) && isset($id_prov))
      $query .= " AND ";
-  $query.= isset($id_prov) ? sprintf("id_prov=%d", $id_prov) : "";
+     $query.= isset($id_prov) ? sprintf("id_prov=%d", $id_prov) : "";*/
   if (!$result = pg_exec($conn, $query)) {
     echo "Error al ejecutar $query<br>\n";
     exit();
   }
-  $num_arts = pg_numrows($result);
+  $total_rows = pg_numrows($result);
   
   echo "<table border=0 width=\"100%\" name=\"superior\">\n";
   echo "<tr>\n";
   echo " <td>\n";
   echo "  <form action=$PHP_SELF method=\"post\" name=selecciones>\n";
+  echo "  <input type=hidden name=table value=\"$table\">\n";
   echo "  <input type=hidden name=order_by value=\"$order_by\">\n";
   echo "  <input type=hidden name=order value=\"$order\">\n";
   echo "  <input type=hidden name=offset value=0>\n";
@@ -294,27 +194,28 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   echo " <td><font face=\"helvetica,arial\">\n";
   echo "  &nbsp;";
 ?>
- <td><font face="helvetica, arial">
-  &nbsp;</font>
+ <td>
+  &nbsp;
   </form>
- <td align="rigth"><font face="helvetica, arial" color="#e0e0e0">
+ <td align="rigth">
 
 <?
   if ($offset > 0) {
     echo "<a href=\"$PHP_SELF?offset=" . sprintf("%d", $offset-$limit);
-    echo "&order_by=$order_by&order=$order$href_prov\">&lt;-</a>";
+    echo "&order_by=$order_by&order=$order$href_prov&table=$table\">&lt;-</a>";
   }
   else
     echo "&lt;- ";
   if ($offset) {
-    echo " <a href=\"$PHP_SELF?offset=0&order_by=$order_by&order=$order$href_prov\">";
-    echo "<font face=\"helvetica,arial\">Inicio</font></a> ";
+    echo " <font color=\"#e0e0e0\">";
+    echo " <a href=\"$PHP_SELF?offset=0&order_by=$order_by&order=$order$href_prov&table=$table\">";
+    echo "Inicio</a></font> ";
   }
   else
     echo "Inicio";
-  if ($offset+$limit < $num_arts) {
+  if ($offset+$limit < $total_rows) {
     echo " <a href=\"$PHP_SELF?offset=" . sprintf("%d", $offset+$limit);
-    echo "&order_by=$order_by&order=$order$href_prov\">-&gt;</a>";
+    echo "&order_by=$order_by&table=$table&order=$order$href_prov\">-&gt;</a>";
   }
   else
     echo "-&gt;";
@@ -323,15 +224,19 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   echo "</table>\n";
 
 
-  $query = "SELECT f.*, f.subtotal+f.iva AS total, c.nombre AS razon_soc ";
-  $query.= "FROM facturas_ingresos f, clientes_fiscales c";
+  if ($table == "facturas_ingresos") {
+    $query = "SELECT f.*, f.subtotal+f.iva AS total, c.nombre AS razon_soc ";
+    $query.= "FROM $table f, clientes_fiscales c";
+    $query .= " WHERE f.rfc=c.rfc ";
+  }
+  else {
+    $query = "SELECT f.*, f.subtotal+f.iva AS total ";
+    $query.= "FROM $table f";
+  }
 
-  if (isset($periodo_inicio) || isset($periodo_fin))
-     $query .= " WHERE ";
+  $query.= !empty($periodo_inicio) ? "AND f.fecha>='$periodo_inicio' " : "";
 
-  $query.= !empty($periodo_inicio) ? "f.fecha>='$periodo_inicio' " : "";
-
-  if (isset($periodo_inicio) && !empty($periodo_fin))
+  if (!empty($periodo_fin))
      $query .= " AND ";
 
   $query.= !empty($periodo_fin) ? sprintf("f.fecha<='%s'", $periodo_fin) : "";
@@ -342,6 +247,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   $query.= $order ? "ASC" : "DESC";
   $query.= " LIMIT $limit OFFSET $offset";
 
+
   if (!$result = pg_exec($conn, $query)) {
     echo "Error al ejecutar $query<br>\n";
     exit();
@@ -349,39 +255,52 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
   if ($num_ren = pg_numrows($result)) {
     echo "<table border=0 width='100%'>\n";
+    echo " <colgroup>\n";
+    if ($table == "facturas_gastos") { ?>
+
+     <col width="10"><col width="20"><col><col><col width="20%" span=3 align="char" char=".">
+
+<?  }
+    echo " </colgroup>\n";
+	echo " <thead>\n";
     echo " <tr>\n";
-    echo "  <th>&nbsp;\n";
+    echo "  <th>&nbsp;\n</th>";
 
     echo "  <th><font face=\"helvetica,arial\"><a href=\"$PHP_SELF?offset=0&order_by=id&order=";
-    printf("%d",  $order_by=="id" && !$order);
-    echo "$href_prov\">Folio</a></font>\n";
+    printf("%d&table=%s",  $order_by=="id" && !$order, $table);
+    echo "$href_prov\">Folio</a></font></th>\n";
 
     echo "  <th><font face=\"helvetica,arial\"><a href=\"$PHP_SELF?offset=0&order_by=fecha&order=";
-    printf("%d",  $order_by=="fecha" && !$order);
-    echo "$href_prov\">Fecha</a></font>\n";
+    printf("%d&table=",  $order_by=="fecha" && !$order, $table);
+    echo "$href_prov\">Fecha</a></font></th>\n";
 
     echo "<th><font face=\"helvetica,arial\">";
     echo "<a href=\"$PHP_SELF?offset=0&order_by=rfc&order=";
-    printf("%d",  $order_by=="rfc" && !$order);
-    echo "$href_prov\">R.F.C.</font>\n";
+    printf("%d&table=%s",  $order_by=="rfc" && !$order, $table);
+    echo "$href_prov\">R.F.C.</font></th>\n";
 
+  if ($table == "facturas_ingresos") {
     echo "<th><font face=\"helvetica,arial\">";
     echo "<a href=\"$PHP_SELF?offset=0&order_by=razon_soc&order=";
-    printf("%d",  $order_by=="razon_soc" && !$order);
-    echo "$href_prov\">Nombre o razón soc.</font>\n";
+    printf("%d&table=%s",  $order_by=="razon_soc" && !$order, $table);
+    echo "$href_prov\">Nombre o razón social</font></th>\n";
+  }
 
     echo "  <th><font face=\"helvetica,arial\"><a href=\"$PHP_SELF?offset=0&order_by=subtotal&order=";
-    printf("%d",  $order_by=="subtotal" && !$order);
-    echo "$href_prov\">Subtotal</a></font>\n";
+    printf("%d&table=%s",  $order_by=="subtotal" && !$order, $table);
+    echo "$href_prov\">Subtotal</a></font></th>\n";
 
     echo "  <th><font face=\"helvetica,arial\"><a href=\"$PHP_SELF?offset=0&order_by=iva&order=";
-    printf("%d",  $order_by=="id_prov" && !$order);
-    echo "$href_prov\">I.V.A.</a></font>\n";
+    printf("%d&table=%s",  $order_by=="id_prov" && !$order, $table);
+    echo "$href_prov\">I.V.A.</a></font></th>\n";
 
     echo "  <th><font face=\"helvetica,arial\"><a href=\"$PHP_SELF?offset=0&order_by=total&order=";
-    printf("%d",  $order_by=="total" && !$order);
-    echo "$href_prov\">Total</a></font>\n";
-    echo " \n";
+    printf("%d&table=%s",  $order_by=="total" && !$order, $table);
+    echo "$href_prov\">Total</a></font></th>\n";
+    echo " </tr>\n";
+
+	echo " </thead>\n\n";
+	echo " <tbody>\n";
 
     for ($i=0; $i<$num_ren; $i++) {
       $reng = pg_fetch_object($result, $i);
@@ -392,37 +311,62 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       else
         $td_fondo = "";
 
-      $query = sprintf("SELECT nombre FROM clientes_fiscales WHERE rfc='%s'",
-                       $reng->rfc);
-      $result2 = pg_exec($conn, $query);
-      if ($result2 && @pg_numrows($result2)) {
-        $razon_soc = pg_result($result2, 0, "nombre");
-      }
-      else
-        $razon_soc = "&nbsp;";
+      $razon_soc = strlen($reng->razon_soc) ? $reng->razon_soc : "&nbsp;";
+      $fecha = strlen($reng->fecha) ? $reng->fecha : "&nbsp";
 
       echo " <tr>\n";
-      echo "  <td align=\"center\">\n";
+      echo "  <td>\n";
       echo "   <a href=\"$PHP_SELF?order_by=$order_by&order=$order&action=borrar&offset=$offset";
-      echo "$href_prov&codigo=";
-      echo $reng->id . "\" border=0><img src=\"imagenes/borrar.gif\" border=0></a>";
-      echo "  <td align=\"right\"$td_fondo><font face=\"helvetica,arial\">";
-      echo "<a href=\"$PHP_SELF?codigo=" . $reng->id;
+      echo "$href_prov&table=$table&codigo=";
+      echo $reng->id . "\" border=0><img src=\"imagenes/borrar.gif\" border=0></a></td>";
+      echo "  <td$td_fondo><font face=\"helvetica,arial\">";
+      printf("<a href=\"$PHP_SELF?id=%s&table=%s", $reng->id, $table);
       echo "&order_by=$order_by&order=$order&action=muestra&offset=$offset$href_prov\">";
-      printf("%s</a></font>\n", $reng->id);
-      echo "  <td align=\"center\"$td_fondo><font face=\"helvetica,arial\">$reng->fecha</font>\n";
-      echo "  <td align=\"center\"$td_fondo><font face=\"helvetica,arial\">$reng->rfc</font>\n";
-      echo "  <td align=\"center\"$td_fondo><font face=\"helvetica,arial\">$razon_soc</font>\n";
-      echo "  <td align=\"right\"$td_fondo><font face=\"helvetica,arial\">";
-      printf("%.2f</font>\n", $reng->subtotal);
-      echo "  <td align=\"right\"$td_fondo><font face=\"helvetica,arial\">";
-      printf("%.2f</font>\n", $reng->iva);
-      echo "  <td align=\"right\"$td_fondo><font face=\"helvetica,arial\">";
-      printf("%.2f</font>\n", $reng->total);
-      echo " \n";
+      printf("%s</a></font></td>\n", $reng->id);
+      echo "  <td$td_fondo><font face=\"helvetica,arial\">$fecha</font></td>\n";
+      echo "  <td$td_fondo><font face=\"helvetica,arial\">$reng->rfc</font></td>\n";
+
+      if ($table == "facturas_ingresos")
+        echo "  <td$td_fondo><font face=\"helvetica,arial\">$razon_soc</font></td>\n";
+
+      echo "  <td $td_fondo class=\"number\">";
+      printf("%.2f</td>\n", $reng->subtotal);
+      echo "  <td $td_fondo class=\"number\">";
+      printf("%.2f</td>\n", $reng->iva);
+      echo "  <td $td_fondo class=\"number\">";
+      printf("%.2f</td>\n", $reng->total);
+      echo " </tr>\n";
     }
-    echo "</table>\n";
-    echo "<br>";
+?>
+ </tbody>
+</table>
+<br>
+<table border=0 width="100%">
+<?
+  for ($i=1,$j=1; $i<=$total_rows; $i+=$limit, $j++) {
+    if (($i-1)%($limit*10) == 0) {
+      if ($i>1)
+        echo " </tr>\n";
+      echo " <tr>\n";
+    }
+    echo "  <td align=\"center\"><font size=\"-2\">";
+    if ($i-1 != $offset) {
+      $block_end = $i+$limit!=$total_rows ? $i+$limit-1 : $total_rows;
+      printf("<a href=\"%s?offset=%d&order_by=%s&order=%d&action=%s%s%s\">%d</a>",
+             $PHP_SELF, $i-1, $order_by, $order, $action, $href_dept, $href_prov,
+             $j);
+    }
+    else {
+      printf("<font color=\"#e0e0e0\">%d</font>", $j);
+    }
+    echo "</font></td>\n";
+  }
+    if (($i-1)%($limit*10) != 0)
+      echo "  <td>&nbsp;</td>\n";
+  echo " </tr>\n";
+?>
+</table>
+<?
   }
   else {
     echo "<i><center>No hay facturas que coincidan en la base de datos</i></center>\n";
@@ -433,10 +377,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
   <hr>
   <div align="right"><font face="helvetica,arial">
-  <a href="<? echo $PHP_SELF ?>?offset=<? echo $offset ?>&action=agrega<? echo "$href_prov" ?>">
-  Agregar producto</a> |
-  <a href="depto.php">Departamentos</a> |
-  <a href="proveedor.php">Proveedores</a> |
+  <a href="factur_web.php">Agregar factura</a> |
   <a href="<? echo $PHP_SELF ?>?salir=1">Salir del sistema</a>
   </font>
   </div>

@@ -5,32 +5,32 @@ Introduzca los datos de los art&iacute;culos a facturar. Los renglones vac&iacut
 >
 <tbody>
 <tr>
- <th><font face="helvetica,arial" size="-1">Código</font>
- <th><font face="helvetica,arial" size="-1">Cantidad</font>
- <th><font face="helvetica,arial" size="-1">Descripción</font>
- <th><font face="helvetica,arial" size="-1">P. unitario</font>
- <th><font face="helvetica,arial" size="-1">% IVA</font>
+ <th><small>Código</small>
+ <th><small>Cantidad</small>
+ <th><small>Descripción</small>
+ <th><small>P. unitario</small>
+ <th><small>% IVA</small>
 
 
 <? for ($i=0; $i<$ART_MAXRENS; $i++) { ?>
  <tr>
   <td align=center height=10>
-    <font face="helvetica,arial" size="-1"><input type=text
-    name="codigo[]" size=15 maxlength=20></font>
+    <small><input type=text
+    name="codigo[]" size=15 maxlength=20></small>
 
   <td align=center height=10>
-   <font face="helvetica,arial" size="-1"><input type=text
-   name="cant[]" size=3></font>
+   <small><input type=text
+   name="cant[]" size=3></small>
 
   <td align=center height=10>
-    <font face="helvetica,arial" size="-1"><input type=text name="desc[]" size=50></font>
+    <small><input type=text name="desc[]" size=50></small>
 
   <td align=center height=10>
-   <font face="helvetica,arial" size="-1"><input type=text name="pu[]" size=10></font>
+   <small><input type=text name="pu[]" size=10></small>
 
   <td align=center height=10>
-   <font face="helvetica,arial" size="-1">
-   <input type=text	name="iva_porc[]" size=2 value="<?echo $IVA_PORCENTAJE ?>"></font>
+   <small>
+   <input type=text	name="iva_porc[]" size=2 value="<?echo $IVA_PORCENTAJE ?>"></small>
 
 <? } /* for */ ?>
 

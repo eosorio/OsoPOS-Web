@@ -4,9 +4,14 @@
 $ESC =  27;
 $FF  =  12;
 
-
-$MAXCOD    = 20;
-$MAXDES    = 39;
+if (!isset($MAXLEN_COD))
+  $MAXCOD    = 20;
+else
+  $MAXCOD  = $MAXLEN_COD;
+if (!isset($MAXLEN_DESC))
+  $MAXDES    = 39;
+else
+  $MADES     = $MAXLEN_DESC;
 $MAXRFC    = 14;
 $MAXCURP   = 19;
 
@@ -38,7 +43,6 @@ class articulosClass {
 
 class fechaClass {
   var      $dia,$mes,$anio;
-  var      $hora,$minuto,$segundo;
 }
 
 ?>

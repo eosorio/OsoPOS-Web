@@ -17,7 +17,7 @@ function db_pconnect($db_host, $db_user, $db_passwd, $db_name, $tty = "", $port 
   return(pg_pconnect($str_con));
 }
 
-function db_connect($db_host, $db_user, $db_passwd, $db_name, $tty, $port)
+function db_connect($db_host, $db_user, $db_passwd, $db_name, $tty = "", $port = "")
 {
   if ($db_host)
     $str_con = "host=$db_host";
@@ -61,12 +61,17 @@ function db_fetch_row($resultado_db, $row)
   return(pg_fetch_row($resultado_db, $row));
 }
 
-function db_fetch_object($resultado_db, $row, $tipo_resultado = "")
+function db_fetch_object($resultado_bd, $row, $tipo_resultado = "")
 {
   if ($tipo_resultado != "")
-    return(pg_fetch_object($resultado_db, $row, $tipo_resultado));
+    return(pg_fetch_object($resultado_bd, $row, $tipo_resultado));
   else
-    return(pg_fetch_object($resultado_db, $row));
+    return(pg_fetch_object($resultado_bd, $row));
+}
+
+function db_affected_rows($resultado_bd)
+{
+  return(pg_cmdtuples($result));
 }
 
 function db_close($link)
@@ -79,7 +84,7 @@ function db_result($resultado, $num_ren, $num_campo)
   return(pg_result($resultado, $num_ren, $num_campo));
 }
 
-function db_error($link_id)
+function db_errormsg($link_id)
 {
   return(pg_errormessage($link_id));
 }

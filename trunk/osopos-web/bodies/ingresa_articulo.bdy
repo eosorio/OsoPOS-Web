@@ -18,7 +18,7 @@
 
 ?>
 
-<form action=<? echo $php_anterior ?> method=get>
+<form action="<? echo $php_anterior ?>" method="get">
 <table border=0 cellspacing=0 cellpadding=1 width="500">
 <tbody>
 <tr>
@@ -26,10 +26,10 @@
  <b>Artículo no encontrado. Indica precio unitario y gravamen de
  I.V.A.</b><br><br></font>
 <tr>
- <th><font size=-1 face="helvetica,arial">Código</font>
- <th><font size=-1 face="helvetica,arial">Descripción</font>
- <th><font size=-1 face="helvetica,arial">P.U.</font>
- <th><font size=-1 face="helvetica,arial">% IVA</font>
+ <th><small>Código</small></th>
+ <th><small>Descripción</small></th>
+ <th><small>P.U.</small></th>
+ <th><small>% IVA</small></th>
 <tr>
  <td width="15%" align=center><font size=-1 face="helvetica,arial">
  <? echo $cod ?></font>

@@ -37,11 +37,13 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     $peticion = sprintf("UPDATE departamento set nombre='%s' WHERE id=%d",
                         $nmdepto, $id);
     echo $peticion;
-    if (!$result = pg_exec($conn, $peticion)) {
+    //    if (!$result = pg_exec($conn, $peticion)) {
+    if (!$result = db_query($peticion, $query)) {
       echo "<b>Error al ejecutar $peticion</b><br></body></html>\n";
       exit();
     }
-    if (pg_cmdtuples($result)) {
+    //    if (pg_cmdtuples($result)) {
+    if (db_affected_rows($result)) {
       printf("<center><i>Departamento %d, %s actualizado</i></center>\n",
       $id, stripslashes($nmdepto));
     }
@@ -70,7 +72,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   else if ($accion == "inserta") {
     $peticion = sprintf("INSERT INTO departamento (nombre) VALUES ('%s')",
                         addslashes($nmdepto));
-    if (!$resultado = pg_exec($conn, $peticion)) {
+    //    if (!$resultado = pg_exec($conn, $peticion)) {
+    if (!$resultado = db_query($peticion, $conn)) {
       echo "<b>Error al ejecutar $peticion</b><br></body></html>\n";
       exit();
     }
@@ -78,11 +81,11 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   }
 
   $peticion = "SELECT id, nombre FROM departamento ORDER BY id";
-  if (!$resultado = pg_exec($conn, $peticion)) {
+  if (!$resultado = db_query($peticion, $conn)) {
     echo "Error al ejecutar $peticion<br>\n";
     exit();
   }
-  $num_ren_prov = pg_numrows($resultado);
+  $num_ren_prov = db_num_rows($resultado);
 
   echo "<table width=\"80%\">\n";
   echo " <tr>\n";
@@ -96,7 +99,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     else
       $td_fondo = "";
 
-    $reng = pg_fetch_object($resultado, $i); 
+    $reng = db_fetch_object($resultado, $i); 
 
     echo " <tr>\n";
     echo "  <td align=\"center\"$td_fondo>";
@@ -123,7 +126,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   echo "<a href=\"$PHP_SELF?salir=1\">Salir del sistema</a>\n";
   echo "</div>\n";
 
-  pg_close($conn);
+  db_close($conn);
 ?>
 
 

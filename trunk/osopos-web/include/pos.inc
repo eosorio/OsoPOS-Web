@@ -1,4 +1,4 @@
-<?php  /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*- 
+<?  /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*- 
  pos.inc 0.0.2-1. include file for osopos_web
 
         Copyright (C) 2000 Eduardo Israel Osorio Hernández
@@ -20,47 +20,42 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 */
 
-function registra_venta($id_vendor,
-                        $id_teller,
-                        $payment_type,
-                        $tipo_comprobante,
-                        $corte_parcial,
-                        $date,
-                        $total)
-{
+function registra_venta($id_vendor, $tipo_pago, $tipo_comprobante,  $total) {
 
-  global $articulo_descripcion, $articulo_cantidad, $articulo_codigo,
-         $articulo_pu, $articulo_iva_porc, $user, $conn;
+  global $articulo_descripcion, $articulo_cantidad, $articulo_codigo, $user, $conn;
+  $fecha = date("Y-m-d");
+  $hora = date("H:i:s");
 
   /*igm*/$utilidad = $total;
-  $query = "INSERT INTO ventas (\"monto\", \"tipo_pago\", \"tipo_factur\", \"corte_parcial\", ";
-  $query.= "\"utilidad\", \"id_vendedor\", \"id_cajero\", \"fecha\", \"hora\" ) VALUES (";
+  $query = "INSERT INTO ventas (monto, tipo_pago, tipo_factur, corte_parcial, ";
+  $query.= "utilidad, id_vendedor, id_cajero, fecha, hora ) VALUES (";
   $query.= sprintf("%.2f, %d, %d, '%s', %.2f, %d, %d, '%s', '%s')",
-					  $total, $payment_type, $tipo_comprobante, "f", $utilidad, $id_vendor,
-					  $user->id, date("Y-m-d"), date("H:i:s"));
-  if (!$resultado = pg_exec($conn, $query)) {
+					  $total, $tipo_pago, $tipo_comprobante, "f", $utilidad, $id_vendor,
+					  $user->id, $fecha, $hora);
+  if (!$resultado = db_query($query, $conn)) {
 	echo "Error al ejecutar $query<br>\n";
 	exit();
   }
 
-  $query = "SELECT numero FROM ventas";
-  $query.= sprintf("WHERE id_cajero=%d AND fecha='%d-%d-%d' AND hora='%d:%d:%d'",
-	  $id_teller, $fecha->anio, $fecha->mes, $fecha->dia,
-	  $fecha->hora, $fecha->minuto, $fecha->segundo);
+  /* Este query tiene el defecto de que se puede realizar otra venta antes de leer
+     nuestro numero de venta, devolviendonos un num. de venta distinto */
+/*    $query = "SELECT max(numero) FROM ventas"; */
 
-  if (!$resultado = pg_exec($conn, $query)) {
+  /* Se asume que el mismo cajero no puede efectuar dos ventas iguales en un mismo segundo */
+  /* y si asi fuere que me hable para contratarlo .=)  */
+  $query = sprintf("SELECT numero FROM ventas WHERE id_vendedor=%d AND ", $id_vendor);
+  $query.= sprintf("id_cajero=%d AND fecha='$fecha' AND hora='$hora'", $user->id);
+  if (!$resultado = db_query($query, $conn)) {
 	echo "Error al ejecutar $query<br>\n";
 	exit();
   }
-  $id_venta = pg_result($resultado, 0, 0);
+  $id_venta = db_result($resultado, 0, 0);
 
   for ($i=0; $i<count($articulo_descripcion); $i++) {
-	$query = "INSERT INTO ventas_detalle (\"id_venta\", \"codigo\", \"cantidad\",";
-	$query.= "\"descrip\", \"pu\", \"iva_porc\")";
+	$query = "INSERT INTO ventas_detalle (id_venta, codigo, cantidad)";
 	$query.= sprintf(" VALUES (%d, '%s', %d)", $id_venta, $articulo_codigo[$i],
-	                   $articulo_cantidad[$i], $articulo_descripcion[$i],
-	                   $articulo_pu[$i], $articulo_iva_porc[$i]);
-	if (!$resultado = pg_exec($conn, $query)) {
+						$articulo_cantidad[$i]);
+	if (!$resultado = db_query($query, $conn)) {
 	  echo "Error al ejecutar $query<br>\n";
 	  exit();
 	}
@@ -74,26 +69,26 @@ function update_supp($conn, $num_arts)
 
   $low_supply = array();
   for ($i=0; $i<$num_arts; $i++) {
-    $query = "SELECT \"descripcion\", \"cant\",\"min\" FROM articulos ";
+    $query = "SELECT descripcion, cant,min FROM articulos ";
     $query.= sprintf("WHERE codigo='%s'", $articulo_codigo[$i]);
-    if (!$result = pg_exec($conn, $query)) {
+    if (!$result = db_query($query, $conn)) {
       echo "<b>Error al actualizar existencias</b><br>Abortando actualización.<br>\n";
       return(0);
     }
     /* Not in database */
-    if (pg_numrows($result) < 0)
+    if (db_num_rows($result) <= 0)
       continue;
 
-    $art = pg_fetch_object($result, 0);
+    $art = db_fetch_object($result, 0);
 
     $qt_remain = $art->cant - $articulo_cantidad[$i];
     if ($qt_remain < $art->min)
       $low_supply[$articulo_codigo[$i]]++;
 
-    $query = sprintf("UPDATE articulos SET \"cant\"=%d",
+    $query = sprintf("UPDATE articulos SET cant=%d",
                      $qt_remain);
     $query.= sprintf(" WHERE codigo='%s'", $articulo_codigo[$i]);
-    if (!$result = pg_exec($conn, $query)) {
+    if (!$result = db_query($query, $conn)) {
       printf("<b>Error al actualizar existencias de %s<br>\n",
              $articulo_codigo[$i]);
     }
@@ -162,27 +157,36 @@ function lee_venta($id) {
 
   $art = array(new articulosClass);
 
-  $query = "SELECT \"codigo\", \"cantidad\", \"descrip\", \"pu\", \"iva_porc\"";
-  $query.= " FROM ventas_detalle WHERE id_venta=$id";
-  if (!$resultado = pg_exec($conn, $query)) {
+  $query = "SELECT codigo, cantidad FROM ventas_detalle WHERE id_venta=$id";
+  if (!$resultado = db_query($query, $conn)) {
     echo "Error al ejecutar $query<br>";
-    echo "No se pudo encontrar los datos de la venta<br>" . pg_errormessage($conn) . "<br>\n";
+    echo "No se pudo encontrar los datos de la venta<br>" . db_errormsg($conn) . "<br>\n";
   }
-  $num_art = pg_numrows($resultado);
-
-  if (!pg_numrows($resultado)) {
-    echo "<b>Error: No puedo encontrar los datos del articulo" . $art[$i]->codigo . "</b><br>\n";
-    echo pg_errormessage($conn) . "<br>\n";
-    return;
-  }
+  $num_art = db_num_rows($resultado);
 
   for ($i=0; $i<$num_art; $i++) {
-    $reng = pg_fetch_object($resultado, $i);
+    $reng = db_fetch_object($resultado, $i);
     $art[$i]->codigo = $reng->codigo;
     $art[$i]->cant = $reng->cantidad;
-    $art[$i]->pu = $reng->pu;
-    $art[$i]->iva_porc = $reng->iva_porc;
-    $art[$i]->desc = $reng->descrip;
+
+    $query = "SELECT descripcion,pu,iva_porc FROM articulos WHERE ";
+    $query.= sprintf("codigo='%s'", $art[$i]->codigo);
+    if (!$resultado2 = db_query($query, $conn)) {
+      echo "Error al ejecutar $query<br>";
+      echo "No se pudo accesar la tabla <i>articulos</i><br>\n";
+      echo db_errormsg($conn) . "<br>\n";
+      return;
+    }
+
+    if (!db_num_rows($resultado2)) {
+      echo "<b>Error: No puedo encontrar los datos del articulo" . $art[$i]->codigo . "</b><br>\n";
+      echo db_errormsg($conn) . "<br>\n";
+      return;
+    }
+    $reng2 = db_fetch_object($resultado2, 0);
+    $art[$i]->desc = $reng2->descripcion;
+    $art[$i]->pu = $reng2->pu;
+    $art[$i]->iva_porc = $reng2->iva_porc;
   }
   return($art);
 }
@@ -285,22 +289,21 @@ function interp_cant($u, $d, $c) {
 }
 
 
-function str_cant($tot, &$centavos) {
+function str_cant($total, &$centavos) {
 
   $unidades = "";
   $miles = "";
   $millones = "";
 
-  $total = sprintf("%.0f", $tot);
-  $buffer = sprintf("%0.2f", $tot);
+  $buffer = sprintf("%0.2f", $total);
   $arreglo = explode(".", $buffer);
   $centavos = $arreglo[1];
   if (strlen($centavos) == 1)
-    $centavos = "0" . $centavos;
+    $centavos.="0";
 
   $buffer = "";
 
-  $num1 = $total;
+  $num1 = $arreglo[0]; /* Le damos la vuelta al sunto del punto flotante en i386 */
 
   /* Obtención de millones */
   $millon = (int)($num1/1000000);

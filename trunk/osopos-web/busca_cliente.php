@@ -3,7 +3,7 @@
  Busca cliente. Submódulo de facturación de OsoPOS Web.
 
         Copyright (C) 2000 Eduardo Israel Osorio Hernández
-        iosorio@punto-deventa.com
+        infomres@elpuntodeventa.com
 
         Este programa es un software libre; puede usted redistribuirlo y/o
 modificarlo de acuerdo con los términos de la Licencia Pública General GNU
@@ -21,7 +21,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 */
 ?>
 
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 
 <html>
 
@@ -29,6 +29,9 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
    <meta name="Author" content="E. Israel Osorio Hernández">
    <title>OsoPOS - FacturWeb v. 0.2</title>
+   <style type="text/css">
+    td#nm_campo {font-face: helvetica,arial}
+   </style>
 </head>
 
 
@@ -51,19 +54,23 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <table border=0 cellspacing=0 cellpadding=0 width="500">
 <tbody>
  <tr>
-  <td colspan=3><h4><font face="helvetica,arial">Buscar estos datos en registro:</font></h4>
+  <td id="nm_campo" colspan=3><h4>Buscar estos datos en registro:</h4></td>
+ </tr>
  <tr>
-  <td><font face="helvetica,arial" >Razón social:</font>
-  <td><font face="helvetica,arial" ><input type=text name=razon_soc size=50></font>
-  <td><font face="helvetica,arial" ><input type=submit value="Encontrar cliente"><input type=hidden name=fase value=1></font>
+  <td id="nm_campo">Razón social:</td>
+  <td id="nm_campo"><input type=text name=razon_soc size=50></td>
+  <td id="nm_campo"><input type=submit value="Encontrar cliente"><input type=hidden name=fase value=1></td>
+ </tr>
  <tr>
-  <td><font face="helvetica,arial" >R.F.C.</font><input type=hidden name=id_venta value="<? echo $id_venta ?>">
-  <td><font face="helvetica,arial" ><input type=text name=rfc size=13 maxlength=13></font>
-  <td><font face="helvetica,arial" ><input type=hidden name=php_anterior value="<? echo $php_anterior ?>">&nbsp;</font>
+  <td id="nm_campo">R.F.C.<input type=hidden name=id_venta value="<? echo $id_venta ?>"></td>
+  <td id="nm_campo"><input type=text name=rfc size=13 maxlength=13></td>
+  <td id="nm_campo"><input type=hidden name=php_anterior value="<? echo $php_anterior ?>">&nbsp;</td>
+ </tr>
  <tr>
-  <td><font face="helvetica,arial" >C.U.R.P.</font>
-  <td><font face="helvetica,arial" ><input type=text value="<? echo $curp ?>" name=curp <? echo "size=\"$MAXCURP\" maxlength=\"$MAXCURP\"" ?>></font>
-  <td><font face="helvetica,arial" ><input type=hidden name=id value="<? echo $id ?>">&nbsp<input type=hidden name=fase value=2></font>
+  <td id="nm_campo">C.U.R.P.</td>
+  <td id="nm_campo"><input type=text value="<? echo $curp ?>" name=curp <? echo "size=\"$MAXCURP\" maxlength=\"$MAXCURP\"" ?>></td>
+  <td id="nm_campo"><input type=hidden name=id value="<? echo $id ?>">&nbsp<input type=hidden name=fase value=2></td>
+ </tr>
 </tbody>
 </table>
 </form>
@@ -115,20 +122,24 @@ Seleccione uno de los registros siguientes:<br>
   for ($i=0; $i<pg_numrows($result); $i++) {
 	$renglon = pg_fetch_object($result, $renglon);
 	echo "<tr>\n";
-	echo " <td><input type=radio name=rfc value=";
+	echo "  <td><input type=radio name=rfc value=";
 	printf ("\"%s|%s|%s\"", $renglon->rfc, $renglon->nombre, $renglon->curp);
 	if (!$i)
 	  echo " checked";
-	echo ">\n";
-	echo " <td>" . $renglon->rfc . "\n";
-	echo " <td>" . $renglon->nombre . "\n";
-	echo " <td>" . $renglon->curp . "\n";
+	echo "></td>\n";
+	echo "  <td>" . $renglon->rfc . "</td>\n";
+	echo "  <td>" . $renglon->nombre . "</td>\n";
+	echo "  <td>" . $renglon->curp . "</td>\n";
   }
-  echo "<tr>\n"; 
-  echo " <td colspan=4 align=center>\n";
-  echo " <input type=hidden name=decodifica_rfc value=1>\n";
-  echo " <input type=hidden name=id_venta value=\"$id_venta\">\n";
-  echo " <input type=submit value=\"Continuar captura\">\n";
+  echo " </tr>\n";
+  echo " <tr>\n"; 
+  echo "  <td colspan=4 align=center>\n";
+  echo "   <input type=hidden name=decodifica_rfc value=1>\n";
+  echo "   <input type=hidden name=id_venta value=\"$id_venta\">\n";
+  echo "   <input type=submit value=\"Continuar captura\">\n";
+  echo "   <input type=hidden name=\"REPEAT_FACT_DATA\" value=1>\n"; // Evita que se borre $rfc
+  echo "  </td>\n";
+  echo " </tr>\n";
 ?>
 
 </tbody>
