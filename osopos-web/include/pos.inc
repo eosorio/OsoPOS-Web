@@ -2,7 +2,7 @@
  pos.inc 0.0.2-1. include file for osopos_web
 
         Copyright (C) 2000 Eduardo Israel Osorio Hernández
-        iosorio@punto-deventa.com
+        desarrollo@elpuntodeventa.com
 
         Este programa es un software libre; puede usted redistribuirlo y/o
 modificarlo de acuerdo con los términos de la Licencia Pública General GNU
@@ -93,6 +93,81 @@ function update_supp($conn, $num_arts)
   return($low_supply);
 }
 
+/* Aumenta existencias en almacen */
+function actualiza_inv($db_con, $almacen, $codigo, $cant)
+{
+
+  $query = sprintf("SELECT cant,c_min FROM almacen_%d ", $almacen);;
+  $query.= sprintf("WHERE codigo='%s'", $codigo);
+
+  if (!$db_res = db_query($query, $db_con)) {
+    echo "<b>Error al actualizar existencias</b><br>Abortando actualización.<br>\n";
+    return(0);
+  }
+  /* Not in database */
+  if (db_num_rows($db_res) <= 0)
+    return(0);
+
+  $art = db_fetch_object($db_res, 0);
+
+  $qt_remain = $art->cant + $cant;
+  if ($qt_remain < $art->min)
+      $low_supply++;
+
+  $query = sprintf("UPDATE almacen_%d SET cant=%d ", $almacen, $qt_remain);
+  $query.= sprintf("WHERE codigo='%s'", $codigo);
+
+  if (!$db_res = db_query($query, $db_con)) {
+    printf("<b>Error al actualizar existencias de %s<br>\n",
+           $codigo);
+  }
+
+  return($low_supply);
+}
+
+/* actualiza costos en catálogo de artículos */
+function actualiza_costo($db_con, $codigo, $p_costo, $tipo_costeo=0)
+{
+
+  $query = sprintf("SELECT p_costo FROM articulos WHERE codigo='%s'", $codigo);
+
+  if (!$db_res = db_query($query, $db_con)) {
+    echo "<b>Error al actualizar existencias</b><br>Abortando actualización.<br>\n";
+    return(0);
+  }
+  /* Not in database */
+  if (db_num_rows($db_res) <= 0)
+    return(-1);
+
+  $costo_act = db_result($db_res, 0, 0);
+
+  switch($tipo_costeo) {
+  case 0 : /* Estandar */
+    $costo_nvo = $p_costo;
+    break;
+  case 1: /* PEPS */
+    break;
+  case 2: /* UEPS */
+    break;
+  case 3: /* Promedio */
+    break;
+  }
+
+  $query = sprintf("UPDATE articulos SET p_costo=%f ", $costo_nvo);
+  $query.= sprintf("WHERE codigo='%s'", $codigo);
+
+  if (!$db_res = db_query($query, $db_con)) {
+    printf("<b>Error al actualizar precio de costo de %s<br>\n",
+           $codigo);
+    if (isset($debug) && $debug>0) {
+      echo db_errormsg($db_con) . "<br>\n";
+      echo "<i>$query</i><br>\n";
+    }
+  }
+
+  return($costo_nvo);
+}
+
 function notify_low_supplies($code)
 {
 
@@ -160,6 +235,8 @@ function lee_venta($id) {
     echo "No se pudo encontrar los datos de la venta<br>" . db_errormsg($conn) . "<br>\n";
   }
   $num_art = db_num_rows($resultado);
+  if (!$num_art)
+    return(0);
 
   for ($i=0; $i<$num_art; $i++) {
     $reng = db_fetch_object($resultado, $i);
@@ -172,7 +249,7 @@ function lee_venta($id) {
       echo "Error al ejecutar $query<br>";
       echo "No se pudo accesar la tabla <i>articulos</i><br>\n";
       echo db_errormsg($conn) . "<br>\n";
-      return;
+      return 0;
     }
 
     if (!db_num_rows($resultado2)) {
@@ -397,4 +474,163 @@ function open_drawer()
   }
   return(0);
 }
+
+function lista_proveedores($bandera_todos, $nm_campo, $num_prov = -1) {
+  global $nick_prov, $prov, $id_prov1, $conn, $debug;
+
+  echo "<select name=\"$nm_campo\">\n";
+
+  $p_selected = 0;
+
+  if (!isset($nick_prov) || !is_array($nick_prov)) {
+    $query = "SELECT nick FROM proveedores ORDER BY id";
+    if ($debug>0)
+      echo "<i>$query</i><br>\n";
+    if (!$db_res = db_query($query, $conn)) {
+      echo db_errormsg($conn);
+      return(-1);
+    }
+    for ($i=1; $i<db_num_rows($db_res); $i++)
+      $nick_prov[$i] = db_result($db_res, $i, 0);
+  }
+
+  for ($i=0; $i<count($nick_prov); $i++) {
+    echo "   <option value=$i";
+    if ($num_prov == $i)
+      echo " selected";
+    else if (!$p_selected && (isset($id_prov1) && $nick_prov[$i] == $prov  ||  (isset($id_prov1) && $i==$id_prov1 && $prov!="Todos"))) {
+      echo " selected";
+	  $p_selected = 1;
+	}
+    echo ">$nick_prov[$i]\n";
+  }
+
+  if ($bandera_todos) {
+    echo "   <option";
+    if (!$p_selected && ($prov == "Todos" || (isset($id_prov1) && $id_prov1==count($nick_prov)))) {
+      echo " selected";
+      unset($id_prov1);
+    }
+    echo ">";
+  }
+  if ($bandera_todos)
+    echo "Todos";
+  echo "</select>\n";
+}
+
+function lista_movimientos($db_con, $nm_campo="tipo_mov[]") {
+  global $nm_tipo_mov;
+
+  if (!is_array($tipo_mov)) {
+    $query = "SELECT nombre FROM tipo_mov_inv ORDER BY id ASC ";
+
+    if (!$db_res = db_query($query, $db_con)) {
+      echo "Error al ejecutar $query<br>\n";
+      exit();
+    }
+
+    $nm_tipo_mov = array();
+
+    for ($i=0; $i<db_num_rows($db_res); $i++)
+      $nm_tipo_mov[$i+1] = db_result($db_res, $i, 0);
+  }
+
+  printf("<select name=\"%s\">\n", $nm_campo);
+
+
+
+  for ($i=0; $i<count($nm_tipo_mov); $i++)
+    printf("   <option value=%d>%s\n", $i+1, $nm_tipo_mov[$i+1]);
+  echo "</select>\n";
+
+}
+
+function inserta_cab_movinv($db_con, $almacen, $tipo_mov, $id_prov1, $usuario, $tiempo=0) {
+  $fecha = date("Y-m-d");
+  $hora = date("H:i:s");
+  
+  $query = "INSERT INTO mov_inv (almacen, tipo_mov, usuario, fecha_hora, id_prov1) VALUES ";
+  $query.= sprintf("(%d, %d, '%s', '%s %s', %d)", $almacen, $tipo_mov, $usuario, $fecha, $hora, $id_prov1);
+  if (!$db_res = db_query($query, $db_con)) {
+    echo "Error al ejecutar $query<br>\n";
+    exit();
+  }
+
+  $query = sprintf("SELECT id FROM mov_inv WHERE almacen=%d AND usuario='%s' AND fecha_hora='%s %s' ",
+                   $almacen, $usuario, $fecha, $hora);
+  if (!$db_res = db_query($query, $db_con)) {
+    echo "Error al ejecutar $query<br>\n";
+    exit();
+  }
+  if (db_num_rows($db_res))
+    return(db_result($db_res, 0, 0));
+  else
+    return(-1);
+}
+
+
+function inserta_det_movinv($db_con, $almacen, $id, $codigo, $cant, $pu, $p_costo, $alm_dest, $tipo_mov) {
+  $query = sprintf("INSERT INTO mov_inv_detalle VALUES (%d, '%s', %f, %f, %f, %d) ",
+                   $id, $codigo, $cant, $pu, $p_costo, $alm_dest);
+
+
+  if (!$db_res = db_query($query, $db_con)) {
+    echo "Error al ejecutar $query<br>\n";
+    exit();
+  }
+
+  $query = "SELECT entrada FROM tipo_mov_inv WHERE id=$tipo_mov";
+
+  if (!$db_res = db_query($query, $db_con)) {
+    echo "Error al consultar tipos de movimientos. Existencia y costo no actualizados<br>\n";
+  }
+  else {
+
+    if (db_result($db_res, 0, 0) == 'f')
+      $cant = -$cant;
+    actualiza_inv($db_con, $almacen, $codigo, $cant);
+    if ($tipo_mov == 2) { /* Compra */
+      actualiza_costo($db_con, $codigo, $p_costo);
+    } else if ($tipo_mov == 6  && $alm_dest>0) { /* Transferencia salida */
+      $cant = -$cant;
+      actualiza_inv($db_con, $alm_dest, $codigo, $cant);
+      actualiza_costo($db_con, $codigo, $p_costo);
+    }
+  }
+}
+
+
+function inserta_en_almacen($db_con, $almacen, $codigo) {
+  global $debug;
+
+  $query = "INSERT INTO almacen_$almacen (codigo, pu, medida, c_min, c_max, divisa, codigo2, ";
+  $query.= "pu2, pu3, pu4, pu5, tax_0, tax_1, tax_2, tax_3, tax_4, tax_5) ";
+  $query.= "(SELECT codigo, pu, medida, min as c_min, max as c_max, divisa, codigo2, ";
+  $query.= "pu2, pu3, pu4, pu5, tax_0, tax_1, tax_2, tax_3, tax_4, tax_5 FROM articulos WHERE codigo='$codigo')";
+
+  if ($debug>0)
+    echo "<i>$query</i><b>\n";
+  if (!$db_res = db_query($query, $db_con)) {
+    echo "Error al importar artículo del catálogo<br>\n";
+    db_errormsg($db_res);
+    return(-1);
+  }
+  return(0);
+}
+
+function puede_hacer($db_con, $usuario, $accion) {
+  global $debug;
+
+  $query = "SELECT mod_usr.usuario FROM modulo, modulo_usuarios mod_usr WHERE modulo.id=mod_usr.id ";
+  $query.= sprintf("AND modulo.nombre='%s' AND usuario='%s' ", $accion, $usuario);
+  if ($debug>0)
+    echo "<i>puede_hacer</i> $query<br>\n";
+  if (!$db_res = db_query($query, $db_con)) {
+    echo "Error al consultar permisos del usuario<br>\n";
+    db_error($db_res);
+    return(-1);
+  }
+  return(db_num_rows($db_res));
+}
+
 ?>

@@ -2,7 +2,7 @@
 
 function db_pconnect($db_host, $db_user, $db_passwd, $db_name, $tty = "", $port = "")
 {
-  global $link;
+  //  global $link;
 
   $link = mysql_pconnect($db_host, $db_user, $db_passwd);
   if ($link)
@@ -16,11 +16,11 @@ function db_pconnect($db_host, $db_user, $db_passwd, $db_name, $tty = "", $port 
 
 function db_connect($db_host, $db_user, $db_passwd, $db_name, $tty = "", $port = "")
 {
-  global $link;
+  //  global $link;
 
   $link = mysql_connect($db_host, $db_user, $db_passwd);
-  if ($link)
-    return(mysql_select_db($db_name, $link));
+  if ($link && mysql_select_db($db_name, $link))
+    return ($link);
   else
     return(0);
 }
@@ -62,7 +62,7 @@ function db_close($link)
 
 function db_errormsg($link)
 {
-  if (!$link)
+  if (!$link || $link=-1)
     return(mysql_error());
   else
     return(mysql_error($link));

@@ -1,5 +1,7 @@
 <?php  /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
+$DB_ERROR = -2;
+
 /* códigos de la impresora */
 $ESC =  27;
 $FF  =  12;
