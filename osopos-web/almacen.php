@@ -19,7 +19,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 */ 
 
-
 {
   include("include/pos-var.inc");
   include("include/general_config.inc");
@@ -72,7 +71,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   if (!isset($offset))
     $offset = 0;
   if (!isset($limit))
-    $limit = 3000;
+    $limit = 20;
 
 
     printf("<b>Almacén %d %s</b><br>\n", $almc, $alm_desc);
@@ -83,37 +82,57 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       echo "</ul>\n";
     }
     else if($action=="agregar") {
-      $query = "SELECT codigo,descripcion,pu,id_depto,id_prov1 FROM articulos EXCEPT ";
-      $query.= "(select al.codigo, ar.descripcion, ar.pu, ar.id_depto, ar.id_prov1 FROM ";
-      $query.= "almacen_$almc al, articulos ar WHERE al.codigo=ar.codigo) order by codigo ";
-      $query.= $order ? "ASC" : "DESC";
+
+      $query = "SELECT * FROM (SELECT codigo AS codigo, descripcion AS descripcion, ";
+      $query.= "id_depto AS id_depto, id_prov1 AS id_prov1 FROM articulos EXCEPT ";
+      $query.= "(select al.codigo, ar.descripcion, ar.id_depto, ar.id_prov1 FROM ";
+      $query.= "almacen_1 al, articulos ar WHERE al.codigo=ar.codigo AND al.id_alm=$almc)) AS c ";
+      if (!empty($busqueda))
+        $query.= "WHERE descripcion~*'$busqueda' ";
+      //      $query.= "ORDER BY codigo ";
+      /*igm*/ $query.= "ORDER BY id_depto, descripcion ";
+      $query.= $order ? "ASC " : "DESC ";
+
 
       if (!$db_res = db_query($query, $conn)) {
-        echo "Error al ejecutar $query<br>\n";
-        exit();
+        die ("<div class=\"error_f\">Error al consultar productos no incluidos en almacen $almc</div>");
       }
       $total_renglones = db_num_rows($db_res);
 
-      if ($SQL_TYPE=="mysql")
-        $query.= " LIMIT $offset,$limit ";
+      /*      if ($SQL_TYPE=="mysql")
+        $query.= sprintf(" LIMIT %d,%d ", $limit, $pagina*$limit);
       else if($SQL_TYPE=="postgres")
-        $query.= " LIMIT $limit OFFSET $offset ";
+        $query.= sprintf(" LIMIT %d OFFSET %d ", $limit, $pagina*$limit);
 
       if (!$db_res = db_query($query, $conn)) {
         echo "Error al ejecutar $query<br>\n";
         exit();
       }
-
+      */
       if (isset($debug) && $debug>0) {
         echo "<i>$query</i><br>\n";
       }
 
-      $num_ren = db_num_rows($db_res);
+      $query2 = "SELECT id,nombre FROM departamento ORDER BY id";
+      if (!$db_res2 = db_query($query2, $conn)) {
+        echo "<div class=\"error_nf\">Error al consultar nombres de departamentos</div><br>\n";
+      }
+      else {
+        $nm_deptos = array();
+        $num_ren = db_num_rows($db_res2);
+        for ($k=0; $k < $num_ren; $k++) {
+          $r = db_fetch_object($db_res2, $k);
+          $nm_deptos[$r->id] = htmlentities($r->nombre);
+        }
+      }
       include("forms/prod_genericos.bdy");
     }
     else if($action=="insertar") {
-      for($i=0; $i<count($codigo); $i++)
-        inserta_en_almacen($conn, $almc, $codigo[$i]);
+      for($i=0; $i<count($codigo); $i++) {
+        if (inserta_en_almacen($conn, $almc, $codigo[$i]) > 0)
+          printf("<i>Producto <b>%s %s</b> incluido en almacen %d</i><br>\n",
+                 $codigo[$i], articulo_descripcion($conn, $codigo[$i]), $almc);
+      }
     }
     else if($action=="borrar") {
       echo "Para quitar un artículo del almacén, debe dirigirse al listado de productos del almacén ";
