@@ -20,6 +20,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 */
   include("include/general_config.inc");
+  include("include/factur_config.inc");
   include("include/pos-var.inc");
 
 {
@@ -152,14 +153,14 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <hr>
 
 
-<form action="<?php echo "$PHP_SELF" ?>" method=post>
+<form action="<?php echo $PHP_SELF ?>" method="post">
 <table width="100%" border=0>
 <thead>
  <tr>
-  <th width="10%">Clave</th><th width="5%">Ct.
-  <th width="65%">Descripci&oacute;n
-  <th width="10%">P.U.
-  <th width="10%">Importe
+  <th width="10%">Clave</th><th width="5%">Ct.</th>
+  <th width="65%">Descripci&oacute;n</th>
+  <th width="10%">P.U.</th>
+  <th width="10%">Importe</th>
  </tr>
 
 <tbody>
@@ -191,13 +192,13 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
  <tr>
   <td <? echo $bgcolor ?>><? echo $articulo[$i]->codigo ?>&nbsp;
-  <input type=hidden name="codigo[<? echo $i ?>]" value="<? echo $articulo[$i]->codigo ?>"></td>
+  <input type="hidden" name="codigo[<? echo $i ?>]" value="<? echo $articulo[$i]->codigo ?>"></td>
   <td <? echo $bgcolor ?> align=center><? echo $articulo[$i]->cant ?>
-  <input type=hidden name="cant[<? echo $i ?>]" value="<? echo $articulo[$i]->cant ?>"></td>
+  <input type="hidden" name="cant[<? echo $i ?>]" value="<? echo $articulo[$i]->cant ?>"></td>
   <td width="0*" <? echo $bgcolor ?>><? echo stripslashes($articulo[$i]->desc) ?>&nbsp;
-  <input type=hidden name="desc[<? echo $i ?>]" value="<? echo stripslashes($articulo[$i]->desc) ?>"></td>
+  <input type="hidden" name="desc[<? echo $i ?>]" value="<? echo stripslashes($articulo[$i]->desc) ?>"></td>
   <td <? echo $bgcolor ?> align="right"><? printf("%.2f",  $articulo[$i]->pu) ?>
-  <input type=hidden name="pu[<? echo $i ?>]" value="<? echo $articulo[$i]->pu ?>"></td>
+  <input type="hidden" name="pu[<? echo $i ?>]" value="<? echo $articulo[$i]->pu ?>"></td>
   <td <? echo $bgcolor ?> align="right"><? printf("%.2f",  $articulo[$i]->pu*$articulo[$i]->cant) ?></td>
  </tr>
 
