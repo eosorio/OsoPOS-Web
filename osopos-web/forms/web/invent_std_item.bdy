@@ -131,12 +131,12 @@ function deshacer(item, modificador) {
  <tr>
   <td>
    <table border=0 width="100%">
+     <?php if ($alm>0) { ?>
    <tr>
      <td>P. público</td>
      <td><input type="text" name="pu" size=10 <? echo $val_pu ?>></td>
      <td>+<input tpye="text" name="mod_pu1" size=2>%</td>
     </tr>
-     <? if ($alm>0) { ?>
     <tr>
      <td>Precio 2</td>
      <td><input type="text" name="precio2" size=10 <? echo $val_pu2 ?>></td>
@@ -173,6 +173,9 @@ function deshacer(item, modificador) {
        echo "<input type=\"text\" name=\"p_costo\" size=10 $val_p_costo>"
      ?></td>
     </tr>
+     <?php
+         }
+if ($alm>0) { ?>
     <tr>
      <td colspan=2 align="center">
      <input type="button" name="boton_actualiza_pu" value="Calcular precios"
@@ -185,14 +188,14 @@ function deshacer(item, modificador) {
      onclick="sincroniza_precios(<?php printf ("%f, %d", $pc,$alm) ?>)">
      </td>
     </tr>
-<? } ?>
     <tr>
      <td colspan=2 align="center">
      <input type="button" name="boton_recarga_pu" value="Deshacer"
      onclick="deshacer_precios()">
      </td>
     </tr>
-   </table>
+       <?php } ?>
+  </table>
   </td>
   <td valign="top">
    <table width=200>
@@ -217,13 +220,13 @@ function deshacer(item, modificador) {
      <td><input type="text" name="imp_porc[0]" size=5 <? echo
      $val_imp_porc[0] ?>>%</td>
     </tr>
-<?    for ($j=1; $j<$MAXTAX; $j++) { ?>
+    <? /*   for ($j=1; $j<$MAXTAX; $j++) { ?>
     <tr>
      <td>Impuesto <? echo $j ?></td>
      <td><input type="text" name="imp_porc[<? echo $j ?>]" size=5 <? echo
      $val_imp_porc[$j] ?>>%</td>
     </tr>
-<? } ?>
+    <? }*/ ?>
     </table>
    </td>
    <td valign="top">
@@ -266,12 +269,12 @@ function deshacer(item, modificador) {
      if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
 ?>
      <tr>
-      <td>Proveedor 1</td>
-      <td><? lista_proveedores(FALSE, "id_prov1", $reng->id_prov1) ?></td>
+      <td>Proveedor princ.</td>
+      <td><? lista_proveedores(FALSE, "id_prov1", "Sin clasificar", $reng->id_prov1) ?></td>
      </tr>
      <tr>
-      <td>Proveedor 2</td>
-      <td><? lista_proveedores(FALSE, "id_prov2", $reng->id_prov2) ?></td>
+      <td>Proveedor sec.</td>
+      <td><? lista_proveedores(FALSE, "id_prov2", "Sin clasificar", $reng->id_prov2) ?></td>
      </tr>
 <? } ?>
      <tr>
@@ -279,7 +282,7 @@ function deshacer(item, modificador) {
       <td>
   <?
     if (!isset($alm) || $alm==0) {
-      echo "          <select name=depto>\n";
+      echo "          <select name=\"depto\">\n";
       for ($i=0; $i<$num_ren_depto; $i++) {
         if (strlen($nm_depto[$i])) {
           echo "   <option";
@@ -302,7 +305,18 @@ function deshacer(item, modificador) {
   <tr>
     <td><?php checklist_almacen($conn) ?></td>
   </tr>
- <?php } ?>
+ <?php }
+else if ($action == "muestra") { ?>
+  <tr>
+    <td colspan=2>Cambiar costos de almacen:</td>
+  </tr>
+  <tr>
+    <td><?php echo lista_almacen($conn, "muestra_alm", "Ninguno") ?></td>
+  </tr>
+ <?php
+     if (!empty($codigo))
+       echo "<input type=\"hidden\" name=\"codigo\" value=\"$codigo\">\n";
+ } ?>
   </table>
   </td>
  </tr>
@@ -323,7 +337,7 @@ function deshacer(item, modificador) {
   <textarea name="long_desc" cols=80 rows=8><? echo $long_desc ?></textarea>
   </td>
   <td>
-<? if ($action!="agrega")
+<? if ($action!="agrega" && !empty($img_location))
      printf("   <img src=\"%s/%s\">\n", $IMG_DIR, $img_location);
    else
 	 echo "&nbsp;\n";
@@ -332,7 +346,7 @@ function deshacer(item, modificador) {
 </tr>
 <tr>
   <td colspan=2>Ubicación de la imagen:
-  <input type="file" name="img_source" size=60 value="<? echo "$PWD_DIR/$IMG_DIR/$img_location" ?>">
+  <input type="file" name="img_source" size=60>
 <?
   if (isset($debug) && $debug>0)
     echo "  <input type=\"hidden\" name=\"debug\" value=\"$debug\">\n"; 

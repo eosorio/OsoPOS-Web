@@ -9,17 +9,17 @@
   <td>Nick</td><td colspan=4><input type="text" name="nick"
     maxlength=15 size=15 <? echo $val_nick ?>></td>
   <td>Raz&oacute;n soc.</td>
-  <td colspan=4><input type="text" name="razon_soc" maxlength=30
+  <td colspan=4><input type="text" name="razon_soc" maxlength=60
     size=30 <? echo $val_razon ?>></td>
 </tr>
 <tr>
 <?
-    echo "  <td>Calle</td><td colspan=4><input type=text name=calle maxlength=30 size=30 $val_calle></td>\n";
-    echo "  <td>Colonia</td><td colspan=4><input type=text name=colonia maxlength=25 size=25 $val_colonia></td>\n";
+    echo "  <td>Calle</td><td colspan=4><input type=\"text\" name=\"calle\" maxlength=30 size=30 $val_calle></td>\n";
+    echo "  <td>Colonia</td><td colspan=4><input type=\"text\" name=\"colonia\" maxlength=25 size=25 $val_colonia></td>\n";
     echo " </tr>\n";
     echo " <tr>\n";
-    echo "  <td>Ciudad</td><td colspan=4><input type=text name=ciudad maxlength=30 size=30 $val_ciudad></td>\n";
-//    echo "  <td>Estado</td><td colspan=4><input type=text name=estado maxlength=30 size=30 $val_estado></td>\n";
+    echo "  <td>Ciudad</td><td colspan=4><input type=\"text\" name=\"ciudad\" maxlength=30 size=30 $val_ciudad></td>\n";
+//    echo "  <td>Estado</td><td colspan=4><input type=\"text\" name=\"estado\" maxlength=30 size=30 $val_estado></td>\n";
 ?>
   <td>Estado</td>
   <td colspan=4><select name="estado">
@@ -71,8 +71,8 @@
 <? }
     echo " <tr>\n";
     echo "  <td>Contacto</td>\n";
-    echo "  <td colspan=4><input type=text name=contacto maxlength=40 size=40 $val_contacto></td>\n";
-    echo "  <td>&nbsp;</td><td colspan=4><input type=submit $val_submit></td>\n";
+    echo "  <td colspan=4><input type="text" name=\"contacto\" maxlength=40 size=40 $val_contacto></td>\n";
+    echo "  <td>&nbsp;</td><td colspan=4><input type=\"submit\" $val_submit></td>\n";
     echo " </tr>\n";
 ?>
 </table>

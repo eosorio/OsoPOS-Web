@@ -14,12 +14,23 @@
     printf("%d",  $order_by=="descripcion" && !$order);
     echo "$href_dept$href_prov\">Descripci&oacute;n</a></th>\n";
 
-    echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=pu&order=";
-    printf("%d",  $order_by=="pu" && !$order);
-    echo "$href_dept$href_prov\">P. Público</a></th>\n";
+    if ($alm>0) {
+      echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=pu&order=";
+      printf("%d",  $order_by=="pu" && !$order);
+      echo "$href_dept$href_prov\">P. Público</a></th>\n";
+
+      echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=pu2&order=";
+      printf("%d",  $order_by=="pu2" && !$order);
+      echo "$href_dept$href_prov\">P.U. 2</a></th>\n";
+    }
+    else {
+      echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=p_costo&order=";
+      printf("%d",  $order_by=="p_costo" && !$order);
+      echo "$href_dept$href_prov\">P. Costo</a></th>\n";
+    }
 
     echo "  <th>Cant.</th>\n";
-    if (puede("existencias")) {
+    if (puede_hacer($conn, $user->user, "invent_cambiar_item")) {
 ?>
 
   <th>Entradas</th>
@@ -57,43 +68,58 @@
 
       echo " <tr>\n";
       echo "  <td>\n";
-      printf("<input type=checkbox name=\"delete[%d]\">", $i);
+      printf("<input type=\"checkbox\" name=\"delete[%d]\">", $i);
       echo "</td>\n";
 
       echo "  <td class=\"$class\"><a href=\"$PHP_SELF?codigo=";
       echo str_replace(" ", "%20", htmlentities($reng->codigo));
       echo "&order_by=$order_by&order=$order&action=muestra&offset=$offset$href_dept$href_prov\">";
-      echo stripslashes($codigo) . "</a><input type=hidden name=\"code[$i]\" value=\"$codigo\"></td>\n";
+      echo stripslashes($codigo) . "</a><input type=\"hidden\" name=\"code[$i]\" value=\"$codigo\"></td>\n";
       printf("  <td class=\"%s\"><input type=text name=\"desc[%d]\" value=\"%s\" size=40 ",
              $class, $i, stripslashes($descripcion));
-	  printf("onChange=\"document.f_articulos.elements[%d].checked='true'\">", ($i+1)*8-1);
+	  printf("onChange=\"document.f_articulos.elements[%d].checked='true'\">", ($i+1)*(8+$alm)-1);
 	  echo "</td>\n";
 
-      printf("  <td class=\"%s_right\"><input type=text name=\"pu[%d]\" size=8 value=\"%.2f\" ",
-			 $class,  $i, $reng->pu);
-	  printf("onChange=\"document.f_articulos.elements[%d].checked='true'\">", ($i+1)*8-1);
-	  echo "  </td>\n";
+      if ($alm>0) {
+        printf("  <td class=\"%s_right\">", $class);
+        printf("<input type=\"text\" name=\"pu[%d]\" size=8 value=\"%.2f\" ",
+               $i, $reng->pu);
+        printf("onChange=\"document.f_articulos.elements[%d].checked='true'\">", ($i+1)*9-1);
+        echo "  </td>\n";
+        printf("  <td class=\"%s_right\">", $class);
+        printf("<input type=\"text\" name=\"pu2[%d]\" size=8 value=\"%.2f\" ",
+               $i, $reng->pu2);
+        printf("onChange=\"document.f_articulos.elements[%d].checked='true'\">", ($i+1)*9-1);
+        echo "  </td>\n";
+      }
+      else {
+        printf("  <td class=\"%s_right\">", $class);
+        printf("<input type=\"text\" name=\"p_costo[%d]\" size=8 value=\"%.2f\" ",
+               $i, $reng->p_costo);
+        printf("onChange=\"document.f_articulos.elements[%d].checked='true'\">", ($i+1)*(8+$alm)-1);
+        echo "  </td>\n";
+      }
 
       printf("  <td class=\"%s_center\">", $class);
-	  if (puede("existencias")) {
+	  if (puede_hacer($conn, $user->user, "invent_cambiar_item")) {
 		printf(" <input type=\"text\" name=\"qt[%d]\" size=5 value=\"%.2f\" ", $i, $reng->cant);
-        printf("onChange=\"document.f_articulos.elements[%d].checked='true'\">", ($i+1)*8-1);
+        printf("onChange=\"document.f_articulos.elements[%d].checked='true'\">", ($i+1)*(8+$alm)-1);
       }
       else
         printf("%.2f", $reng->cant);
 	  echo "</td>\n";
 
-	  if (puede("existencias")) {
+	  if (puede_hacer($conn, $user->user, "invent_cambiar_item")) {
         printf("  <td class=\"%s_center\">+", $class);
         echo "   <input type=\"text\" name=\"item_add[$i]\" size=3 ";
-        printf("onChange=\"document.f_articulos.elements[%d].checked='true'\">", ($i+1)*8-1);
+        printf("onChange=\"document.f_articulos.elements[%d].checked='true'\">", ($i+1)*(8+$alm)-1);
         echo "</td>\n";
       }
 
-	  if (puede("existencias")) {
+	  if (puede_hacer($conn, $user->user, "invent_cambiar_item")) {
         printf("  <td class=\"%s_center\">-", $class);
         echo "   <input type=\"text\" name=\"item_minus[$i]\" size=3 ";
-	    printf("onChange=\"document.f_articulos.elements[%d].checked='true'\">",  ($i+1)*8-1);
+	    printf("onChange=\"document.f_articulos.elements[%d].checked='true'\">",  ($i+1)*(8+$alm)-1);
         echo "</td>\n";
       }
       printf("  <td class=\"%s_center\"><input type=\"checkbox\" name=\"modify[%d]\"></td>\n",
@@ -102,18 +128,18 @@
   }
 ?>
    <tr>
-   <td class="bg0_right" colspan=7><input type=reset value="Cancelar">&nbsp;
-     <input type=submit value="Cambiar"></td>
-    <input type=hidden name="mode" value="express">
-	<input type=hidden name="action" value="cambia">
-	<input type=hidden name="num_ren" value="<? echo $num_ren ?>">
-	<input type=hidden name="order" value="<? echo $order ?>">
-	<input type=hidden name="order_by" value="<? echo $order_by ?>">
-	<input type=hidden name="offset" value="<? echo $offset ?>">
-	<input type=hidden name="depto" value="<? echo $depto ?>">
- 	<input type=hidden name="prov" value="<? echo $prov ?>">
+   <td class="bg0_right" colspan=7><input type="reset" value="Cancelar">&nbsp;
+   <input type="submit" value="Cambiar"></td>
+    <input type="hidden" name="mode" value="express">
+	<input type="hidden" name="action" value="cambia">
+	<input type="hidden" name="num_ren" value="<? echo $num_ren ?>">
+	<input type="hidden" name="order" value="<? echo $order ?>">
+	<input type="hidden" name="order_by" value="<? echo $order_by ?>">
+	<input type="hidden" name="offset" value="<? echo $offset ?>">
+	<input type="hidden" name="depto" value="<? echo $depto ?>">
+ 	<input type="hidden" name="prov" value="<? echo $prov ?>">
 <? if (isset($id_prov)) { ?>
-	<input type=hidden name="id_prov" value="<? echo $id_prov ?>">
+	<input type="hidden" name="id_prov" value="<? echo $id_prov ?>">
 <? } ?>
   </tr>
   </table>
