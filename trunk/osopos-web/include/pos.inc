@@ -23,7 +23,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 function registra_venta($id_vendor, $tipo_pago, $tipo_comprobante,  $total) {
 
   global $articulo_descripcion, $articulo_cantidad, $articulo_codigo, 
-         $user, $conn, $iva, $MXT_VENTAS_DET_DESC;
+         $user, $conn, $iva, $MXT_VENTAS_DET_DESC, $alm;
+
   $fecha = date("Y-m-d");
   $hora = date("H:i:s");
 
@@ -61,7 +62,7 @@ function registra_venta($id_vendor, $tipo_pago, $tipo_comprobante,  $total) {
       exit();
     }
   }
-  $descto_aplicado = checa_descuento(base, num_venta, almacen);
+  $descto_aplicado = checa_descuento($conn, $id_venta, $alm);
   if ($descto_aplicado)
     $corte = "00010000";
   else
@@ -189,7 +190,7 @@ function notify_low_supplies($code)
 
 }
 
-function LeeVenta($nombre) {
+/*function LeeVenta($nombre) {
   global $MAXDES, $MAXCOD;
 
   $ar = fopen($nombre,"r");
@@ -238,6 +239,7 @@ function LeeVenta($nombre) {
   while (!$salir);
   return($art);
 }
+*/
 
 function lee_venta($id) {
 
@@ -463,27 +465,26 @@ function open_drawer()
   global $MINI_IMP_TIPO, $CMD_IMPRESION, $COLA_TICKET, $ESC, $TMP_DIR;
   $nm_ar = tempnam("$TMP_DIR", "caja_w");
 
-  $ar = fopen($nm_ar, "w");
   switch ($MINI_IMP_TIPO) {
   case "EPSON":
-    fputs($ar, sprintf("%c%c%c%c%c", $ESC,'p', 0, 255, 255));
+    $datos = sprintf("%c%c%c%c%c", $ESC,'p', 0, 255, 255);
     break;
   case "STAR":
   default:
-    fputs($ar, sprintf("%c", 7));
+    $datos = sprintf("%c", 7);
     break;
   }
-  fclose($ar);
-  $comando = sprintf("%s -P %s $s", $CMD_IMPRESION, $COLA_TICKET, $nm_ar);
+  $comando = sprintf("%s -P %s", $CMD_IMPRESION, $COLA_TICKET);
   if ( !($impresion = @popen($comando, "w")) )
     return(2);
   else {
+    fputs($comando, $datos);
     pclose($impresion);
   }
   return(0);
 }
 
-function lista_proveedores($bandera_todos, $nm_campo, $num_prov = -1) {
+function lista_proveedores($bandera_todos, $nm_campo, $item_0, $num_prov = -1) {
   global $nick_prov, $prov, $id_prov1, $conn, $debug;
 
   echo "<select name=\"$nm_campo\">\n";
@@ -498,6 +499,7 @@ function lista_proveedores($bandera_todos, $nm_campo, $num_prov = -1) {
       echo db_errormsg($conn);
       return(-1);
     }
+    $nick_prov[0] = $item_0;
     for ($i=1; $i<db_num_rows($db_res); $i++)
       $nick_prov[$i] = db_result($db_res, $i, 0);
   }
@@ -526,7 +528,7 @@ function lista_proveedores($bandera_todos, $nm_campo, $num_prov = -1) {
   echo "</select>\n";
 }
 
-function lista_movimientos($db_con, $nm_campo="tipo_mov[]") {
+function lista_movimientos($db_con, $item_default, $nm_campo="tipo_mov[]") {
   global $MOVINV_COMPRA, $MOVINV_COMPRA, $MOVINV_DEVVENTA, $MOVINV_DEVCOMPRA, 
     $MOVINV_MERMA, $MOVINV_TSALIDA, $MOVINV_TENTRADA, $nm_tipo_mov, $user;
 
@@ -548,32 +550,35 @@ function lista_movimientos($db_con, $nm_campo="tipo_mov[]") {
 
 
 
-  for ($i=0; $i<count($nm_tipo_mov); $i++) {
-    if ($i+1==$MOVINV_VENTA && !puede_hacer($db_con, $user->user, "movinv_venta"))
+  for ($i=1; $i<=count($nm_tipo_mov); $i++) {
+    if ($i==$MOVINV_VENTA && !puede_hacer($db_con, $user->user, "movinv_venta"))
       continue;
     else
-    if ($i+1==$MOVINV_COMPRA && !puede_hacer($db_con, $user->user, "movinv_compra"))
+    if ($i==$MOVINV_COMPRA && !puede_hacer($db_con, $user->user, "movinv_compra"))
       continue;
     else
-    if ($i+1==$MOVINV_DEVVENTA && !puede_hacer($db_con, $user->user, "movinv_devventa"))
+    if ($i==$MOVINV_DEVVENTA && !puede_hacer($db_con, $user->user, "movinv_devventa"))
       continue;
     else
-    if ($i+1==$MOVINV_DEVCOMPRA && !puede_hacer($db_con, $user->user, "movinv_devcompra"))
+    if ($i==$MOVINV_DEVCOMPRA && !puede_hacer($db_con, $user->user, "movinv_devcompra"))
       continue;
     else
-    if ($i+1==$MOVINV_MERMA && !puede_hacer($db_con, $user->user, "movinv_merma"))
+    if ($i==$MOVINV_MERMA && !puede_hacer($db_con, $user->user, "movinv_merma"))
       continue;
     else
-    if ($i+1==$MOVINV_TSALIDA && !puede_hacer($db_con, $user->user, "movinv_tsalida"))
+    if ($i==$MOVINV_TSALIDA && !puede_hacer($db_con, $user->user, "movinv_tsalida"))
       continue;
     else
-    if ($i+1==$MOVINV_TENTRADA && !puede_hacer($db_con, $user->user, "movinv_tentrada"))
+    if ($i==$MOVINV_TENTRADA && !puede_hacer($db_con, $user->user, "movinv_tentrada"))
       continue;
-    else
-      printf("   <option value=%d>%s\n", $i+1, $nm_tipo_mov[$i+1]);
+    else {
+      printf("   <option value=%d", $i);
+      if ($i == $item_default)
+        printf(" selected ");
+      printf(">%s\n", $nm_tipo_mov[$i]);
+    }
   }
   echo "</select>\n";
-
 }
 
 function tipo_mov($db_con, $num_tipo_mov) {
@@ -689,10 +694,7 @@ function articulo_descripcion($db_con, $codigo) {
 
 function imprime_movimiento($db_con, $almacen, $id_mov, $codigo, $ct, $pu, $p_costo,
                             $alm_dest, $tipo_mov) {
-  global $CMD_IMPRESION, $COLA_DEFAULT, $TMP_DIR;
-
-  //$nm_archivo = tempnam($TMP_DIR, "movinvw");
-  //$ar = fopen($nm_archivo, "w");
+  global $CMD_IMPRESION, $COLA_DEFAULT;
 
   $linea = sprintf("\n  REPORTE DE MOVIMIENTO AL INVENTARIO\n\n");
   $linea.= sprintf("Movimiento No. %d\n", $id_mov);
@@ -735,6 +737,28 @@ function checklist_almacen($db_con)
     $almac = db_result($db_res, $i, 0);
     printf("<input type=\"checkbox\" name=\"almac[]\" value=\"%d\"> %d<br>\n", $almac, $almac);
   }
+}
+
+function lista_almacen($db_con, $nm_lista, $item_0, $alm_def=1)
+{
+  $query = "SELECT id,nombre FROM almacenes";
+  if (!$db_res = db_query($query, $db_con)) {
+    printf("Error al consultar almacenes<br>\n");
+    printf("Error: %s<br>\n",db_errormsg($db_con));
+    return($DB_ERROR);
+  }
+
+  $buf = "<select name=\"$nm_lista\">\n";
+  $buf.= "<option value=0>$item_0\n";
+  for ($i=0; $i<db_num_rows($db_res); $i++) {
+    $almacen = db_fetch_object($db_res, $i);
+    $buf.= sprintf("<option value=\"%d\" ", $almacen->id);
+    if ($almacen->id == $alm_def)
+      $buf.= " selected ";
+    $buf.= sprintf(">%d. %s\n", $almacen->id, $almacen->nombre);
+  }
+  $buf.= "</select>\n";
+  return($buf);
 }
 
 function lista_precio($db_con, $codigo, $tipo_precio, $almacen=1)
@@ -789,6 +813,50 @@ function lista_precio($db_con, $codigo, $tipo_precio, $almacen=1)
   return($precio);
 }
 
+function nombre_depto($db_con, $id_depto) {
+  $query = sprintf("SELECT nombre FROM departamento WHERE id=%d", $id_depto);
+  if (!$db_res = db_query($query, $db_con)) {
+    echo "Error al leer base de datos<br>\n";
+    db_errormsg($db_res);
+    return(-1);
+  }  
+  return(db_result($db_res, 0, 0));
+}
+
+function lista_campo($db_con, $codigo, $campo, $tabla)
+{
+
+  global $debug;
+
+  $query = sprintf("SELECT %s,codigo FROM %s WHERE ", $campo, $tabla);
+  if (is_array($codigo)) {
+    while (list($item,$cod) = each($codigo)) {
+      if (strlen($sub_q)>0)
+        $sub_q.= "OR ";
+      $sub_q .= "codigo='$cod' ";
+    }
+    $query.= $sub_q;
+  }
+  else
+    $query.= "codigo='$codigo' ";
+
+  if ($debug>0)
+    echo "<i>$query</i><br>\n";
+  if (!$db_res = db_query($query, $db_con)) {
+    echo "Error al leer base de datos<br>\n";
+    db_errormsg($db_res);
+    return(-1);
+  }
+  $num_rows = db_num_rows($db_res);
+
+  $tupla = array();
+  for ($i=0; $i<$num_rows; $i++) {
+    $tupla[db_result($db_res, $i, 1)] = db_result($db_res, $i, 0);
+  }
+
+  return($tupla);
+}
+
 function checa_descuento($db_con, $num_venta, $almacen)
 {
 
@@ -808,7 +876,7 @@ function lista_divisas($db_con, $divisa_def)
 {
   $query = "SELECT id FROM divisas";
   if (!$db_res = db_query($query, $db_con)) {
-    printf("Error al consultar ventas<br>\n");
+    printf("Error al consultar divisas<br>\n");
     printf("Error: %s<br>\n",db_errormsg($db_con));
     return($DB_ERROR);
   }
@@ -819,6 +887,56 @@ function lista_divisas($db_con, $divisa_def)
     if ($divisa->id == $divisa_def)
       $buf.= " selected ";
     $buf.= sprintf(">%s\n", $divisa->id);
+  }
+  return($buf);
+}
+
+function busca_codigo($db_con, $codigo, $almacen)
+{
+  if ($almacen>0)
+    $tabla = sprintf("almacen_%d", $almacen);
+  else
+    $tabla = "articulos";
+  $query = sprintf("SELECT * FROM %s WHERE codigo='%s'", $tabla, $codigo);
+  if (!$db_res = db_query($query, $db_con))
+    return($DB_ERROR);
+
+  return(db_num_rows($db_res));
+}
+
+function lista_forma_pago($db_con, $nm_lista, $item_0)
+{
+  $query = "SELECT id,descripcion FROM forma_pago ";
+  if (!$db_res = db_query($query, $db_con)) {
+    printf("Error al consultar formas de pago<br>\n");
+    printf("Error: %s<br>\n",db_errormsg($db_con));
+    return($DB_ERROR);
+  }
+
+  $buf = "<select name=\"$nm_lista\">\n";
+  $buf.= "<option value=0>$item_0\n";
+  for ($i=0; $i<db_num_rows($db_res); $i++) {
+    $f_pago = db_fetch_object($db_res, $i);
+    $buf.= sprintf("<option value=\"%d\" ", $f_pago->id);
+    $buf.= sprintf(">%d. %s\n", $f_pago->id, $f_pago->descripcion);
+  }
+  $buf.= "</select>\n";
+  return($buf);
+}
+
+function checklist_forma_pago($db_con, $nm_lista)
+{
+  $query = "SELECT id,descripcion FROM forma_pago ";
+  if (!$db_res = db_query($query, $db_con)) {
+    printf("Error al consultar formas de pago<br>\n");
+    printf("Error: %s<br>\n",db_errormsg($db_con));
+    return($DB_ERROR);
+  }
+
+  for ($i=0; $i<db_num_rows($db_res); $i++) {
+    $f_pago = db_fetch_object($db_res, $i);
+    $buf.= sprintf("<input type=\"checkbox\" name=\"%s[]\" ", $nm_lista);
+    $buf.= sprintf("value=\"%d\"> %s\n", $f_pago->id, $f_pago->descripcion);
   }
   return($buf);
 }
