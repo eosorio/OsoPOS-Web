@@ -158,7 +158,7 @@ function lee_venta($id) {
   for ($i=0; $i<$num_art; $i++) {
     $reng = pg_fetch_object($resultado, $i);
     $art[$i]->codigo = $reng->codigo;
-    $art[$i]->cantidad = $reng->cantidad;
+    $art[$i]->cant = $reng->cantidad;
 
     $query = "SELECT \"descripcion\",\"pu\",\"iva_porc\" FROM articulos WHERE ";
     $query.= sprintf("codigo='%s'", $art[$i]->codigo);
@@ -175,7 +175,7 @@ function lee_venta($id) {
       return;
     }
     $reng2 = pg_fetch_object($resultado2, 0);
-    $art[$i]->descripcion = $reng2->descripcion;
+    $art[$i]->desc = $reng2->descripcion;
     $art[$i]->pu = $reng2->pu;
     $art[$i]->iva_porc = $reng2->iva_porc;
   }
