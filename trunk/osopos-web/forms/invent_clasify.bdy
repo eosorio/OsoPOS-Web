@@ -1,4 +1,4 @@
-<? /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- */ ?>
+<?php /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- */ ?>
 <!-- forms/invent_clasify.bdy -->
 
   <form action=<? echo "\"$PHP_SELF\"" ?> method="post" name="selecciones">
@@ -18,6 +18,9 @@ Baja ex. <input type="radio" name="mode" value="baja_ex"
 <? if ($mode=="baja_ex") echo "checked" ?>>
 </small>
    </td>
+<?
+  if ($PROGRAMA="web") {
+?>
    <td>
     Depto.:
     <select name="depto">
@@ -40,9 +43,35 @@ Baja ex. <input type="radio" name="mode" value="baja_ex"
   </td>
 
 <?
+  }
+else if ($PROGRAMA=="video") {
+?>
+   <td>
+    Género.:
+    <select name="depto">
+<?
+  $d_selected =0;
+  for ($i=0; $i<count($nm_depto); $i++) {
+    echo "   <option";
+    if (!$d_selected && (isset($id_dept) && $nm_depto[$i] == $depto  ||  (isset($id_dept)  &&  $i == $id_dept)))
+      echo " selected";
+    echo ">$nm_depto[$i]\n";
+  }
+  echo "   <option";
+  if (!$d_selected && ($depto == "Todos"  ||  (isset($id_dept) && $id_dept == count($nm_depto)))) {
+    echo " selected";
+    unset($id_dept);
+  }
+?>
+  >Todos
+   </select>
+  </td>
+<?php
+  }
+
   if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
    echo "  <td>Proveedor: ";
-   lista_proveedores(TRUE, "prov1");
+    lista_proveedores(TRUE, "prov1", "Todos");
    echo "  </td>\n";
   }
   else
