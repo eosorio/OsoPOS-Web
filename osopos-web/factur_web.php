@@ -21,14 +21,18 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 */
   include("include/general_config.inc");
   include("include/pos-var.inc");
-//  include("include/caja_web.inc");
 
 {
   if (isset($salir)) {
     include("include/logout.inc");
   }
   else {
-  include("include/passwd.inc");
+    include("include/passwd.inc");
+    /*$conn = pg_connect("dbname=$DB_NAME user=$DB_OWNER");
+    if (!$conn) {
+      echo "ERROR: Al conectarse a la base de datos $DB_NAME<br>\n</body></html>";
+      exit();
+      }*/
   }
 
 ?>
@@ -111,17 +115,18 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <b>Cliente:</b><br>
 <?php
   echo "$razon_soc<br>\n";
-  printf("%s %d", $dom_calle, $dom_ext);
+  printf("%s %s", $dom_calle, $dom_ext);
   if (strlen($dom_int))
     echo "-$dom_int";
   echo "<br>\n";
   if (strlen($dom_col))
     echo "Col. $dom_col. ";
-  printf("C.P. %d<br>\n", $dom_cp);
+  if (!empty($dom_cp))
+    printf("C.P. %d<br>\n", $dom_cp);
   echo "$dom_ciudad, $dom_edo<br>\n";
   echo "<b>R.F.C.</b> $rfc<br>\n";
 ?>
-  </td>
+  
   <td>
   Folio: <? echo $id ?><br>
   Fecha: 
@@ -134,24 +139,24 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     echo "$dia-$mes-$anio<br>\n";
   ?>
   Observaciones: <br><br><br><br>
-  </td>
- </tr>
+  
+
 </tbody>
 </table>
 <hr>
 
 
+<form action="<?php echo "$PHP_SELF" ?>" method=post>
 <table width="100%" border=0>
 <thead>
  <tr>
-  <th width="10%">Clave</th><th width="5%">Ct.</th>
-  <th width="65%">Descripci&oacute;n</th>
-  <th width="10%">P.U.</th>
-  <th width="10%">Importe</th>
+  <th width="10%">Clave</th><th width="5%">Ct.
+  <th width="65%">Descripci&oacute;n
+  <th width="10%">P.U.
+  <th width="10%">Importe
 
 <tbody>
 
-<form action="<?php echo "$PHP_SELF" ?>" method=post>
 <?php
   for ($i=0; $i<$num_arts; $i++) {
 	if (count($desc)) {
@@ -178,15 +183,15 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 ?>
 
  <tr>
-  <td <? echo $bgcolor ?>><? echo $articulo[$i]->codigo ?>&nbsp;</td>
+  <td <? echo $bgcolor ?>><? echo $articulo[$i]->codigo ?>&nbsp;
   <input type=hidden name="codigo[<? echo $i ?>]" value="<? echo $articulo[$i]->codigo ?>">
-  <td <? echo $bgcolor ?> align=center><? echo $articulo[$i]->cant ?></td>
+  <td <? echo $bgcolor ?> align=center><? echo $articulo[$i]->cant ?>
   <input type=hidden name="cant[<? echo $i ?>]" value="<? echo $articulo[$i]->cant ?>">
-  <td width="0*" <? echo $bgcolor ?>><? echo $articulo[$i]->desc ?>&nbsp;</td>
+  <td width="0*" <? echo $bgcolor ?>><? echo $articulo[$i]->desc ?>&nbsp;
   <input type=hidden name="desc[<? echo $i ?>]" value="<? echo stripslashes($articulo[$i]->desc) ?>">
-  <td <? echo $bgcolor ?> align="right"><? printf("%.2f",  $articulo[$i]->pu) ?></td>
+  <td <? echo $bgcolor ?> align="right"><? printf("%.2f",  $articulo[$i]->pu) ?>
   <input type=hidden name="pu[<? echo $i ?>]" value="<? echo $articulo[$i]->pu ?>">
-  <td <? echo $bgcolor ?> align="right"><? printf("%.2f",  $articulo[$i]->pu*$articulo[$i]->cant) ?></td>
+  <td <? echo $bgcolor ?> align="right"><? printf("%.2f",  $articulo[$i]->pu*$articulo[$i]->cant) ?>
 
 
 <?php
@@ -202,31 +207,31 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
    <input type=hidden name=rfc value="<?php echo $rfc ?>">
    <input type=hidden name=razon_soc value="<?php echo $razon_soc ?>">
    <input type=hidden name=dom_calle value="<?php echo $dom_calle ?>">
-   <input type=hidden name=dom_ext value="<?php printf("%d",  $dom_ext) ?>">
+   <input type=hidden name=dom_ext value="<?php echo $dom_ext ?>">
    <input type=hidden name=dom_int value="<?php echo $dom_int ?>">
    <input type=hidden name=dom_col value="<?php echo $dom_col ?>">
    <input type=hidden name=dom_ciudad value="<?php echo $dom_ciudad ?>">
    <input type=hidden name=dom_edo value="<?php echo $dom_edo ?>">
    <input type=hidden name=dom_cp value="<?php echo $dom_cp ?>">
- </td>
+ 
 
  <tr>
   <td colspan=3 rowspan=3><font face="helvetica, arial">
    <textarea name=observaciones cols=<? printf("%d", $OBS_MAXCOLS) ?>
-   rows=<? printf("%d", $OBS_MAXRENS) ?> wrap=hard><? echo $OBS_DEFAULT ?></textarea></font>
-  </td>
-  <td align="right"><b>Subtotal</b></td>
-  <td align="right"><?php printf("%.2f", $subtotal) ?></td>
+   rows=<? printf("%d", $OBS_MAXRENS) ?>><? echo $OBS_DEFAULT ?></textarea></font>
+  
+  <td align="right"><b>Subtotal</b>
+  <td align="right"><?php printf("%.2f", $subtotal) ?>
  <input type=hidden name=subtotal value=<?php echo $subtotal ?>>
 
  <tr>
-  <td align="right"><b>I.V.A.</b></td>
-  <td align="right"><?php printf("%.2f", $iva) ?></td>
+  <td align="right"><b>I.V.A.</b>
+  <td align="right"><?php printf("%.2f", $iva) ?>
   <input type=hidden name=iva value=<?php echo $iva ?>>
-
+  
  <tr>
-  <td align="right"><b>Total</b></td>
-  <td align="right"><b><font color="red"><?php printf("%.2f", $subtotal+$iva) ?></font></b></td>
+  <td align="right"><b>Total</b>
+  <td align="right"><b><font color="red"><?php printf("%.2f", $subtotal+$iva) ?></font></b>
 
 </table>
 <br><br>
@@ -263,7 +268,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
     $peticion = "INSERT INTO facturas_ingresos VALUES (";
     $peticion.= sprintf("%d, '%d-%d-%d', ", $id, $anio, $mes, $dia) . "'$rfc', '$dom_calle', ";
-    $peticion.= sprintf("%d, ", $dom_ext) . "'$dom_int', ";
+    $peticion.= sprintf("%d, '%s', ", $dom_ext, $dom_int);
     $peticion.= "'$dom_col', '$dom_ciudad', '$dom_edo', " . sprintf("%d, %.2f, %.2f)", $dom_cp, $subtotal, $iva);
     if (!$resultado = pg_exec($conn, $peticion)) {
       echo "Error al ejecutar $peticion<br>" . pg_errormessage($conn) . "</body></html>\n";
@@ -309,7 +314,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   if ( strlen(strstr($accion, "imprimir")) ) {
     include("include/pos.inc");
     include("include/minegocio.inc");
-    include("include/minegocio_factur_const.inc");
+    include("include/minegocio_factur_const.inc"); 
     /*igm*/ $tipoimp = "EPSON";
     /*igm*/ $obs = array();
 
@@ -352,10 +357,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       echo "<b>Error al ejecutar <i>$CMD_IMPRESION $nm_archivo</i></b><br>\n";
     }
     else {
-      if (pclose($impresion) == 0)
-        echo "<center><i>Factura impresa.</i></center>\n";
-      else
-        echo "<center><b>Error al ejecutar comando $linea</b></center>\n";;
+      echo "<center><i>Factura impresa.</i></center>\n";
+      pclose($impresion);
     }
   } /* if ($accion=="imprimir"  ||  $accion=="agregarimprimir") */
 
@@ -380,18 +383,18 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       if (!$resultado = pg_exec($conn, $peticion)) {
         echo "Error al ejecutar $peticion<br>No se pudo encontrar los datos del cliente<br>" . pg_errormessage($conn) . "<br>\n";
       }
-	  else {
-		if (pg_numrows($resultado)) {
-		  $renglon = pg_fetch_object($resultado, 0);
-		  $dom_calle = $renglon->dom_calle;
-		  $dom_ext = $renglon->dom_numero;
-		  $dom_int = $renglon->dom_inter;
-		  $dom_col = $renglon->dom_col;
-		  $dom_cp = $renglon->dom_cp;
-		  $dom_ciudad = $renglon->dom_ciudad;
-		  $dom_edo = $renglon->dom_edo;
-		}
-	  }
+      else {
+        if (pg_numrows($resultado)) {
+          $renglon = pg_fetch_object($resultado, 0);
+          $dom_calle = $renglon->dom_calle;
+          $dom_ext = $renglon->dom_numero;
+          $dom_int = $renglon->dom_inter;
+          $dom_col = $renglon->dom_col;
+          $dom_cp = $renglon->dom_cp;
+          $dom_ciudad = $renglon->dom_ciudad;
+          $dom_edo = $renglon->dom_edo;
+        }
+      }
     }
 
     if (!isset($id)) {
