@@ -48,7 +48,7 @@ function db_query($query, $link_id)
     $sub_cadena = str_replace("concat", "", $sub_cadena);
     $query = str_replace($sub_cadena_orig, $sub_cadena, $query);
   }
-  return (pg_exec($link_id, $query));
+  return (pg_query($link_id, $query));
 }
 
 function db_num_rows($resultado)
@@ -69,9 +69,15 @@ function db_fetch_object($resultado_bd, $row, $tipo_resultado = "")
     return(@pg_fetch_object($resultado_bd, $row));
 }
 
+function db_fetch_array($resultado_bdm, $ren, $tipo_resultado = "")
+{
+  return(@pg_fetch_array($resultado, $ren, $tipo_resultado));
+
+}
+
 function db_affected_rows($resultado_bd)
 {
-  return(pg_cmdtuples($result));
+  return(pg_cmdtuples($resultado_bd));
 }
 
 function db_close($link)
