@@ -29,9 +29,9 @@ function registra_venta($id_vendor, $tipo_pago, $tipo_comprobante,  $total) {
 
   /*igm*/$utilidad = $total;
   $query = "INSERT INTO ventas (monto, tipo_pago, tipo_factur, ";
-  $query.= "utilidad, id_vendedor, id_cajero, fecha, hora, corte, ";
+  $query.= "utilidad, id_vendedor, id_cajero, fecha, hora, ";
   $query.= "iva) VALUES (";
-  $query.= sprintf("%.2f, %d, %d, %.2f, %d, %d, '%s', '%s', B'00000000', %.2f)",
+  $query.= sprintf("%.2f, %d, %d, %.2f, %d, %d, '%s', '%s', %.2f)",
                    $total, $tipo_pago, $tipo_comprobante, $utilidad, $id_vendor,
 					  $user->id, $fecha, $hora, $iva);
   if (!$resultado = db_query($query, $conn)) {
@@ -51,15 +51,28 @@ function registra_venta($id_vendor, $tipo_pago, $tipo_comprobante,  $total) {
   $id_venta = db_result($resultado, 0, 0);
 
   for ($i=0; $i<count($articulo_descripcion); $i++) {
-	$query = "INSERT INTO ventas_detalle (id_venta, codigo, cantidad, descrip)";
-	$query.= sprintf(" VALUES (%d, '%s', %d, '%s')", $id_venta, $articulo_codigo[$i],
-                         $articulo_cantidad[$i],
-                         substr($articulo_descripcion[$i], 0, $MXT_VENTAS_DET_DESC ));
-	if (!$resultado = db_query($query, $conn)) {
-	  echo "Error al ejecutar $query<br>\n";
-	  exit();
-	}
+    $query = "INSERT INTO ventas_detalle (id_venta, codigo, cantidad, descrip, pu, iva_porc)";
+    $query.= sprintf(" VALUES (%d, '%s', %.2f, '%s', %.2f, %f)", $id_venta, $articulo_codigo[$i],
+                     $articulo_cantidad[$i],
+                     substr($articulo_descripcion[$i], 0, $MXT_VENTAS_DET_DESC ), 
+                     $articulo_pu[$i], $articulo_iva_porc[$i]);
+    if (!$resultado = db_query($query, $conn)) {
+      echo "Error al ejecutar $query<br>\n";
+      exit();
+    }
   }
+  $descto_aplicado = checa_descuento(base, num_venta, almacen);
+  if ($descto_aplicado)
+    $corte = "00010000";
+  else
+    $corte = "00000000";
+
+  $query = sprintf("INSERT INTO corte (numero,bandera) VALUES (%d, B'%s')", $id_venta, $corte);
+  if (!$resultado = db_query($query, $conn)) {
+    echo "Error al registrar corte<br>\n";
+    exit();
+  }
+
   return($id_venta);
 }
 
@@ -439,8 +452,8 @@ function CalculaIVA($numarticulos) {
 
 function open_drawer()
 {
-  global $MINI_IMP_TIPO, $CMD_IMPRESION, $COLA_TICKET, $ESC;
-  $nm_ar = tempnam("/tmp", "caja_w");
+  global $MINI_IMP_TIPO, $CMD_IMPRESION, $COLA_TICKET, $ESC, $TMP_DIR;
+  $nm_ar = tempnam("$TMP_DIR", "caja_w");
 
   $ar = fopen($nm_ar, "w");
   switch ($MINI_IMP_TIPO) {
@@ -668,29 +681,35 @@ function articulo_descripcion($db_con, $codigo) {
 
 function imprime_movimiento($db_con, $almacen, $id_mov, $codigo, $ct, $pu, $p_costo,
                             $alm_dest, $tipo_mov) {
-  global $CMD_IMPRESION, $COLA_DEFAULT;
+  global $CMD_IMPRESION, $COLA_DEFAULT, $TMP_DIR;
 
-  $nm_archivo = tempnam($TMP_DIR, "movinvw");
-  $ar = fopen($nm_archivo, "w");
+  //$nm_archivo = tempnam($TMP_DIR, "movinvw");
+  //$ar = fopen($nm_archivo, "w");
 
   $linea = sprintf("\n  REPORTE DE MOVIMIENTO AL INVENTARIO\n\n");
   $linea.= sprintf("Movimiento No. %d\n", $id_mov);
   $linea.= sprintf("Tipo de movimiento: %d (%s)\n", $tipo_mov, tipo_mov($db_con, $tipo_mov));
   $linea.= sprintf("Almacen: %d\n\n", $almacen);
-  fputs($ar, $linea);
+
 
   for ($i=0; $i<count($codigo) && !empty($codigo[$i]); $i++) {
-    $linea = sprintf("Código: %s, %s\n", $codigo[$i], 
-                     substr(articulo_descripcion($db_con, $codigo)), 0, 15);
+    $linea.= sprintf("Código: %s, %s\n", $codigo[$i], 
+                     substr(articulo_descripcion($db_con, $codigo[$i]), 0, 15));
     $linea.= sprintf("Cantidad: %.2f\nP.U.: %.2f, P. Costo: %.2f\n", $ct[$i], $pu[$i], $p_costo[$i]);
     $linea.= sprintf("Almacen destino: %d\n", $alm_dest[$i]);
     $linea.= sprintf("-----------------------------------\n");
-    fputs ($ar, $linea);
+
   }
-  fclose($ar);
-  $comando = sprintf("%s -P %s %s"  , $CMD_IMPRESION, $COLA_DEFAULT, $nm_archivo);
+  $linea.= "******Fin de movimiento******\n";
+  //  fputs($ar, $linea);
+  //fclose($ar);
+  //$comando = sprintf("%s -P %s %s"  , $CMD_IMPRESION, $COLA_DEFAULT, $nm_archivo);
+  $comando = sprintf("%s -P %s "  , $CMD_IMPRESION, $COLA_DEFAULT);
 
   $ar  = popen($comando, "w");
+  if ($ar<=0)
+    echo "Error: No puedo imprimir<br>";
+  fputs($ar, $linea);
   pclose($ar);
   
 }
@@ -708,4 +727,90 @@ function checklist_almacen($db_con)
     $almac = db_result($db_res, $i, 0);
     printf("<input type=\"checkbox\" name=\"almac[]\" value=\"%d\"> %d<br>\n", $almac, $almac);
   }
+}
+
+function lista_precio($db_con, $codigo, $tipo_precio, $almacen=1)
+{
+  /* tipo_precio= 0:costo, 1:p. público 1, 2:p. pub. 1, etc. */ 
+  global $debug;
+
+  switch($tipo_precio) {
+  case 0:
+    $campo = "p_costo";
+    $tabla = "articulos";
+    break;
+  case 1:
+    $campo = "pu";
+    $tabla = sprintf("almacen_%d", $almacen);
+    break;
+  case 2:
+  case 3:
+  case 4:
+  case 5:
+    $campo = sprintf("pu%d", $tipo_precio);
+    $tabla = sprintf("almacen_%d", $almacen);
+    break;
+
+  }
+  $query = sprintf("SELECT %s,codigo FROM %s WHERE ", $campo, $tabla);
+  if (is_array($codigo)) {
+    while (list($item,$cod) = each($codigo)) {
+      if (strlen($sub_q)>0)
+        $sub_q.= "OR ";
+      $sub_q .= "codigo='$cod' ";
+    }
+    $query.= $sub_q;
+  }
+  else
+    $query.= "codigo='$codigo' ";
+
+  if ($debug>0)
+    echo "<i>$query</i><br>\n";
+  if (!$db_res = db_query($query, $db_con)) {
+    echo "Error al leer precio<br>\n";
+    db_errormsg($db_res);
+    return(-1);
+  }
+  $num_rows = db_num_rows($db_res);
+
+  $precio = array();
+  for ($i=0; $i<$num_rows; $i++) {
+    $precio[db_result($db_res, $i, 1)] = db_result($db_res, $i, 0);
+  }
+
+  return($precio);
+}
+
+function checa_descuento($db_con, $num_venta, $almacen)
+{
+
+  global $DB_ERROR;
+
+  $query = sprintf("SELECT d.id_venta AS id, d.codigo, d.pu AS venta, a.pu AS precio FROM ventas_detalle d, almacen_%d a WHERE d.id_venta=%d AND d.codigo=a.codigo AND d.pu!=a.pu", $almacen, $num_venta);
+
+  if (!$db_res = db_query($query, $db_con)) {
+    printf("Error al consultar ventas<br>\n");
+    printf("Error: %s<br>\n",db_errormsg($db_con));
+    return($DB_ERROR);
+  }
+  return(db_num_rows($db_res));
+}
+
+function lista_divisas($db_con, $divisa_def) 
+{
+  $query = "SELECT id FROM divisas";
+  if (!$db_res = db_query($query, $db_con)) {
+    printf("Error al consultar ventas<br>\n");
+    printf("Error: %s<br>\n",db_errormsg($db_con));
+    return($DB_ERROR);
+  }
+
+  for ($i=0; $i<db_num_rows($db_res); $i++) {
+    $divisa = db_fetch_object($db_res, $i);
+    $buf.= sprintf("<option value=\"%s\" ", $divisa->id);
+    if ($divisa->id == $divisa_def)
+      $buf.= " selected ";
+    $buf.= sprintf(">%s\n", $divisa->id);
+  }
+  return($buf);
 }
