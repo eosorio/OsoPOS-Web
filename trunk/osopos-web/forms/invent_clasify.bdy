@@ -19,7 +19,7 @@ Baja ex. <input type=radio name="mode" value="baja_ex"
    </td>
    <td>
     Depto.:
-    <select name=depto>
+    <select name="depto">
 <?
   for ($i=0; $i<count($nm_depto); $i++) {
     echo "   <option";
@@ -30,6 +30,7 @@ Baja ex. <input type=radio name="mode" value="baja_ex"
   echo "   <option";
   if ($depto == "Todos"  ||  (isset($id_dept) && $id_dept == count($nm_depto))) {
     echo " selected";
+    unset($id_dept);
   }
 ?>
   >Todos
@@ -38,7 +39,7 @@ Baja ex. <input type=radio name="mode" value="baja_ex"
 
    <td>
     Proveedor:
-   <select name=prov>
+   <select name="prov">
 <?
 
   for ($i=0; $i<count($nick_prov); $i++) {
@@ -48,8 +49,10 @@ Baja ex. <input type=radio name="mode" value="baja_ex"
     echo ">$nick_prov[$i]\n";
   }
   echo "   <option";
-  if ($prov == "Todos")
+  if ($prov == "Todos" || (isset($id_prov) && $id_prov==count($nick_prov))) {
     echo " selected";
+    unset($id_prov);
+  }
 ?>
   >Todos</select></td>
  <td>  <input type=submit value="Mostrar"></td>

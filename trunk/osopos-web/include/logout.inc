@@ -7,7 +7,7 @@
   echo "<h4>Ya está fuera del sistema.</h4>";
   echo "<center><h2>Gracias por usar un producto de</h2>\n";
   echo "<br><br><br><br>\n";
-  echo "<a href=\"http://punto-deventa.com\"><img src=\"imagenes/linucs.jpg\" border=0 alt=\"LINUCS\"></a>";
+  echo "<a href=\"http://elpuntodeventa.com\"><img src=\"imagenes/linucs.jpg\" border=0 alt=\"LINUCS\"></a>";
   echo "</center>\n";
   echo "</BODY>\n</HTML>\n";
   exit();

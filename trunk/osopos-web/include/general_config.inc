@@ -9,7 +9,8 @@
 
   // Seccion de bases de datos
   $DB_OWNER    =  "linucs";
-  $DB_NAME     =  "linucs";
+  //$DB_NAME     =  "linucs";
+  $DB_NAME = "elpunto_tapa";
   //$DB_OWNER    =  "scaja";
   //$DB_NAME     =  "osopos";
   $DB_HOST     =  "localhost";
@@ -20,6 +21,7 @@
 
   // Variables
   $IVA_PORCENTAJE = 15;
+  $IEPS_PORCENTAJE = 5;
 
   // Varios
   if (!isset($CMD_IMPRESION)) {
@@ -32,11 +34,24 @@
 
   // Factur
   //$FACTUR_IVA_INCLUIDO   = TRUE;
-  $FACTURA_IVA_INCLUIDO  = FALSE;
+  $FACTUR_IVA_INCLUIDO  = FALSE;
+  $FACTUR_IMPUESTO_INCLUIDO[0]  = FALSE;
+  $FACTUR_IMPUESTO_INCLUIDO[1]  = FALSE;
+  $FACTUR_IMPUESTO_INCLUIDO[2]  = FALSE;
+  $FACTUR_IMPUESTO_INCLUIDO[3]  = FALSE;
+  $FACTUR_IMPUESTO_INCLUIDO[4]  = FALSE;
+  $FACTUR_IMPUESTO_INCLUIDO[5]  = FALSE;
+  $DESGLOSAR_IMPUESTO[0] = TRUE;
+  $DESGLOSAR_IMPUESTO[1] = TRUE;
+  $DESGLOSAR_IMPUESTO[2] = FALSE;
+  $DESGLOSAR_IMPUESTO[3] = TRUE;
+  $DESGLOSAR_IMPUESTO[4] = FALSE;
+  $DESGLOSAR_IMPUESTO[5] = FALSE;
 
   // Versiones
   $factur_web_vers = "0.06";
   $caja_web_vers   = "0.04";
+  $osopos_web_vers = "0.09";
 
   // Estado por omisión
   $ESTADO_OMISION = "Chiapas";

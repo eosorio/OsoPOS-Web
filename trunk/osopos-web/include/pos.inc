@@ -37,11 +37,8 @@ function registra_venta($id_vendor, $tipo_pago, $tipo_comprobante,  $total) {
 	exit();
   }
 
-  /* Este query tiene el defecto de que se puede realizar otra venta antes de leer
-     nuestro numero de venta, devolviendonos un num. de venta distinto */
-/*    $query = "SELECT max(numero) FROM ventas"; */
 
-  /* Se asume que el mismo cajero no puede efectuar dos ventas iguales en un mismo segundo */
+  /* Se asume que el mismo cajero no puede efectuar dos ventas iguales en menos de un segundo */
   /* y si asi fuere que me hable para contratarlo .=)  */
   $query = sprintf("SELECT numero FROM ventas WHERE id_vendedor=%d AND ", $id_vendor);
   $query.= sprintf("id_cajero=%d AND fecha='$fecha' AND hora='$hora'", $user->id);
@@ -376,4 +373,28 @@ function CalculaIVA($numarticulos) {
   return($i);
 }
 
+function open_drawer()
+{
+  global $IMPRESORA_TIPO, $CMD_IMPRESION, $ESC;
+  $nm_ar = tempnam("/tmp", "caja_w");
+
+  $ar = fopen($nm_ar, "w");
+  switch ($IMPRESORA_TIPO) {
+  case "EPSON":
+    fputs($ar, sprintf("%c%c%c%c%c", $ESC,'p', 0, 255, 255));
+    break;
+  case "STAR":
+  default:
+    fputs($ar, sprintf("%c", 7));
+    break;
+  }
+  fclose($ar);
+  $comando = $CMD_IMPRESION . $nm_ar;
+  if ( !($impresion = @popen($comando, "w")) )
+    return(2);
+  else {
+    pclose($impresion);
+  }
+  return(0);
+}
 ?>

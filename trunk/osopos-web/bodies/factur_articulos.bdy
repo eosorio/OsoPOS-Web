@@ -1,15 +1,15 @@
 Introduzca los datos de los art&iacute;culos a facturar. Los renglones vac&iacute;os no aparecer&aacute;n en la factura.
 
 <form action="<? echo $PHP_SELF ?>" method=post>
-<table width="450" border="0" cols="5" cellspacing="0" cellpadding="0"
->
+<table width="450" border="0" cols="5" cellspacing="0" cellpadding="0">
 <tbody>
 <tr>
- <th><small>Código</small>
- <th><small>Cantidad</small>
- <th><small>Descripción</small>
- <th><small>P. unitario</small>
- <th><small>% IVA</small>
+ <th><small>Código</small></th>
+ <th><small>Cantidad</small></th>
+ <th><small>Descripción</small></th>
+ <th><small>P. unitario</small></th>
+ <th><small>% IVA</small></th>
+ <th><small>% IEPS</small></th>
 
 
 <? for ($i=0; $i<$ART_MAXRENS; $i++) { ?>
@@ -32,11 +32,15 @@ Introduzca los datos de los art&iacute;culos a facturar. Los renglones vac&iacut
    <small>
    <input type=text	name="iva_porc[]" size=2 value="<?echo $IVA_PORCENTAJE ?>"></small>
 
+  <td align=center height=10>
+   <small>
+   <input type=text	name="tax_0_porc[]" size=2 value="<?echo $IEPS_PORCENTAJE ?>"></small>
+
 <? } /* for */ ?>
 
  <tr>
-  <td colspan=5 align=right>
-   <font face="helvetica,arial" color="blue"><input type=submit value="Continuar"></font>
+  <td colspan=6 align=right>
+   <input type=submit value="Continuar">
 
 
 </tbody>

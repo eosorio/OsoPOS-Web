@@ -202,7 +202,7 @@ function Crea_Factura($cliente,    /*clase datoscliente */
   $linea = sprintf("%cJ%c",$ESC,12);
   fputs($ffact, $linea);
   Espacios($ffact,15);
-  $linea = sprintf("Hecho con OsoPOS Web. http://punto-deventa.com/software.html\n");
+  $linea = sprintf("Hecho con OsoPOS Web. http://elpuntodeventa.com/software.html\n");
   fputs($ffact, $linea);
 
   $linea = sprintf("%c",$FF);
@@ -211,7 +211,10 @@ function Crea_Factura($cliente,    /*clase datoscliente */
   fclose($ffact);
 }
 
+/* Tenemos de dos sopas: Se busca la venta en la base de datos, o se le
+envían los datos a la función como parámetros. */
 function Crea_Ticket ($nm_ticket,
+                      $id_venta,
                       $art_cod,
                       $art_desc,
                       $art_cant,
@@ -219,11 +222,26 @@ function Crea_Ticket ($nm_ticket,
                       $art_iva_porc,
                       $art_disc,
                       $pago,
-                      $monto
+                      $monto,
+                      $lee_venta
                       )
 {
   global $TICKET_IVA_INCLUIDO;
 
+  if ($lee_venta != 0)
+    $art = lee_venta ($id_venta);
+  else {
+    /* ¿Habrá manera de que se le pase el objeto como parámetro de función? */
+    $art = array(new articulosClass);
+    for ($i=0; $i<count($art_cod); $i++) {
+      $art[$i]->cod = $art_cod[$i];
+      $art[$i]->desc = $art_desc[$i];
+      $art[$i]->cant = $art_cant[$i];
+      $art[$i]->pu = $art_pu[$i];
+      $art[$i]->iva_porc = $art_iva_porc[$i];
+      $art[$i]->disc = $art_disc[$i];
+    }
+  }
   $impr = fopen($nm_ticket, "w");
   if (!$impr) {
     echo "<b>Error al abrir el archivo $nm_ticket</b><br></body></html>";
@@ -232,32 +250,32 @@ function Crea_Ticket ($nm_ticket,
 
   if (strtoupper($IMPRESORA_TIPO) == "STAR")
     fputs($impr, sprintf("%c", 7));
-  for ($i=0; $i<count($art_desc); $i++) {
-    $sub_iva = ( $art_pu[$i] * ($art_iva_porc[$i]/100) );
-    $linea = sprintf(" -> %s\n",$art_desc[$i]);
+  for ($i=0; $i<count($art); $i++) {
+    $sub_iva = ( $art[$i]->pu * ($art[$i]->iva_porc/100) );
+    $linea = sprintf(" -> %s\n",$art[$i]->desc);
     fputs($impr, $linea);
-    $linea = sprintf(" %5d x ", $art_cant[$i]);
+    $linea = sprintf(" %5d x ", $art[$i]->cant);
     fputs($impr, $linea);
     if ($TICKET_IVA_INCLUIDO) {
       $linea = sprintf("%10.2f = %10.2f",
-                       $art_pu[$i] + $sub_iva,
-                       ($art_pu[$i] + $sub_iva) * $art_cant[$i]);
+                       $art[$i]->pu + $sub_iva,
+                       ($art[$i]->pu + $sub_iva) * $art[$i]->cant);
     }
     else {
       $linea = sprintf("%10.2f = %10.2f",
-                       $art_pu[$i],
-                       $art_pu[$i] * $art_cant[$i]);
+                       $art[$i]->pu,
+                       $art[$i]->pu * $art[$i]->cant);
     }
     fputs($impr, $linea);
-    if (!$art_iva_porc[$i])
+    if (!$art[$i]->iva_porc)
       fputs($impr, " E");
     fputs($impr, "\n");
 
     if ($TICKET_IVA_INCLUIDO)
-      $a_pagar += (($art_pu[$i]+$sub_iva) * $art_cant[$i]);
+      $a_pagar += (($art[$i]->pu+$sub_iva) * $art[$i]->cant);
     else
-      $a_pagar += ($art_pu[$i] * $art_cant[$i]);
-    $iva += ( $sub_iva * $art_cant[$i] );
+      $a_pagar += ($art[$i]->pu * $art[$i]->cant);
+    $iva += ( $sub_iva * $art[$i]->cant );
   }
   $linea = sprintf("\n      Total: %10.2f\n", $a_pagar);
   fputs($impr, $linea);
@@ -276,3 +294,63 @@ function Crea_Ticket ($nm_ticket,
   fputs($impr, "E = Exento\n\n");
   fclose($impr);
 }
+
+function imprime_ticket_razon()
+{
+  global $CMD_IMPRESION, $IMPRESORA_TIPO, $ESC;
+
+  $nm_ar = tempnam("/tmp", "tkct_h");
+  if ( !($ar = fopen($nm_ar, "w")) )
+    return(1);
+  if ($IMPRESORA_TIPO == "EPSON") {
+    /* Centrado y doble ancho */
+    fputs($ar, sprintf("%ca%c%c!%celpuntodeventa.com\n%c!%c",
+                       $ESC, 1, $ESC, 48, $ESC, 0));
+  }
+  else {
+    /* Doble ancho y centrado a mano con espacios */
+    fputs($ar, sprintf("%c%c%c elpuntodeventa.com\n%c%c%c",
+                       $ESC,'P',14,    15, $ESC,'M'));
+  }
+
+  fputs($ar, "Soluciones en control de inventarios\n");
+  fputs($ar, "y punto de venta\n");
+  fputs($ar, sprintf("Eduardo Israel Osorio Hern%cndez\n", 182));
+  fclose($ar);
+  if ( !($impresion = @popen($CMD_IMPRESION . $nm_ar, "w")) )
+    return(2);
+  else {
+    pclose($impresion);
+    unlink($nm_ar);
+  }
+  return(0);
+}
+
+function print_ticket_header()
+{
+  global $CMD_IMPRESION, $IMPRESORA_TIPO, $ESC;
+
+  $nm_ar = tempnam("/tmp", "tkct_h");
+  if ( !($ar = fopen($nm_ar, "w")) )
+    return(1);
+  fputs($ar, "RFC: OOHE-740628-RNA\n");
+  fputs($ar, "Dom. fiscal: J. Ma. Gil 686. Zapopan, Jal\n");
+  fputs($ar, "-----------------------------------------\n");
+  fclose($ar);
+  if ( !($impresion = @popen($CMD_IMPRESION . $nm_ar, "w")) )
+    return(2);
+  else {
+    pclose($impresion);
+    unlink($nm_ar);
+  }
+  return(0);
+}
+
+function imprime_nota($nm_nota)
+{
+
+
+
+}
+
+

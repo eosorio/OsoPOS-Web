@@ -23,4 +23,5 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
    $MAXLEN_COD    =    20;
    $MAXLEN_DESC   =    50;
 
+  $ARCHIVO_PIE_TICKET = "/etc/osopos/pie_ticket";
 ?>
