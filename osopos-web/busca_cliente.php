@@ -1,9 +1,9 @@
-<? /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*-
+<?php /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
 
  Busca cliente. Submódulo de facturación de OsoPOS Web.
 
-        Copyright (C) 2000 Eduardo Israel Osorio Hernández
-        infomres@elpuntodeventa.com
+        Copyright (C) 2000-2003 Eduardo Israel Osorio Hernández
+        desarrollo@elpuntodeventa.com
 
         Este programa es un software libre; puede usted redistribuirlo y/o
 modificarlo de acuerdo con los términos de la Licencia Pública General GNU
@@ -19,6 +19,16 @@ GNU para mayores detalles.
 GNU junto con este programa; de no ser así, escriba a Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA. 
 */
+
+  include("include/general_config.inc");
+  include("include/pos-var.inc");
+  if (!empty($salir)) {
+    include("include/logout.inc");
+  }
+  else {
+    include("include/passwd.inc");
+  }
+
 ?>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
@@ -28,26 +38,18 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
    <meta name="Author" content="E. Israel Osorio Hernández">
-   <title>OsoPOS - FacturWeb v. 0.2</title>
+   <title>OsoPOS - FacturWeb v. 0.06</title>
+   <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
    <style type="text/css">
     td#nm_campo {font-face: helvetica,arial}
    </style>
 </head>
 
 
-<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000" background="imagenes/fondo.gif">
+<body>
 
-<?
-  include("include/general_config.inc");
+<?php
   include("include/encabezado.inc");
-  include("include/pos-var.inc");
-  if (isset($salir)) {
-    include("include/logout.inc");
-  }
-  else {
-  include("include/passwd.inc");
-  }
-
 ?>
 
 <form action="busca_cliente.php" method=post>
