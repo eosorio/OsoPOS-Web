@@ -11,13 +11,19 @@ CREATE TABLE articulos (
   p_costo       real DEFAULT 0,
   prov_clave    varchar(20) DEFAULT '',
   iva_porc      int DEFAULT 15 NOT NULL,
-  divisa        character(3) NOT NULL DEFAULT 'MXP'
+  divisa        character(3) NOT NULL DEFAULT 'MXP',
+  codigo2       varchar(20),
+  pu2           real,
+  pu3           real,
+  pu4           real,
+  pu5           real
 );
 REVOKE ALL ON articulos FROM PUBLIC;
 GRANT SELECT,UPDATE ON articulos TO "caja1";
 GRANT SELECT,UPDATE ON articulos TO "caja2";
 GRANT SELECT,UPDATE ON articulos TO "caja3";
 GRANT ALL ON articulos TO "scaja";
+
 CREATE TABLE ventas (
   numero            SERIAL PRIMARY KEY,
   monto             real,
@@ -38,7 +44,10 @@ GRANT INSERT,SELECT,UPDATE,DELETE ON ventas TO "scaja";
 CREATE TABLE ventas_detalle (
   "id_venta"        int4 NOT NULL,
   "codigo"          varchar(20) NOT NULL,
-  "cantidad"        int2
+  "descrip"         varchar(40) NOT NULL,
+  "cantidad"        int2,
+  "pu"              float NOT NULL DEFAULT 0,
+  "iva_porc"        float not null default 15
 );
 
 CREATE TABLE facturas_ingresos (
@@ -55,6 +64,8 @@ CREATE TABLE facturas_ingresos (
   "subtotal"        real not null,
   "iva"             real
 );
+REVOKE ALL ON facturas_ingresos TO PUBLIC;
+GRANT INSERT, SELECT ON facturas_ingresos TO "cajero1";
 
 CREATE TABLE fact_ingresos_detalle (
   id_factura        int4 not null,
@@ -63,18 +74,24 @@ CREATE TABLE fact_ingresos_detalle (
   cant              int,
   precio            real
 );
+REVOKE ALL ON fact_ingresos_detalle TO PUBLIC;
+GRANT INSERT, SELECT ON fact_ingresos_detalle TO "cajero1";
 
 CREATE TABLE clientes_fiscales (
   rfc               varchar(13) PRIMARY KEY NOT NULL,
   curp              varchar(18),
   nombre            varchar(70) NOT NULL
 );
+REVOKE ALL ON clientes_fiscales TO PUBLIC;
+GRANT INSERT, SELECT ON clientes_fiscales TO "cajero1";
 
 CREATE TABLE departamento (
   id                SERIAL PRIMARY KEY,
   nombre            varchar(25)
 );
-INSERT INTO departamento VALUES (0, 'Sin clasificar');
+COPY "departamento" FROM stdin;
+0	 Sin clasificar
+\.
 
 CREATE TABLE proveedores (
   "id"          SERIAL PRIMARY KEY,
@@ -110,4 +127,3 @@ CREATE TABLE divisas (
   "nombre"       varchar(20),
   "tipo_cambio"  real
 );
-

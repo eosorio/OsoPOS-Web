@@ -1,21 +1,34 @@
 General:
+* Implementar niveles de seguridad
 * Hacer módulo de corte de caja (corte_web.php)
-* Hacer un frontend que reúna los trés módulos principales (osopos_web.php)
-* Hacer un frontend para administración de usuarios
+* Corregir frontend para administración de usuarios (contraseñas)
+
+Almacenes:
+* Escribir código de frontend para añadir productos del catálogo de producto al de un almcén.
+* Escribir código para agregar almacenes
+
+Movimientos al inventario:
+* Terminar formas de datos (ventas, etc)
+* Hacer sección de reportes de movimientos al inventario
 
 Factur:
 * Hacer código para mostrar y modificar facturas capturadas.
 * Colocar javascript para que se cambie a mayusculas el RFC
+* Poner opción para modificar artículos a facturar cuando estos se
+  capturaron desde el módulo de caja
 * Cancelar modo condensado al comenzar impresión
 
 Caja:
 * Hacer submódulo de impresión de notas de mostrador
 * Hacer código para mostrar las ventas por vendedor, por cajero o todas.
 * Notificar por e-mail baja existencia de productos.
+* Mostrar subtotal acumulado en modo express
 
 Invent:
-* Corregir desfase en telefonos de proveedor al agregar nuevo proveedor
+* Revisar el envio de datos en alta de artículo, y analizar que sucede con la tabla
+  article_desc
 * Revisar inserción de proveedores con psql y mysql
 * Hacer submódulo para imprimir reporte de existencias
-* En el submódulo de proveedores, quitar el hardcode en arreglo de 
-  variables de la forma para agregar o cambiar datos de proveedor
+* En el submódulo de departamento, colocar un control para que se pueda 
+  aplicar un descuento a todos los productos de un mismo departamento, y 
+  lo mismo para proveedor

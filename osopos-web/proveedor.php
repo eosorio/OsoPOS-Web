@@ -41,7 +41,7 @@
     //    if (!$resultado = pg_exec($conn, $peticion)) {
     if (!$resultado = db_query($peticion, $conn)) {
       echo "Error al ejecutar $peticion<br>\n";
-      echo db_errormessage($conn) . "<br></body></html>\n";
+      echo db_errormsg($conn) . "<br></body></html>\n";
       exit();
     }
 
@@ -207,7 +207,7 @@
 
     if (!$resultado2 = db_query($peticion, $conn)) {
       echo "<tr><td colspan=5><b>Error al ejecutar $peticion<br>\n";
-      echo db_errormesg($conn) . "</b></td></tr></table></body></html>\n";
+      echo db_errormsg($conn) . "</b></td></tr></table></body></html>\n";
       exit();
     }
     $num_ren2 = db_num_rows($resultado2);
