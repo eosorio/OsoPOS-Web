@@ -20,22 +20,34 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 */
 
-function registra_venta($id_vendor, $tipo_pago, $tipo_comprobante,  $total) {
+function registra_venta($id_vendor,
+                        $id_teller,
+                        $payment_type,
+                        $tipo_comprobante,
+                        $corte_parcial,
+                        $date,
+                        $total)
+{
 
-  global $articulo_descripcion, $articulo_cantidad, $articulo_codigo, $user, $conn;
+  global $articulo_descripcion, $articulo_cantidad, $articulo_codigo,
+         $articulo_pu, $articulo_iva_porc, $user, $conn;
 
   /*igm*/$utilidad = $total;
   $query = "INSERT INTO ventas (\"monto\", \"tipo_pago\", \"tipo_factur\", \"corte_parcial\", ";
   $query.= "\"utilidad\", \"id_vendedor\", \"id_cajero\", \"fecha\", \"hora\" ) VALUES (";
   $query.= sprintf("%.2f, %d, %d, '%s', %.2f, %d, %d, '%s', '%s')",
-					  $total, $tipo_pago, $tipo_comprobante, "f", $utilidad, $id_vendor,
+					  $total, $payment_type, $tipo_comprobante, "f", $utilidad, $id_vendor,
 					  $user->id, date("Y-m-d"), date("H:i:s"));
   if (!$resultado = pg_exec($conn, $query)) {
 	echo "Error al ejecutar $query<br>\n";
 	exit();
   }
 
-  $query = "SELECT max(numero) FROM ventas";
+  $query = "SELECT numero FROM ventas";
+  $query.= sprintf("WHERE id_cajero=%d AND fecha='%d-%d-%d' AND hora='%d:%d:%d'",
+	  $id_teller, $fecha->anio, $fecha->mes, $fecha->dia,
+	  $fecha->hora, $fecha->minuto, $fecha->segundo);
+
   if (!$resultado = pg_exec($conn, $query)) {
 	echo "Error al ejecutar $query<br>\n";
 	exit();
@@ -43,9 +55,11 @@ function registra_venta($id_vendor, $tipo_pago, $tipo_comprobante,  $total) {
   $id_venta = pg_result($resultado, 0, 0);
 
   for ($i=0; $i<count($articulo_descripcion); $i++) {
-	$query = "INSERT INTO ventas_detalle (\"id_venta\", \"codigo\", \"cantidad\")";
+	$query = "INSERT INTO ventas_detalle (\"id_venta\", \"codigo\", \"cantidad\",";
+	$query.= "\"descrip\", \"pu\", \"iva_porc\")";
 	$query.= sprintf(" VALUES (%d, '%s', %d)", $id_venta, $articulo_codigo[$i],
-						$articulo_cantidad[$i]);
+	                   $articulo_cantidad[$i], $articulo_descripcion[$i],
+	                   $articulo_pu[$i], $articulo_iva_porc[$i]);
 	if (!$resultado = pg_exec($conn, $query)) {
 	  echo "Error al ejecutar $query<br>\n";
 	  exit();
@@ -148,36 +162,27 @@ function lee_venta($id) {
 
   $art = array(new articulosClass);
 
-  $query = "SELECT \"codigo\", \"cantidad\" FROM ventas_detalle WHERE id_venta=$id";
+  $query = "SELECT \"codigo\", \"cantidad\", \"descrip\", \"pu\", \"iva_porc\"";
+  $query.= " FROM ventas_detalle WHERE id_venta=$id";
   if (!$resultado = pg_exec($conn, $query)) {
     echo "Error al ejecutar $query<br>";
     echo "No se pudo encontrar los datos de la venta<br>" . pg_errormessage($conn) . "<br>\n";
   }
   $num_art = pg_numrows($resultado);
 
+  if (!pg_numrows($resultado)) {
+    echo "<b>Error: No puedo encontrar los datos del articulo" . $art[$i]->codigo . "</b><br>\n";
+    echo pg_errormessage($conn) . "<br>\n";
+    return;
+  }
+
   for ($i=0; $i<$num_art; $i++) {
     $reng = pg_fetch_object($resultado, $i);
     $art[$i]->codigo = $reng->codigo;
     $art[$i]->cant = $reng->cantidad;
-
-    $query = "SELECT \"descripcion\",\"pu\",\"iva_porc\" FROM articulos WHERE ";
-    $query.= sprintf("codigo='%s'", $art[$i]->codigo);
-    if (!$resultado2 = pg_exec($conn, $query)) {
-      echo "Error al ejecutar $query<br>";
-      echo "No se pudo accesar la tabla <i>articulos</i><br>\n";
-      echo pg_errormessage($conn) . "<br>\n";
-      return;
-    }
-
-    if (!pg_numrows($resultado2)) {
-      echo "<b>Error: No puedo encontrar los datos del articulo" . $art[$i]->codigo . "</b><br>\n";
-      echo pg_errormessage($conn) . "<br>\n";
-      return;
-    }
-    $reng2 = pg_fetch_object($resultado2, 0);
-    $art[$i]->desc = $reng2->descripcion;
-    $art[$i]->pu = $reng2->pu;
-    $art[$i]->iva_porc = $reng2->iva_porc;
+    $art[$i]->pu = $reng->pu;
+    $art[$i]->iva_porc = $reng->iva_porc;
+    $art[$i]->desc = $reng->descrip;
   }
   return($art);
 }
@@ -280,21 +285,22 @@ function interp_cant($u, $d, $c) {
 }
 
 
-function str_cant($total, &$centavos) {
+function str_cant($tot, &$centavos) {
 
   $unidades = "";
   $miles = "";
   $millones = "";
 
-  $buffer = sprintf("%0.2f", $total);
+  $total = sprintf("%.0f", $tot);
+  $buffer = sprintf("%0.2f", $tot);
   $arreglo = explode(".", $buffer);
   $centavos = $arreglo[1];
   if (strlen($centavos) == 1)
-    $centavos.="0";
+    $centavos = "0" . $centavos;
 
   $buffer = "";
 
-  $num1 = (int) $total;
+  $num1 = $total;
 
   /* Obtención de millones */
   $millon = (int)($num1/1000000);

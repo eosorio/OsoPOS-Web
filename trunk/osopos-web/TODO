@@ -1,7 +1,7 @@
 General:
-* Hacer un fontend que reúna los trés módulos principales (osopos_web.php)
-* Hacer un frontend para administración de usuarios
 * Hacer módulo de corte de caja (corte_web.php)
+* Hacer un frontend que reúna los trés módulos principales (osopos_web.php)
+* Hacer un frontend para administración de usuarios
 
 Factur:
 * Cancelar modo condensado al comenzar impresión

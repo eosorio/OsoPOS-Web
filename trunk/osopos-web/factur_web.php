@@ -67,7 +67,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
     if (!empty($id_venta)) {
 
-      //      $conn = pg_connect("dbname=" . $DB_NAME . " user=" . $DB_OWNER);
       if (!$conn) {
         echo "ERROR: Al conectarse a la base de datos $DB_NAME<br>\n</body></html>";
         exit();
@@ -88,14 +87,14 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     }
 
     if ($existe_venta==0) {
-      include ("include/linucs_factur_const.inc");
+      include ("include/minegocio_factur_const.inc");
 
       $num_arts = $ART_MAXRENS;
       include("bodies/factur_articulos.bdy");
     }
     else {
       $fase = 2;
-      include ("include/linucs_factur_const.inc");
+      include ("include/minegocio_factur_const.inc");
 
       /* Los datos de artículos provienen de una forma */
       if (isset($desc) && count($desc)) {
@@ -152,7 +151,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <tbody>
 
-<form action="<?php echo "$PHP_SELF" ?>" method=get>
+<form action="<?php echo "$PHP_SELF" ?>" method=post>
 <?php
   for ($i=0; $i<$num_arts; $i++) {
 	if (count($desc)) {
@@ -163,6 +162,9 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 	  $articulo[$i]->cant = $cant[$i];
 	  $articulo[$i]->desc = $desc[$i];
 	}
+    if ($FACTUR_IVA_INCLUIDO) {
+      $articulo[$i]->pu = $articulo[$i]->pu / (1+($articulo[$i]->iva_porc/100));
+    }
     $gravado = $articulo[$i]->iva_porc;
     if ($gravado) {
       $iva += $articulo[$i]->pu * ($articulo[$i]->iva_porc/100) * $articulo[$i]->cant;
@@ -209,9 +211,9 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
  </td>
 
  <tr>
-  <td colspan=3 rowspan=3>
+  <td colspan=3 rowspan=3><font face="helvetica, arial">
    <textarea name=observaciones cols=<? printf("%d", $OBS_MAXCOLS) ?>
-   rows=<? printf("%d", $OBS_MAXRENS) ?> wrap=hard></textarea>
+   rows=<? printf("%d", $OBS_MAXRENS) ?> wrap=hard><? echo $OBS_DEFAULT ?></textarea></font>
   </td>
   <td align="right"><b>Subtotal</b></td>
   <td align="right"><?php printf("%.2f", $subtotal) ?></td>
@@ -229,7 +231,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 </table>
 <br><br>
 <center>
-<font size=+3><b><?php echo str_cant($subtotal+$iva, $centavos) . "pesos $centavos" ?>/100 M.N.</b></font>
+<? $total = $subtotal + $iva ?>
+<font size=+3><b><?php echo str_cant($total, $centavos); printf("pesos %s", $centavos); ?>/100 M.N.</b></font>
 </center>
 
 <br>
@@ -253,7 +256,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
              /********************** fase tres ******************/
   if ( strlen(strstr($accion, "agregar")) ) {
-    $conn = pg_connect("dbname=" . $DB_NAME . " user=" . $DB_OWNER);
     if (!$conn) {
       echo "ERROR: Al conectarse a la base de datos $DB_NAME<br>\n</body></html>";
       exit();
@@ -268,7 +270,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       exit();
     }
     else
-      echo "<center><i>Factura $id, $rfc agregada</i></center>";
+      echo "<center><i>Factura $id, $rfc agregada</i></center><br>";
 
     for ($i=0; $i<count($desc); $i++) {
       $peticion = "INSERT INTO fact_ingresos_detalle ";
@@ -281,15 +283,35 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
         exit();
       }
     }
+
+    if ($AGREGA_CLIENTES != 0) {
+      $peticion = "SELECT rfc FROM clientes_fiscales WHERE rfc='$rfc'";
+      if (!$resultado = pg_exec($conn, $peticion)) {
+        echo "Error al ejecutar $peticion<br>" . pg_errormessage($conn) . "</body></html>\n";
+        exit();
+      }
+      if (pg_numrows($resultado) == 0) {
+        $peticion = "INSERT INTO clientes_fiscales (\"rfc\", \"curp\", \"nombre\") ";
+        $peticion.= " VALUES ('$rfc', '$curp', '$razon_soc')";
+        $mensaje = "<center><i>Cliente $razon_soc agregado</i></center><br>";
+      }
+      else
+        $mensaje = "";
+      if (!$resultado = pg_exec($conn, $peticion)) {
+        echo "Error al ejecutar $peticion<br>" . pg_errormessage($conn) . "</body></html>\n";
+        exit();
+      }
+      echo $mensaje;
+    }
     $fase = 0;
   }
 
   if ( strlen(strstr($accion, "imprimir")) ) {
     include("include/pos.inc");
-    /*igm*/ include("include/linucs.inc");
+    include("include/minegocio.inc");
+    include("include/minegocio_factur_const.inc");
     /*igm*/ $tipoimp = "EPSON";
     /*igm*/ $obs = array();
-    /*igm*/ $garantia = "Treinta segundos";
 
     $cliente = new datosclienteClass;
     $cliente->rfc = $rfc;
@@ -317,20 +339,23 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $art[$i]->cant = $cant[$i];
     }
 
-    $observaciones = str_replace("\n", " ", str_replace("\r", "", $observaciones));
+    $observaciones = chop (str_replace("\n", " ", str_replace("\r", "", $observaciones)) );
 
     $nm_archivo = tempnam($TMP_DIR, "factweb");
 
     Crea_Factura($cliente, $fecha, $art, count($desc), $subtotal, $iva, $subtotal+$iva,
                  $garantia, $observaciones, $nm_archivo, $tipoimp);
 
-    $impresion = popen($CMD_IMPRESION . $nm_archivo, "w");
+    $linea = "$CMD_IMPRESION $LP_PRINTER $nm_archivo";
+    $impresion = popen($linea, "w");
     if (!$impresion) {
       echo "<b>Error al ejecutar <i>$CMD_IMPRESION $nm_archivo</i></b><br>\n";
     }
     else {
-      echo "<center><i>Factura impresa.</i></center>\n";
-      pclose($impresion);
+      if (pclose($impresion) == 0)
+        echo "<center><i>Factura impresa.</i></center>\n";
+      else
+        echo "<center><b>Error al ejecutar comando $linea</b></center>\n";;
     }
   } /* if ($accion=="imprimir"  ||  $accion=="agregarimprimir") */
 
@@ -340,7 +365,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
         /*******************  fase uno *****************/
 
   if (!isset($fase)  ||  $fase==0) {
-    $conn = pg_connect("dbname=" . $DB_NAME . " user=" . $DB_OWNER);
     if (!$conn) {
       echo "ERROR: Al conectarse a la base de datos $DB_NAME<br>\n</body></html>";
       exit();

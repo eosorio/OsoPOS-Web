@@ -19,7 +19,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 
 */
-  include("invent_web.config");
+  include("include/general_config.inc");
   if (isset($salir)) {
     include("include/logout.inc");
   }
