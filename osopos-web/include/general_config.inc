@@ -1,5 +1,6 @@
 <? /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 {
+  $PROGRAMA = "web";
 
   /* Type of SQL client/server. For now is postgres or mysql */
   $SQL_TYPE = "postgres";
@@ -8,34 +9,33 @@
 
   // Seccion de bases de datos
   if ($SQL_TYPE=="postgres") {
-    $DB_OWNER    =  "linucs";
-    //$DB_NAME     =  "linucs";
-    $DB_NAME = "elpunto_tapa";
-    //$DB_OWNER    =  "scaja";
-    //$DB_NAME     =  "osopos";
-    //$DB_HOST     =  "localhost";
+    include("/etc/osopos/.config");
   }
   else if ($SQL_TYPE == "mysql") {
-    //$DB_HOST     = "mysql.elpuntodeventa.com";
     $DB_HOST = "127.0.0.1";
     $DB_OWNER = "root";
     $DB_PASSWD = "";
-    $DB_NAME = "elpunto_tapa";
+    $DB_NAME = "osopos";
   }
 
   // Seccion de archivos y directorios
   $TMP_DIR     =  "/tmp";
   $IMG_DIR     =  "imagenes/articulos";
-  $PWD_DIR     =  "/home/linucs/public_html/osopos_web";
+  $PWD_DIR     =  "/var/www/html/osopos-web";
 
   // Variables
   $IVA_PORCENTAJE = 10;
   $IEPS_PORCENTAJE = 5;
 
   // Varios
+  $COLA_TICKET   = "ticket";
+  $COLA_NOTA     = "ticket";
+  $COLA_FACTUR   = "star";
+  $COLA_DEFAULT  = $COLA_FACTUR;
   if (!isset($CMD_IMPRESION)) {
     $CMD_IMPRESION = "lpr -b ";
   }
+
 
   $IMPRESORA_TIPO = "STAR";
   //  $IMPRESORA_TIPO = "EPSON";
@@ -57,12 +57,18 @@
   $DESGLOSAR_IMPUESTO[4] = FALSE;
   $DESGLOSAR_IMPUESTO[5] = FALSE;
 
+  // Movimientos al inventario
+  $MOVINV_IMPR_COND = 1;
+
   // Versiones
   $factur_web_vers = "0.06";
   $caja_web_vers   = "0.04";
-  $osopos_web_vers = "0.10";
+  $osopos_web_vers = "1.19";
 
   // Estado por omisión
   $ESTADO_OMISION = "Chiapas";
+
+  // Estadísticas
+  $MAX_IMG_BARRAS = 5;
 }
 ?>
