@@ -19,6 +19,7 @@ GNU junto con este programa; de no ser así, escriba a Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA. 
 
 */
+  /*igm*/ $debug = 0;
   include("include/general_config.inc");
   include("include/factur_config.inc");
   include("include/pos-var.inc");
@@ -45,7 +46,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
    <meta name="Author" content="E. Israel Osorio Hernández">
    <title>OsoPOS - FacturWeb v. <? echo $factur_web_vers ?></title>
    <style type="text/css">
-    body { background: white; font-face: helvetica,arial }
+    body { font-family: helvetica, sans-serif;
+       text-size: 12pt;
+       background-image: url(imagenes/fondo.gif);
+       background-color: #FFFFFF }
     td.campo {font-face: helvetica,arial}
     td.nm_campo {text-align: right}
     td.right {font-face: helvetica, arial; text-align: right}
@@ -55,7 +59,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 </head>
 
-<body background="imagenes/fondo.gif">
+<body>
 
 <?
   include("include/encabezado.inc");
@@ -83,15 +87,21 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
         exit();
       }
 
-      $existe_venta = 0;
+      if (!isset($existe_venta))
+        $existe_venta = 0;
       if (!is_array($articulo = lee_venta($id_venta))) {
         echo "<b>Error al leer artículos de la venta $id_venta</b><br>\n";
         $accion = "articulos";
       }
       else {
-        $num_arts = count($articulo);
-        $existe_venta = 1;
+        if ($num_arts = count($articulo))
+          $existe_venta = 1;
+        else {
+          $existe_venta = 0;
+          $accion = "articulos";
+        }
       }
+
     }
     else {
       $accion = "articulos";
@@ -114,161 +124,15 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
         for($num_arts = 0; strlen($desc[$num_arts]); $num_arts++);
       }
 
-?>
-<table border=0 width="100%">
-<tbody>
- <tr>
-  <td>
-<b>Cliente:</b><br>
-<?php
-  echo "$razon_soc<br>\n";
-  printf("%s %s", $dom_calle, $dom_ext);
-  if (strlen($dom_int))
-    echo "-$dom_int";
-  echo "<br>\n";
-  if (strlen($dom_col))
-    echo "Col. $dom_col. ";
-  if (!empty($dom_cp))
-    printf("C.P. %d<br>\n", $dom_cp);
-  echo "$dom_ciudad, $dom_edo<br>\n";
-  echo "<b>R.F.C.</b> $rfc<br>\n";
-?>
-  
-  <td>
-  Folio: <? echo $id ?><br>
-  Fecha: 
-  <? 
-    if (empty($mes)) {
-      include "include/mes.inc";
-      $mes_a = array_keys($meses, $mes_s);
-      $mes = $mes_a[0]+1;
-    }
-    echo "$dia-$mes-$anio<br>\n";
-  ?>
-  Observaciones: <br><br><br><br>
-  
+      if (empty($mes)) {
+        include "include/mes.inc";
+        $mes_a = array_keys($meses, $mes_s);
+        $mes = $mes_a[0]+1;
+      }
 
-</tbody>
-</table>
-<hr>
+      include("bodies/factur_prevista.bdy");
 
 
-<form action="<?php echo $PHP_SELF ?>" method="post">
-<table width="100%" border=0>
-<thead>
- <tr>
-  <th width="10%">Clave</th><th width="5%">Ct.</th>
-  <th width="65%">Descripci&oacute;n</th>
-  <th width="10%">P.U.</th>
-  <th width="10%">Importe</th>
- </tr>
-
-<tbody>
-
-<?php
-  for ($i=0; $i<$num_arts && $i<10; $i++) {
-	if (count($desc)) {
-      /* si los datos vienen de una forma */
-	  $articulo[$i]->iva_porc = $iva_porc[$i];
-	  $articulo[$i]->pu = $pu[$i];
-	  $articulo[$i]->codigo = $codigo[$i];
-	  $articulo[$i]->cant = $cant[$i];
-	  $articulo[$i]->desc = $desc[$i];
-	}
-    if ($FACTUR_IVA_INCLUIDO) {
-      $articulo[$i]->pu = $articulo[$i]->pu / (1+($articulo[$i]->iva_porc/100));
-    }
-    $gravado = $articulo[$i]->iva_porc;
-    if ($gravado) {
-      $iva += $articulo[$i]->pu * ($articulo[$i]->iva_porc/100) * $articulo[$i]->cant;
-    }
-    $subtotal += $articulo[$i]->pu * $articulo[$i]->cant;
-  
-    if (!($i%2))
-      $bgcolor = "bgcolor=\"#fdffd8\"";
-    else
-      $bgcolor = "";
-?>
-
- <tr>
-  <td <? echo $bgcolor ?>><? echo $articulo[$i]->codigo ?>&nbsp;
-  <input type="hidden" name="codigo[<? echo $i ?>]" value="<? echo $articulo[$i]->codigo ?>"></td>
-  <td <? echo $bgcolor ?> align=center><? echo $articulo[$i]->cant ?>
-  <input type="hidden" name="cant[<? echo $i ?>]" value="<? echo $articulo[$i]->cant ?>"></td>
-  <td width="0*" <? echo $bgcolor ?>><? echo stripslashes($articulo[$i]->desc) ?>&nbsp;
-  <input type="hidden" name="desc[<? echo $i ?>]" value="<? echo stripslashes($articulo[$i]->desc) ?>"></td>
-  <td <? echo $bgcolor ?> align="right"><? printf("%.2f",  $articulo[$i]->pu) ?>
-  <input type="hidden" name="pu[<? echo $i ?>]" value="<? echo $articulo[$i]->pu ?>"></td>
-  <td <? echo $bgcolor ?> align="right"><? printf("%.2f",  $articulo[$i]->pu*$articulo[$i]->cant) ?></td>
- </tr>
-
-<?php
-	}  /* for */
-?>
-
- <tr>
-  <td class="campo" colspan=5><small><b>Observaciones:</b></small>
-   <input type=hidden name=id value="<?php printf("%d", $id) ?>">
-   <input type=hidden name=anio value="<?php printf("%d", $anio) ?>">
-   <input type=hidden name=mes value="<?php printf("%d", $mes) ?>">
-   <input type=hidden name=dia value="<?php printf("%d", $dia) ?>">
-   <input type=hidden name=rfc value="<?php echo $rfc ?>">
-   <input type=hidden name=razon_soc value="<?php echo $razon_soc ?>">
-   <input type=hidden name=dom_calle value="<?php echo $dom_calle ?>">
-   <input type=hidden name=dom_ext value="<?php echo $dom_ext ?>">
-   <input type=hidden name=dom_int value="<?php echo $dom_int ?>">
-   <input type=hidden name=dom_col value="<?php echo $dom_col ?>">
-   <input type=hidden name=dom_ciudad value="<?php echo $dom_ciudad ?>">
-   <input type=hidden name=dom_edo value="<?php echo $dom_edo ?>">
-   <input type=hidden name=dom_cp value="<?php echo $dom_cp ?>">
-  </td>
- </tr>
-
- <tr>
-  <td class="campo" colspan=3 rowspan=3>
-   <textarea name=observaciones cols=<? printf("%d", $OBS_MAXCOLS) ?>
-   rows=<? printf("%d", $OBS_MAXRENS) ?>><? echo $OBS_DEFAULT ?></textarea>
-  </td>
-  
-  <td class="right"><b>Subtotal</b></td>
-  <td class="right"><b><? printf("%.2f", $subtotal) ?></b>
-  <input type=hidden name=subtotal value=<?php echo $subtotal ?>></td>
- </tr>
-
- <tr>
-  <td class="right"><b>I.V.A.</b></td>
-  <td class="right"><b><? printf("%.2f", $iva) ?></b>
-  <input type=hidden name=iva value=<? echo $iva ?>></td>
- </tr>
-  
- <tr>
-  <td class="right"><b>Total</b></td>
-  <td class="right_red"><b><?php printf("%.2f", $subtotal+$iva) ?></b></td>
- </tr>
-
-</table>
-<br><br>
-<center>
-<? $total = $subtotal + $iva ?>
-<h4><b><?php echo str_cant($total, $centavos); printf("pesos %s", $centavos); ?>/100 M.N.</b></h4>
-</center>
-
-<br>
-<table border=0 width="100%">
-<tbody>
- <tr>
-  <td width=5  align=center><input type=radio name=accion value="agregarimprimir" checked>
-  <td>Agregar e imprimir
-  <td width=5  align=center><input type=radio name=accion value="agregar">
-  <td>Sólo agregar
-  <td align=right><input type=submit value="Registrar factura">
-</tbody>
-</table>
-
-</form>
-
-
-<?
     }  /* de else (no existe id_venta) */
   }    /* de if (accion=mostrar || accion=articulos */
 
@@ -282,8 +146,15 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     $peticion = "INSERT INTO facturas_ingresos VALUES (";
     $peticion.= sprintf("%d, '%d-%d-%d', ", $id, $anio, $mes, $dia) . "'$rfc', '$dom_calle', ";
     $peticion.= sprintf("%d, '%s', ", $dom_ext, $dom_int);
-    $peticion.= "'$dom_col', '$dom_ciudad', '$dom_edo', " . sprintf("%d, %.2f, %.2f)", $dom_cp, $subtotal, $iva);
-    if (!$resultado = db_query($peticion, $conn)) {
+    $peticion.= "'$dom_col', '$dom_ciudad', '$dom_edo', ";
+    $peticion.= sprintf("%d, %.2f, %.2f", $dom_cp, $subtotal, $iva);
+    for ($j=0; $j<$MAXTAX; $j++)
+      $peticion.= sprintf(", %.2f", $impuesto[$j]);
+    $peticion.= ")";
+
+    if (isset($debug) && $debug>0)
+      echo "<i>$peticion</i><br>\n";
+    else if (!$resultado = db_query($peticion, $conn)) {
       echo "Error al ejecutar $peticion<br>" . db_errormsg($conn) . "</body></html>\n";
       exit();
     }
@@ -362,7 +233,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     $nm_archivo = tempnam($TMP_DIR, "factweb");
 
     Crea_Factura($cliente, $fecha, $art, count($desc), $subtotal, $iva, $subtotal+$iva,
-                 $garantia, $observaciones, $nm_archivo, $tipoimp);
+                 $garantia, $observaciones, $id_venta, $nm_archivo, $tipoimp);
 
     $linea = "$CMD_IMPRESION $LP_PRINTER $nm_archivo";
     $impresion = popen($linea, "w");

@@ -76,6 +76,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 </head>
 
 <?
+
   if ($mode == "express" && empty($codigo) && empty($num_arts)) {
     if ($bandera==0) {
 ?>
@@ -87,7 +88,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
  jiva_porc = new Array();
 <?
     /* Cargamos la tabla de articulos en variables de javascript */
-    $query = "SELECT codigo, descripcion, pu, iva_porc, descuento FROM articulos";
+    $query = "SELECT codigo, descripcion, pu, iva_porc, descuento FROM articulos ORDER BY codigo";
     if (!$resultado = db_query($query, $conn)) {
       echo "Error al ejecutar $peticion<br>\n";
       exit();
@@ -105,20 +106,32 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 ?>
 
-  function busca_codigo(codigo) {
+  function shell_search(code, first, last) {
+    middle = (last - first) div 2 + first;
+    if (code < jcod[middle])
+      return(shell_search(code, first, middle));
+    else if (code > jcod[middle])
+      return(shell_search(code, middle, last));
+    else
+      return(middle);
+  }
+
+  function find_code(codigo) {
     for (var i=0; i<<? echo $num_ren ?> && codigo!=jcod[i]; i++);
     return(jdesc[i]);
   }
 
-  function muestra_articulo(codigo) {
+  function muestra_articulo(code) {
     var s, t;
 	var j;
 
-    if (document.forma_articulo.cod.value=="")
+    if (document.forma_articulo.cod.value=="") {
       return(true);
-    for (var i=0; i<<? echo $num_ren ?> && codigo!=jcod[i]; i++);
+    }
+    //    for (var i=0; i<<? echo $num_ren ?> && code!=jcod[i]; i++);
+    i = shell_search(code, 0, <? echo $num_ren ?>);
     if (i == <? printf("%d", $num_ren) ?>) {
-      alert("Artículo " + codigo + " no encontrado, introdúzcalo manualmente");
+      alert("Artículo " + code + " no encontrado, introdúzcalo manualmente");
       return(false);
     }
     s = jcod[i];
@@ -150,6 +163,23 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <body bgcolor="white" background="imagenes/fondo.gif"
  onload="document.forma_articulo.cod.focus()">
 
+<?
+  if ($imprime_cabecera == 1) {
+    include("include/minegocio.inc");
+    switch(print_ticket_header()) {
+      case 0:
+        echo "<i>Ticket impreso</i><br>\n";
+        break;
+      case 1:
+        echo "<b>Error: No puedo leer la cabecera de ticket</b><br>\n";
+        break;
+      case 2:
+        echo "<b>Error: No puedo imprimir la cabecera de ticket</b><br>\n";
+        break;
+    }
+  }    
+?>
+
 <form action="<? echo $PHP_SELF ?>" method="POST" name="forma_articulo"<?
    if ($mode == "express")
      echo " onsubmit=\"muestra_articulo(document.forma_articulo.cod.value)\">\n";
@@ -160,26 +190,46 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <table border=0 width=500>
 <tr>
 
-<td valign=middle>
+<td valign="middle">
 C&oacute;digo, cantidad o descripci&oacute;n:
 </td>
 
 <td><small>
-<input type=text name=cod size=20 maxlength=20>
+<input type="text" name="cod" size=20 maxlength=20
+onblur="muestra_articulo(forma_articulo.cod.value)">
 </small>
 <input type="hidden" name="php_anterior" value="<? echo $PHP_SELF ?>">
 </td>
 
-<td align=right>
-<input type=submit value="Finalizar venta">
-
+<td align="right">
 <input type="button" name="ingresa" value="Ingresa articulo"
-onClick="muestra_articulo(forma_articulo.cod.value)">
+<?
+    if ($mode=="express") {
+?>
+onClick="muestra_articulo(forma_articulo.cod.value)"
+<?
+    }
+?>
+>
 </td>
 
-<td align=right><font face="helvetica,arial">
+<td align=right>
 <input type=button value="Cancelar artículo" onClick="javascript:history.back()">
 </td>
+
+<td align="right">
+<input type="submit" value="Finalizar venta">
+</td>
+
+<?
+    if ($mode=="express") {
+?>
+<td align="right">
+<input type="text" size=0>
+</td>
+<?
+    }
+?>
 
 </tr>
 </table>
@@ -214,6 +264,7 @@ onClick="muestra_articulo(forma_articulo.cod.value)">
     }  /* fin de if ($bandera == 0) */
     if ($bandera != 1) {
       include("bodies/caja_lista_arts.bdy");
+      echo "</form>\n";     
     }
     if ($bandera == 1) {
       if ($mode == "express") {
@@ -236,9 +287,6 @@ onClick="muestra_articulo(forma_articulo.cod.value)">
     if ($num_arts>0) {
 
       $nm_ticket = tempnam($TMP_DIR, "cajaweb");
-      /* Colocar aqui código para leer el id de venta, colocar una venta vacía para apartar folio
-         y despues se actualiza */
-
 	  include("bodies/caja_web_cobro.bdy");
     }
     else {

@@ -39,13 +39,15 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <HEAD>
   <TITLE>OsoPOS - Factur Web v. <? echo $factur_web_vers ?></TITLE>
   <style type="text/css">
-    td#nm_campo {font-face: helvetica,arial}
-  td#right_b {font-face: helvetica, arial; text-align: right}
-  td.number {font-face: helvetica, arial; text-align: right}
-   </style>
+    body { font-face: helvetica, arial;
+      background-image: url(imagenes/fondo.gif);
+      background-color: #FFFFFF }
+    td.right_b {text-align: right}
+    td.number {text-align: right}
+  </style>
 
 </HEAD>
-<BODY BGCOLOR="white" BACKGROUND="imagenes/fondo.gif" <?
+<BODY <?
   if ($action == "muestra") {
     echo "onload=\"document.articulo.descripcion.focus()\"";
   }
@@ -113,12 +115,12 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     echo "<table width=\"100%\">\n";
     echo "<form action=\"$form_action\" name=\"articulo\" method=POST>\n";
     echo " <tr>\n";
-    echo "  <td><font face=\"helvetica, arial\">Folio</font></td>\n";
+    echo "  <td>Folio</td>\n";
     if (isset($id)) {
-      echo "<td><font face=\"helvetica, arial\">$id</font> <input type=hidden name=id $val_id></td>\n";
+      echo "<td>$id <input type=hidden name=id $val_id></td>\n";
     }
     else {
-      echo "  <td><font face=\"helvetica, arial\"><input type=\"text\" name=id maxlength=20></font></td>\n";
+      echo "  <td><input type=\"text\" name=id maxlength=20></td>\n";
     }
 ?>
     <td>Fecha <small>(aaaa/mm/dd)</small></td>
@@ -133,11 +135,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
      <td>I.V.A.</td>
      <td><input type="text" name="iva" size=10 <? echo $val_iva ?>></td>
 <?
-    echo "  <td><font face=\"helvetica, arial\">Total</font></td>\n";
-    echo "  <td><font face=\"helvetica, arial\"><input type=text name=descuento size=10 $val_disc";
-    echo "></font></td>\n";
+    echo "  <td>Total</td>\n";
+    echo "  <td><input type=text name=descuento size=10 $val_disc\"></td>\n";
     echo " </tr>\n";
-    echo " <tr><td colspan=2><font face=\"helvetica, arial\"><input type=submit $val_submit></font></td></tr>\n";
+    echo " <tr><td colspan=2><input type=submit $val_submit></td></tr>\n";
     echo "</table>\n";
     echo "</form>\n";
     echo "<hr>\n";
@@ -188,11 +189,9 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   echo "  <input type=hidden name=order_by value=\"$order_by\">\n";
   echo "  <input type=hidden name=order value=\"$order\">\n";
   echo "  <input type=hidden name=offset value=0>\n";
-  echo "<font face=\"helvetica,arial\">&nbsp; ";
-  echo "  </font>\n";
+  echo "&nbsp;\n";
 
-  echo " <td><font face=\"helvetica,arial\">\n";
-  echo "  &nbsp;";
+  echo " <td>&nbsp;";
 ?>
  <td>
   &nbsp;
@@ -266,24 +265,24 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     echo " <tr>\n";
     echo "  <th>&nbsp;\n</th>";
 
-    echo "  <th><font face=\"helvetica,arial\"><a href=\"$PHP_SELF?offset=0&order_by=id&order=";
+    echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=id&order=";
     printf("%d&table=%s",  $order_by=="id" && !$order, $table);
-    echo "$href_prov\">Folio</a></font></th>\n";
+    echo "$href_prov\">Folio</a></th>\n";
 
-    echo "  <th><font face=\"helvetica,arial\"><a href=\"$PHP_SELF?offset=0&order_by=fecha&order=";
+    echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=fecha&order=";
     printf("%d&table=",  $order_by=="fecha" && !$order, $table);
-    echo "$href_prov\">Fecha</a></font></th>\n";
+    echo "$href_prov\">Fecha</a></th>\n";
 
-    echo "<th><font face=\"helvetica,arial\">";
+    echo "<th>";
     echo "<a href=\"$PHP_SELF?offset=0&order_by=rfc&order=";
     printf("%d&table=%s",  $order_by=="rfc" && !$order, $table);
-    echo "$href_prov\">R.F.C.</font></th>\n";
+    echo "$href_prov\">R.F.C.</th>\n";
 
   if ($table == "facturas_ingresos") {
-    echo "<th><font face=\"helvetica,arial\">";
+    echo "<th>";
     echo "<a href=\"$PHP_SELF?offset=0&order_by=razon_soc&order=";
     printf("%d&table=%s",  $order_by=="razon_soc" && !$order, $table);
-    echo "$href_prov\">Nombre o razón social</font></th>\n";
+    echo "$href_prov\">Nombre o razón social</th>\n";
   }
 
     echo "  <th><font face=\"helvetica,arial\"><a href=\"$PHP_SELF?offset=0&order_by=subtotal&order=";
@@ -376,10 +375,9 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 ?>
 
   <hr>
-  <div align="right"><font face="helvetica,arial">
+  <div align="right">
   <a href="factur_web.php">Agregar factura</a> |
   <a href="<? echo $PHP_SELF ?>?salir=1">Salir del sistema</a>
-  </font>
   </div>
 
 

@@ -22,6 +22,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 {
 
   include("include/general_config.inc");
+  include("include/caja_web.inc");
   include("include/pos-var.inc");
   include("include/pos.inc");
   if (isset($salir)) {
@@ -30,6 +31,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   else {
     include("include/passwd.inc");
   }
+
 
   $id_venta = registra_venta($id_vendor, $pago, $comprobante, $total);
   $low_supp = update_supp($conn, count($articulo_descripcion));
@@ -45,7 +47,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       exit;
       break;
     case 1:
-    case 3:
+    case 5:
       include("bodies/caja_web_imprime.bdy");
       break;
   }
