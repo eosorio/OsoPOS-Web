@@ -26,9 +26,6 @@ function Crea_Factura($cliente,    /*clase datoscliente */
   }
 
 
-  $linea = sprintf("%ck",$ESC);
-  fputs($ffact, $linea);
-
   $linea = sprintf("%c",18);
   /* Cancela modo condensado */
   fputs($ffact, $linea);
@@ -73,7 +70,7 @@ function Crea_Factura($cliente,    /*clase datoscliente */
       $semi_renglon = substr($renglon_largo, 0, $OBS_MAXCOLS);
       $pos_fin_reng = strrpos($semi_renglon, " ") ? strrpos($semi_renglon, " ") : strlen($semi_renglon) ;
       $reng[$j] = substr($semi_renglon, 0, $pos_fin_reng);
-      if ($j)
+      if (!empty($j))
         $reng[$j] .= "\n";
       $renglon_largo = substr($renglon_largo, $pos_fin_reng+1, strlen($renglon_largo));
     }
@@ -105,7 +102,7 @@ function Crea_Factura($cliente,    /*clase datoscliente */
   fputs($ffact, $linea);
   if (strlen($reng[2])) {
     Espacios($ffact, 39-strlen($cliente->rfc));
-    $linea = sprintf( "%s", $reng[2]); /* Observaciones */
+    $linea = sprintf( "%s", chop($reng[2])); /* Observaciones */
     if (strlen($linea>18))
       $linea = substr($linea, 0, 18);
     fputs($ffact, $linea);
@@ -128,11 +125,15 @@ function Crea_Factura($cliente,    /*clase datoscliente */
       $renglon_largo = $articulos[$i]->desc;
       for ($j=0; $j<$DESC_MAXRENS; $j++) {
         $semi_renglon = substr($renglon_largo, 0, $DESC_MAXCOLS);
+        echo "semi-renglon: $semi_renglon<br>\n";
         $pos_fin_reng = strrpos($semi_renglon, " ") ? strrpos($semi_renglon, " ") : strlen($semi_renglon) ;
+        //        echo "pos_fin_reng: $pos_fin_reng<br>\n"; /*igm*/
         $reng[$j] = substr($semi_renglon, 0, $pos_fin_reng);
-        if ($j)
+        //        printf("reng[%d]: %s<br>\n", $j, $reng[$j]); /*igm*/
+        if (!empty($j))
           $reng[$j] .= "\n";
         $renglon_largo = substr($renglon_largo, $pos_fin_reng+1, strlen($renglon_largo));
+        //        echo "renglon largo: $renglon_largo<br>\n"; /*igm*/
       }
     }
     else {
@@ -158,8 +159,10 @@ function Crea_Factura($cliente,    /*clase datoscliente */
     }
   }
 
-  for ($i=0; $i<(($ART_MAXRENS)-$num_ren_articulos); ++$i)
-    fputs($ffact,"\n"); /* imprime renglones no usados en articulos */
+  //  for ($i=0; $i<(($ART_MAXRENS)-$num_ren_articulos); ++$i)
+  //    fputs($ffact,"\n"); /* imprime renglones no usados en articulos */
+  $linea = sprintf("%cf1%c", $ESC, $ART_MAXRENS-$num_ren_articulos);
+  fputs($ffact, $linea);
 
   $importe_letra = substr(str_cant($total,$buff), 0, $MAXIMPORT);
   Espacios($ffact, 20);
@@ -193,7 +196,7 @@ function Crea_Factura($cliente,    /*clase datoscliente */
   $linea = sprintf("%cJ%c",$ESC,15);
   fputs($ffact, $linea);
   Espacios($ffact,80);
-  $linea = sprintf("%9.2f\n\n",$total);
+  $linea = sprintf("%c%c%9.2f%c%c\n\n", $ESC,71, $total, $ESC,72);
   fputs($ffact, $linea);
 
   fputs($ffact, "\n\n\n\n");

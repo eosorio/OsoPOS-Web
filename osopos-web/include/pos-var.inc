@@ -38,6 +38,7 @@ class articulosClass {
 
 class fechaClass {
   var      $dia,$mes,$anio;
+  var      $hora,$minuto,$segundo;
 }
 
 ?>

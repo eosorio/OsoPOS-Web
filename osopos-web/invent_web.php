@@ -20,8 +20,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 */ 
 /* PENDIENTE: Activar selección de proveedor */
 {
-  include("general.config");
-  include("invent_web.config");
+  include("include/general_config.inc");
   if (isset($salir)) {
     include("include/logout.inc");
   }
@@ -33,7 +32,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <HTML>
 
 <HEAD><TITLE>OSOPoS Web - Invent v. 0.6</TITLE></HEAD>
-<BODY BGCOLOR="white" BACKGROUND="imagenes/fondo.gif" <?
+<BODY BGCOLOR="white" BACKGROUND="imagenes/fondo.gif"
+<?
   if ($action == "muestra") {
     echo "onload=\"document.articulo.descripcion.focus()\"";
   }
@@ -137,7 +137,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     else
       $query .= "'', ";
     $query.= sprintf("%f, %f, %d, %d, %d, ", $pu, $descuento, $ex, $ex_min, $ex_max);
-    $query.= sprintf("%d, %d, %f, %d)", $id_prov, $id_dept, $p_costo, $iva_porc);
+    $query.= sprintf("%d, %d, %f, '%s', %d)", $id_prov, $id_dept, $p_costo, $prov_clave, $iva_porc);
     if (!$resultado = pg_exec($conn, $query)) {
       echo "Error al insertar articulos.<br>\n$query<br>\n";
       exit();
@@ -165,7 +165,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $val_ex = "value=" . $reng->cant;
       $val_min = "value=" . $reng->min;
       $val_max = "value=" . $reng->max;
-      $val_iva_porc =  "value=\"" . $reng->iva_porc . "\"";
+      $val_iva_porc =  sprintf("value=\"%f\"", $reng->iva_porc);
+      $val_prov_clave = sprintf("value=\"%s\"", $reng->prov_clave);
       $val_submit = "value=\"Cambiar datos\"";
       $form_action = "$PHP_SELF?order_by=$order_by&action=cambia&offset=$offset&order=$order";
     }
@@ -256,9 +257,9 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $id_prov = 0;
 
     $query = "UPDATE articulos SET descripcion='$descripcion', pu=$pu, descuento=$descuento,";
-    $query.= "cant=$ex, min=$ex_min, max=$ex_max, id_prov=";
-    $query.= "$id_prov, id_depto=$id_dept,";
-    $query.= "p_costo=$p_costo WHERE codigo='$codigo'";
+    $query.= "cant=$ex, min=$ex_min, max=$ex_max, id_prov=$id_prov,";
+    $query.= "id_depto=$id_dept, p_costo=$p_costo, prov_clave='$prov_clave', ";
+    $query.= "iva_porc=$iva_porc WHERE codigo='$codigo'";
     if (!$resultado = pg_exec($conn, $query)) {
       echo "Error al actualizar articulos.<br>\n$query<br>\n";
       exit();
@@ -372,6 +373,12 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $query.= "\"$order_by\" ";
   }
   $query.= $order ? "ASC" : "DESC";
+  if (!$resultado = pg_exec($conn, $query)) {
+    echo "Error al ejecutar $query<br>\n";
+    exit();
+  }
+  $total_renglones = pg_numrows($resultado);
+
   $query.= " LIMIT $limit OFFSET $offset";
   if (!$resultado = pg_exec($conn, $query)) {
     echo "Error al ejecutar $query<br>\n";
@@ -402,11 +409,14 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <?
     echo "  <th><font face=\"helvetica,arial\"><a href=\"$PHP_SELF?offset=0&order_by=id_prov&order=";
     printf("%d",  $order_by=="id_prov" && !$order);
-    echo "$href_dept$href_prov\">C&oacute;d. proveedor</a></font>";
+    echo "$href_dept$href_prov\">Proveedor</a></font>";
 
     echo "  <th><font face=\"helvetica,arial\"><a href=\"$PHP_SELF?offset=0&order_by=id_dept&order=";
     printf("%d",  $order_by=="id_dept" && !$order);
     echo "$href_dept$href_prov\">Departamento</a></font>\n";
+    echo "  <th><font face=\"helvetica,arial\"><a href=\"$PHP_SELF?offset=0&order_by=prov_clave&order=";
+    printf("%d",  $order_by=="p_costo" && !$order);
+    echo "$href_dept$href_prov\">Clave Prov.</a></font>\n";
     echo "  <th><font face=\"helvetica,arial\"><a href=\"$PHP_SELF?offset=0&order_by=p_costo&order=";
     printf("%d",  $order_by=="p_costo" && !$order);
     echo "$href_dept$href_prov\">P. costo</a></font>\n";
@@ -438,7 +448,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       echo "  <td align=\"center\"$td_fondo><font face=\"helvetica,arial\">$reng->max</font>\n";
       echo "  <td$td_fondo><font face=\"helvetica,arial\">";
       if ($nick_prov[$id_prov])
-        echo $nick_prov[$id_prov];
+        echo $nick_prov[$id_prov-1];
       else
         echo "&nbsp;";
       echo "</font>\n";
@@ -448,7 +458,13 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       else
         echo "&nbsp;";
       echo "</font>\n";
-      echo "  <td align=\"right\"$td_fondo><font face=\"helvetica,arial\">" . sprintf("%.2f", $reng->p_costo) . "</font>\n";
+      echo "  <td align=\"right\"$td_fondo><font face=\"helvetica,arial\">";
+      if (strlen($reng->prov_clave))
+        printf("%s</font>\n", $reng->prov_clave);
+      else
+        echo "&nbsp;</font>\n";
+      echo "  <td align=\"right\"$td_fondo><font face=\"helvetica,arial\">";
+      printf("%.2f</font>\n", $reng->p_costo);
       echo " \n";
     }
     echo "</table>\n";
@@ -457,6 +473,31 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   else {
     echo "<i><center>No hay art&iacute;culos que coincidan en la base de datos</i></center>\n";
   }
+
+
+?>
+
+<table border=0 width="100%">
+<?
+  for ($i=1; $i<=$total_renglones; $i+=$limit) {
+    if (($i-1)%100 == 0)
+      echo "<tr>";
+    echo "<td align=\"center\"><font size=\"-2\">";
+    if ($i-1 != $offset) {
+      $fin_bloque = $i+$limit==$total_renglones ? $i+$limit-1 : $total_renglones;
+      printf("<a href=\"%s?offset=%d&order_by=%s&order=%d&action=%s%s%s\">%d-%d</a> ",
+             $PHP_SELF, $i-1, $order_by, $order, $action, $href_dept, $href_prov,
+             $i, $fin_bloque);
+    }
+    else {
+      printf("<font color=\"#e0e0e0\">%d-%d</font>", $i, $i+$limit-1);
+    }
+    echo "</font>\n";
+  }
+?>
+</table>
+<?
+
 
   pg_close($conn);
 ?>

@@ -17,7 +17,6 @@ GRANT SELECT,UPDATE ON articulos TO "caja1";
 GRANT SELECT,UPDATE ON articulos TO "caja2";
 GRANT SELECT,UPDATE ON articulos TO "caja3";
 GRANT ALL ON articulos TO "scaja";
-lpq
 CREATE TABLE ventas (
   numero            SERIAL PRIMARY KEY,
   monto             real,

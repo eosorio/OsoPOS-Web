@@ -1,0 +1,11 @@
+invent:
+* Los links de la parte inferior que sirven para desplazarse entre
+  bloques de articulos conservan la acción recién ejecutada. Cuando
+  se termina de actualizar un artículo y despues se da click sobre uno
+  de los links mencionados, se especifica que la acción es actualizar,
+  lo que provoca un error. La accion correcta debeía ser siempre
+  "mostrar"
+
+Factur:
+* Cuando se  coloca un número de venta, no se despliega las cantidades
+  ni las descripciones de los artículos.

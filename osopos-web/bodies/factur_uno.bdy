@@ -76,6 +76,8 @@ Introduzca los datos del cliente. Cuando termine, apriete el bot&oacute;n de  co
   <td colspan=3><font face="helvetica,arial" ><select name=dom_edo>
   <? 
  include "include/estados.inc";
+ if (empty($dom_edo))
+   $dom_edo = "Chiapas";
  for ($i=1; $i<=count($estado); $i++){
    echo "    <option";
    if ($estado[$i] == $dom_edo)
