@@ -53,7 +53,7 @@ Introduzca los datos del cliente. Cuando termine, apriete el bot&oacute;n de  co
  <tr>
   <td align="right"><font face="helvetica,arial" >Domicilio</font>
   <td colspan=4><font face="helvetica,arial" >
-    <input type=text name=dom_calle size=40 maxlength=30 value="<?php echo $dom_calle ?>"></font>
+    <input type=text name=dom_calle size=40 value="<?php echo $dom_calle ?>"></font>
   <td align="right"><font face="helvetica,arial" >N&uacute;mero</font>
   <td><font face="helvetica,arial" ><input type=text name=dom_ext size=5 maxlength=7 value=<? echo $dom_ext ?>></font>
   <td align="right"><font face="helvetica,arial" >Interior</font></td>

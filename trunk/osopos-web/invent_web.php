@@ -31,7 +31,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 ?>
 <HTML>
 
-<HEAD><TITLE>OSOPoS Web - Invent v. 0.6</TITLE></HEAD>
+<HEAD><TITLE>OSOPoS Web - Invent v. 0.7</TITLE></HEAD>
 <BODY BGCOLOR="white" BACKGROUND="imagenes/fondo.gif"
 <?
   if ($action == "muestra") {
@@ -133,7 +133,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
     $query = "INSERT INTO articulos VALUES ('$codigo', ";
     if (strlen($descripcion))
-      $query .= "'$descripcion', ";
+      $query .= sprintf("'%s', ", addslashes($descripcion));
     else
       $query .= "'', ";
     $query.= sprintf("%f, %f, %d, %d, %d, ", $pu, $descuento, $ex, $ex_min, $ex_max);
@@ -256,7 +256,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     else
       $id_prov = 0;
 
-    $query = "UPDATE articulos SET descripcion='$descripcion', pu=$pu, descuento=$descuento,";
+    $query = sprintf("UPDATE articulos SET descripcion='%s', pu=%f, descuento=%f,",
+                     $descripcion, $pu, $descuento);
     $query.= "cant=$ex, min=$ex_min, max=$ex_max, id_prov=$id_prov,";
     $query.= "id_depto=$id_dept, p_costo=$p_costo, prov_clave='$prov_clave', ";
     $query.= "iva_porc=$iva_porc WHERE codigo='$codigo'";
@@ -265,7 +266,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       exit();
     }
     else {
-      echo "<b>Art&iacute;culo <i>$codigo $descripcion</i> actualizado.</b><br>\n";
+      printf("<b>Art&iacute;culo <i>%s %s</i> actualizado.</b><br>\n",
+             $codigo, stripslashes($descripcion));
       $action = "";
     }
   }
@@ -281,12 +283,17 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   }
 
   $query = "SELECT * FROM articulos";
-  if (isset($id_dept) || isset($id_prov))
+  if (isset($id_dept) || isset($id_prov) || !empty($search))
      $query .= " WHERE ";
   $query.= isset($id_dept) ? sprintf("id_depto=%d", $id_dept) : "";
   if (isset($id_dept) && isset($id_prov))
      $query .= " AND ";
   $query.= isset($id_prov) ? sprintf("id_prov=%d", $id_prov) : "";
+  if (!empty($search) && (isset($id_prov) || isset($id_dept)))
+    $query.= " AND ";
+  $query.= !empty($search) ? sprintf("(codigo~*'%s' OR descripcion~*'%s')", $search, $search) : "";
+
+
   if (!$resultado = pg_exec($conn, $query)) {
     echo "Error al ejecutar $query<br>\n";
     exit();
@@ -359,12 +366,16 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 
   $query = "SELECT * FROM articulos";
-  if (isset($id_dept) || isset($id_prov))
+  if (isset($id_dept) || isset($id_prov) || !empty($search))
      $query .= " WHERE ";
   $query.= isset($id_dept) ? "id_depto=$id_dept " : "";
   if (isset($id_dept) && isset($id_prov))
      $query .= " AND ";
   $query.= isset($id_prov) ? sprintf("id_prov=%d", $id_prov) : "";
+  if (!empty($search) && (isset($id_prov) || isset($id_dept)))
+    $query.= " AND ";
+  $query.= !empty($search) ? sprintf("(codigo~*'%s' OR descripcion~*'%s')", $search, $search) : "";
+
   $query.= " ORDER BY ";
   switch ($order_by) {
     case "id_dept" : 
@@ -427,6 +438,15 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $reng = pg_fetch_object($resultado, $i);
       $id_prov = $reng->id_prov;
       $id_dept = $reng->id_depto;
+      if (empty($search))
+	$descripcion = $reng->descripcion;
+      else
+	$descripcion = str_replace($search, "<b>$search</b>", $reng->descripcion);
+      if (empty($search))
+	$codigo = $reng->codigo;
+      else
+	$codigo = str_replace($search, "<b>$search</b>", $reng->codigo);
+
       if (!($i%4) || $i==0)
         $td_fondo = " bgcolor='#dcffdb'";
       else if (!(($i+2)%2))
@@ -437,19 +457,23 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       echo "  <td><font face=\"helvetica,arial\">\n";
       echo "   <a href=\"$PHP_SELF?order_by=$order_by&order=$order&action=borrar&offset=$offset";
       echo "$href_dept$href_prov&codigo=";
-      echo $reng->codigo . "\" border=0><img src=\"imagenes/borrar.gif\" border=0></a></font>";
-      echo "  <td$td_fondo><font face=\"helvetica,arial\"><a href=\"$PHP_SELF?codigo=" . $reng->codigo;
+      echo str_replace(" ", "%20", htmlentities($reng->codigo));
+      echo "\" border=0><img src=\"imagenes/borrar.gif\" border=0></a></font>";
+      echo "  <td$td_fondo><font face=\"helvetica,arial\"><a href=\"$PHP_SELF?codigo=";
+      echo str_replace(" ", "%20", htmlentities($reng->codigo));
       echo "&order_by=$order_by&order=$order&action=muestra&offset=$offset$href_dept$href_prov\">";
-      echo $reng->codigo . "</a></font>\n";
-      echo "  <td$td_fondo><font face=\"helvetica,arial\">$reng->descripcion</font>\n";
-      echo "  <td align=\"right\"$td_fondo><font face=\"helvetica,arial\">" . sprintf("%.2f", $reng->pu) . "</font>\n";
+      echo stripslashes($codigo) . "</a></font>\n";
+      printf("  <td%s><font face=\"helvetica,arial\">%s</font>\n",
+             $td_fondo, stripslashes($descripcion));
+      echo "  <td align=\"right\"$td_fondo><font face=\"helvetica,arial\">";
+      printf("%.2f</font>\n", $reng->pu);
       echo "  <td align=\"center\"$td_fondo><font face=\"helvetica,arial\">$reng->descuento</font>\n";
       echo "  <td align=\"center\"$td_fondo><font face=\"helvetica,arial\">$reng->cant</font>\n";
       echo "  <td align=\"center\"$td_fondo><font face=\"helvetica,arial\">$reng->min</font>\n";
       echo "  <td align=\"center\"$td_fondo><font face=\"helvetica,arial\">$reng->max</font>\n";
       echo "  <td$td_fondo><font face=\"helvetica,arial\">";
       if ($nick_prov[$id_prov])
-        echo $nick_prov[$id_prov-1];
+        echo $nick_prov[$id_prov];
       else
         echo "&nbsp;";
       echo "</font>\n";
@@ -502,16 +526,18 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
   pg_close($conn);
 ?>
-
-  <hr>
-  <div align="right"><font face="helvetica,arial">
-  <a href="<? echo $PHP_SELF ?>?offset=<? echo $offset ?>&action=agrega<? echo "$href_dept$href_prov" ?>">
-  Agregar producto</a> |
-  <a href="depto.php">Departamentos</a> |
-  <a href="proveedor.php">Proveedores</a> |
-  <a href="<? echo $PHP_SELF ?>?salir=1">Salir del sistema</a>
-  </font>
-  </div>
+<form action=<? echo $PHP_SELF ?> method=post>
+Busqueda rápida: <input type=text size=40 name=search>
+</form>
+<hr>
+<div align="right"><font face="helvetica,arial">
+<a href="<? echo $PHP_SELF ?>?offset=<? echo $offset ?>&action=agrega<? echo "$href_dept$href_prov" ?>">
+Agregar producto</a> |
+<a href="depto.php">Departamentos</a> |
+<a href="proveedor.php">Proveedores</a> |
+<a href="<? echo $PHP_SELF ?>?salir=1">Salir del sistema</a>
+</font>
+</div>
 
 
 </BODY>

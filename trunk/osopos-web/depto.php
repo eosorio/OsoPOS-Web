@@ -34,11 +34,23 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <?
   if ($accion == "cambia") {
-    $peticion = "SELECT nombre FROM departamento WHERE id=$id";
+    $peticion = sprintf("UPDATE departamento set nombre='%s' WHERE id=%d",
+                        $nmdepto, $id);
+    echo $peticion;
+    if (!$result = pg_exec($conn, $peticion)) {
+      echo "<b>Error al ejecutar $peticion</b><br></body></html>\n";
+      exit();
+    }
+    if (pg_cmdtuples($result)) {
+      printf("<center><i>Departamento %d, %s actualizado</i></center>\n",
+      $id, stripslashes($nmdepto));
+    }
+    
+
   }
   else if ($accion == "muestra"  ||  $accion == "agrega") {
     if ($accion == "muestra") {
-      $val_nmdepto =     "value=\"$nmdepto\"";
+      $val_nmdepto = sprintf("value=\"$s\"", stripslashes($nmdepto));
       $val_submit =  "value=\"Modificar nombre\"";
       $acc = "cambia";
     }
@@ -47,16 +59,17 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $acc = "inserta";
     }
     echo "<table width=\"100%\">\n";
-    echo " <form action=\"$PHP_SELF?accion=$acc\" method=\"post\">\n";
+    echo " <form action=\"$PHP_SELF\" method=\"post\">\n";
     echo " <tr>\n";
-    echo "  <td>ID.</td><td>$id</td>\n";
-    echo " <td><input type=text name=nmdepto maxlength=25 size=20 $val_nmdepto</td>\n";
-    echo " </tr>\n";
+    echo "  <td>ID.<td>$id <input type=hidden name=id value=$id>\n";
+    echo "  <td><input type=text name=nmdepto maxlength=25 size=20 $val_nmdepto>\n";
+    echo "  <input type=hidden name=accion value=$acc>\n";
     echo "</table>\n";
     echo "<hr>\n";
   }
   else if ($accion == "inserta") {
-    $peticion = "INSERT INTO departamento (nombre) VALUES ('$nmdepto')";
+    $peticion = sprintf("INSERT INTO departamento (nombre) VALUES ('%s')",
+                        addslashes($nmdepto));
     if (!$resultado = pg_exec($conn, $peticion)) {
       echo "<b>Error al ejecutar $peticion</b><br></body></html>\n";
       exit();
@@ -74,7 +87,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   echo "<table width=\"80%\">\n";
   echo " <tr>\n";
   echo "  <th width=\"5%\">Id.</th><th>Departamento</th>\n";
-  echo " </tr>\n";
+  echo " \n";
   for ($i=0; $i<$num_ren_prov; $i++) {
     if (!($i%4) || $i==0)
       $td_fondo = " bgcolor='#dcffdb'";
@@ -89,13 +102,13 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     echo "  <td align=\"center\"$td_fondo>";
     $href = "$PHP_SELF?accion=muestra&id=$reng->id&nmdepto=$reng->nombre";
     $href = str_replace(" ", "%20", htmlentities($href));
-    echo "<a href=\"$href\">" . $reng->id . "</a></td>\n";
+    echo "<a href=\"$href\">" . $reng->id . "</a>\n";
     echo "  <td $td_fondo>";
     if ($reng->nombre)
       echo $reng->nombre;
     else
       echo "Sin definir";
-    echo "</td>\n";
+    echo "\n";
   }
   echo "</table>\n";
   if ($i<10) {
