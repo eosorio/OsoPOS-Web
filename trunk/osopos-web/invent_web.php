@@ -38,9 +38,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   if ($action=="add2cart") {
     setcookie("osopos_carrito[$codigo]", $qt);
   }
-  /*  if ($cookie_alm>0) {
-    setcookie("alm", "", time()-3600);
-  }*/
 }
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
@@ -293,6 +290,109 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     }
   }
 
+  if ($action == "cambia") {
+    if (!puede_hacer($conn, $user->user, "invent_cambiar_item")) {
+      echo "<h4>Usted no tiene permisos para modificar items</h4>\n";
+    }
+    else {
+      if ($PROGRAMA == "web")
+        $query = "SELECT id FROM departamento WHERE nombre='$depto'";
+      else if ($PROGRAMA == "video")
+        $query = "SELECT id FROM genero WHERE nombre='$depto'";
+      if (!$resultado = db_query($query, $conn)) {
+        echo "Error al consultar departamentos.<br>\n$query<br>\n";
+        exit();
+      }
+      if (db_num_rows($resultado))
+        $id_dept = db_result($resultado, 0, id);
+      else
+        $id_dept = 0;
+
+      if ($mode == "express") {
+        if ($alm>0)
+          $tabla = sprintf("almacen_%d", $alm);
+        else
+          $tabla = "articulos";
+        for ($i = 0; $i<$num_ren; $i++) {
+          if ($modify[$i]) {
+            if ($alm>0) {
+              $query = sprintf("UPDATE almacen_%d SET pu=%f, pu2=%f  ",
+                             $alm, $pu[$i], $pu2[$i]);
+              if (puede_hacer($conn, $user->user, "inventario_fisico"))
+                $query.= sprintf(", cant=%f ", $qt[$i] - $item_minus[$i] + $item_add[$i]);
+            }
+            else {
+              $query = sprintf("UPDATE articulos SET p_costo=%f ", $p_costo[$i]);
+            }
+            $query.= sprintf(" WHERE codigo='%s'", $code[$i]);
+
+            if (!$resultado = db_query($query, $conn)) 
+              printf("Error al actualizar articulo %s, $s<br>\n", $code[$i], $desc[$i]);
+            else {
+              printf("<b>Art&iacute;culo <i>%s %s</i> actualizado.</b><br>\n",
+                     $code[$i], stripslashes($desc[$i]));
+              $action = "";
+            }
+          }
+        }
+      }
+      else {
+        if (isset($alm) && $alm>0) {
+          $query = sprintf("UPDATE almacen_%d SET pu=%f, pu2=%f, pu3=%f, pu4=%f, pu5=%f, ",
+                           $alm, $pu, $precio2, $precio3, $precio4, $precio5);
+          $query.= sprintf("c_min=%f, c_max=%f, ",
+                            $ex_min, $ex_max);
+          $query.= sprintf("codigo2='%s', ", $codigo2);
+          $query.= sprintf("divisa='%s', ", $divisa);
+          $query.= sprintf("tax_0=%.2f, tax_1=%.2f, tax_2=%.2f, tax_3=%.2f, tax_4=%.2f, tax_5=%.2f ", 
+                           $imp_porc[0], $imp_porc[1], $imp_porc[2], $imp_porc[3], $imp_porc[4], $imp_porc[5]); 
+          $query.= sprintf("WHERE codigo='%s'", $codigo);
+        }
+        else {
+          $query = sprintf("UPDATE articulos SET descripcion='%s', pu=%f, ",
+                           $descripcion, $pu, $precio2, $precio3, $precio4, $precio5);
+          $query.= sprintf("descuento=%f, id_prov1=%d, id_prov2=%d, id_depto=%d, ",
+                           $descuento, $id_prov1, $id_prov2, $id_dept);
+          $query.= sprintf("p_costo=%.2f, prov_clave='%s', codigo2='%s', ", $p_costo, $prov_clave, $codigo2);
+          $query.= sprintf("iva_porc=%.2f, divisa='%s', ", $iva_porc, $divisa);
+          $query.= sprintf("tax_0=%.2f, tax_1=%.2f, tax_2=%.2f, tax_3=%.2f, tax_4=%.2f, tax_5=%.2f, ", 
+                           $imp_porc[0], $imp_porc[1], $imp_porc[2], $imp_porc[3], $imp_porc[4], $imp_porc[5]);
+          $query.= sprintf("medida='%s', empaque=%f ", $u_medida, $u_empaque);
+          $query.= sprintf("WHERE codigo='%s'", $codigo);
+        }
+        if (isset($debug) && $debug>0)
+          echo "<i>$query</i><br>\n";
+        $resultado = db_query($query, $conn);
+
+        $query2 = sprintf("UPDATE article_desc SET long_desc='%s' ",
+                          addslashes(strip_tags($long_desc)));
+        if (!empty($img_source_name))
+          $query2.= sprintf(", img_location='%s' ", $img_source_name);
+        $query2.= sprintf("WHERE code='%s'", $codigo);
+
+        if (isset($debug) && $debug>0)
+          echo "<i>$query2</i><br>\n";
+        $resultado2 = db_query($query2, $conn);
+        if ($resultado && $resultado2) {
+
+          printf("<b>Art&iacute;culo <i>%s %s</i> actualizado.</b><br>\n",
+                 $codigo, stripslashes($descripcion));
+          $action = "";
+        }
+        else {
+          echo "<b>Error al actualizar articulos.</b><br>\n$query<br>\n$query2<br>\n";
+          exit();
+        }
+
+      }
+      /* Si eligen modificar precios de almacen... */
+      if (isset($muestra_alm) && $muestra_alm>0) {
+        $action = "muestra";
+        $alm = $muestra_alm;
+      }
+    } /* else de if puede_hacer(...cambiar_item...) */
+  }
+
   if (($action == "muestra"  ||  $action == "agrega")) {
 
     if ($action == "muestra") {
@@ -390,6 +490,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       }
     }
     if ($action == "agrega") {
+      $alm = 0;
       $val_submit = "value=\"Agregar producto\"";
       $val_divisa = $DIVISA_OMISION;
       $val_tit_orig = sprintf("<input type=\"text\" name=\"%s\" value=\"%s\" size=60>\n",
@@ -412,156 +513,100 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $val_idioma = sprintf("<input type=\"text\" name=\"%s\" value=\"%s\">\n", "idioma", $ren->idioma);
       $val_subtit = sprintf("<input type=\"text\" name=\"%s\" value=\"%s\">\n", "subtit", $ren->subtit);
       $val_resenia = sprintf("<textarea name=\"%s\" cols=80 rows=8>%s</textarea>\n", "resenia", $ren->resenia);
-      $val_imagen = "Ubicaci&oacute;n de la imagen: <input type=\"file\" name=\"img_source\" size=60 value=\" $PWD_DIR/$IMG_DIR/$img_location>\n";
+      $val_imagen = "Ubicaci&oacute;n de la imagen: <input type=\"file\" name=\"img_source\" size=60 value=\"$PWD_DIR/$IMG_DIR/$img_location\">\n";
       $col_w1 = 100;
     }
 
-    if ($PROGRAMA == "web") {
-      include ("forms/web/invent_std_item.bdy");
-    }
+    // IGM    if ($PROGRAMA == "web") {
+    if ($PROGRAMA == "web")
+      if (!isset($modulo))
+        include ("forms/web/invent_std_item.bdy");
+    /*     else if ($modulo == "test")
+        include ("bodies/web/invent_pventa.bdy"); */
     else if ($PROGRAMA == "video") {
       include ("forms/video/filme_datos.bdy");
     }
     
     echo "<hr>\n";
   }
-  else
-  if ($action == "cambia") {
-    if (!puede_hacer($conn, $user->user, "invent_cambiar_item")) {
-      echo "<h4>Usted no tiene permisos para modificar items</h4>\n";
-    }
-    else {
-      if ($PROGRAMA == "web")
-        $query = "SELECT id FROM departamento WHERE nombre='$depto'";
-      else if ($PROGRAMA == "video")
-        $query = "SELECT id FROM genero WHERE nombre='$depto'";
-      if (!$resultado = db_query($query, $conn)) {
-        echo "Error al consultar departamentos.<br>\n$query<br>\n";
-        exit();
-      }
-      if (db_num_rows($resultado))
-        $id_dept = db_result($resultado, 0, id);
-      else
-        $id_dept = 0;
 
-      if ($mode == "express") {
-        for ($i = 0; $i<$num_ren; $i++) {
-          if ($modify[$i]) {
-            $query = sprintf("UPDATE articulos SET descripcion='%s', pu=%f ",
-                             str_replace("&quot;", "\"", $desc[$i]), $pu[$i]);
-            if (puede_hacer("inventario_fisico"))
-              $query.= sprintf(", cant=%f ", $qt[$i] - $item_minus[$i] + $item_add[$i]);
-            $query.= sprintf(" WHERE codigo='%s'", $code[$i]);
-
-            if (!$resultado = db_query($query, $conn)) 
-              printf("Error al actualizar articulo %s, $s<br>\n", $code[$i], $desc[$i]);
-            else {
-              printf("<b>Art&iacute;culo <i>%s %s</i> actualizado.</b><br>\n",
-                     $code[$i], stripslashes($desc[$i]));
-              $action = "";
-            }
-          }
-        }
-      }
-      else {
-        if (isset($alm) && $alm>0) {
-          $query = sprintf("UPDATE almacen_%d SET pu=%f, pu2=%f, pu3=%f, pu4=%f, pu5=%f, ",
-                           $alm, $pu, $precio2, $precio3, $precio4, $precio5);
-          $query.= sprintf("c_min=%f, c_max=%f, ",
-                            $ex_min, $ex_max);
-          $query.= sprintf("codigo2='%s', ", $codigo2);
-          $query.= sprintf("divisa='%s', ", $divisa);
-          $query.= sprintf("tax_0=%.2f, tax_1=%.2f, tax_2=%.2f, tax_3=%.2f, tax_4=%.2f, tax_5=%.2f ", 
-                           $imp_porc[0], $imp_porc[1], $imp_porc[2], $imp_porc[3], $imp_porc[4], $imp_porc[5]); 
-          $query.= sprintf("WHERE codigo='%s'", $codigo);
-        }
-        else {
-          $query = sprintf("UPDATE articulos SET descripcion='%s', pu=%f, ",
-                           $descripcion, $pu, $precio2, $precio3, $precio4, $precio5);
-          $query.= sprintf("descuento=%f, id_prov1=%d, id_prov2=%d, id_depto=%d, ",
-                           $descuento, $id_prov1, $id_prov2, $id_dept);
-          $query.= sprintf("p_costo=%.2f, prov_clave='%s', codigo2='%s', ", $p_costo, $prov_clave, $codigo2);
-          $query.= sprintf("iva_porc=%.2f, divisa='%s', ", $iva_porc, $divisa);
-          $query.= sprintf("tax_0=%.2f, tax_1=%.2f, tax_2=%.2f, tax_3=%.2f, tax_4=%.2f, tax_5=%.2f, ", 
-                           $imp_porc[0], $imp_porc[1], $imp_porc[2], $imp_porc[3], $imp_porc[4], $imp_porc[5]);
-          $query.= sprintf("medida='%s', empaque=%f ", $u_medida, $u_empaque);
-          $query.= sprintf("WHERE codigo='%s'", $codigo);
-        }
-        if (isset($debug) && $debug>0)
-          echo "<i>$query</i><br>\n";
-        $resultado = db_query($query, $conn);
-
-        $query2 = sprintf("UPDATE article_desc SET long_desc='%s', img_location='%s' WHERE code='%s'",
-                          addslashes(strip_tags($long_desc)), $img_source_name, $codigo);
-        if (isset($debug) && $debug>0)
-          echo "<i>$query2</i><br>\n";
-        $resultado2 = db_query($query2, $conn);
-        if ($resultado && $resultado2) {
-
-          printf("<b>Art&iacute;culo <i>%s %s</i> actualizado.</b><br>\n",
-                 $codigo, stripslashes($descripcion));
-          $action = "";
-        }
-        else {
-          echo "<b>Error al actualizar articulos.</b><br>\n$query<br>\n$query2<br>\n";
-          exit();
-        }
-
-      }
-    } /* else de if puede_hacer(...cambiar_item...) */
-  }
   if ($action == "borrar") {
     if (!puede_hacer($conn, $user->user, "invent_borrar_item")) {
       echo "<h4>Usted no cuenta con permisos para borrar art&iacute;culos</h4>\n";
     }
     else {
-      if (isset($alm) && $alm>0)
-        $query = "DELETE FROM almacen_$alm WHERE codigo='$codigo'";
-      else {
-        $query = "DELETE FROM article_desc WHERE code='$codigo'";
-        if (!$resultado = db_query($query, $conn))
-          echo "Error al eliminar descripción ampliada del producto.<br>\n";
+      $query = "SELECT max(id) FROM almacenes ";
+      $resultado = db_query($query, $conn);
+      if ((!$resultado) || (!$max_alm = db_result($resultado, 0, 0))) {
+          echo "<div class=\"error_ft\">Inconsistencia en catálogo de almacenes. ";
+          echo "Consulte con su administrador del sistema</div><br>\n";
+          echo "</body>\n";
+          exit();
       }
 
-      $query = "DELETE FROM articulos WHERE codigo='$codigo'";
-      if (!$resultado = db_query($query, $conn)) {
-        echo "Error al actualizar articulos.<br>\n$query<br>\n";
-        exit();
+      if (isset($alm) && $alm>0) {
+        $query = "DELETE FROM almacen_$alm WHERE codigo='$codigo'";
+        if (!$resultado = db_query($query, $conn))
+          echo "<div class=\"error_nf\">Error al eliminar producto del almacen $alm.</div><br>\n";
+        else
+          echo "Producto eliminado del almacen $alm.<br>\n";
       }
       else {
-        echo "<b>Art&iacute;culo <i>$codigo</i> eliminado.</b><br>\n";
+        $existe_alm = 0;
+        for ($i=1; $i<=$max_alm && !$existe_alm; $i++) {
+          $existe_alm = busca_codigo($conn, $codigo, $i);
+          if ($existe_alm > 0)
+            echo "<div class=\"advt\">El producto existe en almacen $i, se cancela su eliminación</div><br>\n";
+          else if ($existe_alm < 0)
+            echo "<div class=\"error_ft\">Error al consultar producto en almacen $i. Consulte con su administrador del sistema</div><br>\n";
+        }
+        if (!$existe_alm) {
+          $query = "DELETE FROM article_desc WHERE code='$codigo'";
+          if (!$resultado = db_query($query, $conn))
+            echo "<div class=\"error_nf\">Error al eliminar descripción ampliada del producto.</div><br>\n";
+
+          $query = "DELETE FROM articulos WHERE codigo='$codigo'";
+          if (!$resultado = db_query($query, $conn)) {
+            echo "<div class=\"error_nf\">Error al eliminar articulo del catálogo general.</div><br>\n";
+            exit();
+          }
+          else
+            echo "<b>Art&iacute;culo <i>$codigo</i> eliminado.</b><br>\n";
+        }
       }
+
     }
   }
 
+  if ($action == "ver" && strlen($codigo)) {
+    if (!isset($boton) || $boton=="general") {
+      include ("bodies/web/invent_item_gral.bdy");
+    }
+    else {
+      include("bodies/web/invent_pventa.bdy");
+    }
+  }
 
-  if (empty($action) || ($action!="agrega" && $action!="muestra")) {
+  if (empty($action) || ($action!="agrega" && $action!="muestra" && $action!="ver" )) {
     /* Marranada para forzar unset de $id_prov1 */
     if ($prov1=="Todos")
       unset($id_prov1);
     if ($PROGRAMA == "web") {
-      $query = "SELECT * FROM articulos";
-
-      if (isset($id_dept) || isset($id_prov1) || !empty($search) || (isset($mode) && $mode=="baja_ex"))
-        $query .= " WHERE ";
-      $query.= isset($id_dept) ? sprintf("id_depto=%d", $id_dept) : "";
-
-      if (isset($id_dept) && isset($id_prov1))
-        $query .= " AND ";
-      $query.= isset($id_prov1) ? sprintf("id_prov1=%d", $id_prov1) : "";
+      if ($alm>0)
+        $query = "SELECT ar.codigo FROM articulos ar, almacen_$alm al WHERE al.codigo=ar.codigo ";
+      else
+        $query = "SELECT ar.codigo FROM articulos ar WHERE 0=0 ";
+      $query.= isset($id_dept) ? sprintf("AND id_depto=%d ", $id_dept) : "";
+      $query.= isset($id_prov1) ? sprintf("AND id_prov1=%d ", $id_prov1) : "";
 
       if (isset($mode) && $mode=="baja_ex") {
-        if (isset($id_prov1) || isset($id_dept))
-          $query.= " AND ";
-        $query.= "cant<min";
+        $query.= "AND al.cant<al.c_min ";
       }
 
-      if (!empty($search) && (isset($id_prov1) || isset($id_dept) || $mode=="baja_ex"))
-        $query.= " AND ";
       if ($SQL_TYPE=="postgres")
-        $query.= !empty($search) ? sprintf("(codigo~*'%s' OR descripcion~*'%s')", $search, $search) : "";
+        $query.= !empty($search) ? sprintf("AND (ar.codigo~*'%s' OR ar.descripcion~*'%s') ", $search, $search) : "";
       else if($SQL_TYPE=="mysql")
-        $query.= !empty($search) ? sprintf("(codigo LIKE '%%%s%%' OR descripcion LIKE '%%%s%%')", $search, $search) : "";
+        $query.= !empty($search) ? sprintf("AND (ar.codigo LIKE '%%%s%%' OR ar.descripcion LIKE '%%%s%%') ", $search, $search) : "";
     }
     else if($PROGRAMA == "video") {
       $query = "SELECT * FROM filme ";
@@ -592,28 +637,24 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
     if ($PROGRAMA == "web") {
       if (isset($alm) && $alm>0) {
+        /**********  OJO, REVISAR EXISTENCIA MINIMA, DEBE SER DE ALMACEN ************/
         $query = "SELECT DISTINCT al.*, al.pu*d.tipo_cambio as unitario, a.descripcion, a.id_prov1, ";
-        $query.= "a.id_depto, a.prov_clave, a.min, a.max ";
-        $query.= "FROM almacen_$alm al, divisas d, articulos a WHERE al.divisa=d.id AND al.codigo=a.codigo";
+        $query.= "a.id_depto, a.prov_clave, al.c_min, al.c_max ";
+        $query.= "FROM almacen_$alm al, divisas d, articulos a WHERE al.divisa=d.id AND al.codigo=a.codigo ";
       }
       else {
         $query = "SELECT DISTINCT a.*, a.pu*d.tipo_cambio as unitario, ";
-        $query.= "a.p_costo*d.tipo_cambio as pcosto FROM articulos a,divisas d WHERE a.divisa=d.id";
+        $query.= "a.p_costo*d.tipo_cambio as pcosto FROM articulos a,divisas d WHERE a.divisa=d.id ";
       }
 
-      if (isset($id_dept) || (isset($id_prov1) && $id_prov1<count($nick_prov)) || (!empty($search) && $id_prov1<count($nick_prov))
-          || (isset($mode) && $mode=="baja_ex"))
+      if (!empty($search) && $id_prov1<count($nick_prov))
         $query .= " AND ";
-      $query.= isset($id_dept) ? "a.id_depto=$id_dept " : "";
+      $query.= isset($id_dept) ? "AND a.id_depto=$id_dept " : "";
 
-      if (isset($id_dept) && isset($id_prov1) && $id_prov1<count($nick_prov))
-        $query .= " AND ";
-      $query.= isset($id_prov1) && $id_prov1<count($nick_prov) ? sprintf("a.id_prov1=%d", $id_prov1) : "";
+      $query.= isset($id_prov1) && $id_prov1<count($nick_prov) ? sprintf("AND a.id_prov1=%d ", $id_prov1) : "";
 
       if (isset($mode) && $mode=="baja_ex") {
-        if (isset($id_prov1) || isset($id_dept))
-          $query.= " AND ";
-        $query.= "a.cant<a.min";
+        $query.= "AND al.cant<al.c_min ";
       }
 
       if (!empty($search) && (isset($id_prov1) || isset($id_dept) || $mode=="baja_ex"))
@@ -754,7 +795,7 @@ Busqueda rápida: <input type="text" size=40 name="search">
       include("bodies/invent_video_footer.bdy");
     }
     db_close($conn);
-
+    include("bodies/menu/general.bdy");
 ?>
 
 
