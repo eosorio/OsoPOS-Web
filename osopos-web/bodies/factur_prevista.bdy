@@ -143,7 +143,7 @@
 
     <tr>
      <td class="campo" colspan=3 rowspan=3>
-      <textarea name=observaciones cols=<? printf("%d", $OBS_MAXCOLS) ?>
+      <textarea name="observaciones" cols=<? printf("%d", $OBS_MAXCOLS) ?>
       rows=<? printf("%d", $OBS_MAXRENS) ?>><? echo $OBS_DEFAULT ?></textarea>
      </td>
     </tr>
@@ -154,21 +154,21 @@
      <table border=0 width="100%">
      <tr>
        <td class="right"><b>Subtotal</b></td>
-       <td class="right"><b><? printf("%.2f", $subtotal) ?></b>
-       <input type=hidden name=subtotal value=<?php echo $subtotal ?>></td>
+       <td class="moneda"><b><? printf("%.2f", $subtotal) ?></b>
+       <input type="hidden" name="subtotal" value=<?php echo $subtotal ?>></td>
      </tr>
 
      <tr>
      <td class="right"><b>I.V.A.</b></td>
-     <td class="right"><b><? printf("%.2f", $iva) ?></b>
-     <input type=hidden name="iva" value=<? echo $iva ?>></td>
+     <td class="moneda"><b><? printf("%.2f", $iva) ?></b>
+     <input type="hidden" name="iva" value=<? echo $iva ?>></td>
     </tr>
 
 <? if ($DESGLOSAR_IMPUESTO[0]) { ?>
     <tr>
      <td class="right"><b>I.E.P.S.</b></td>
-     <td class="right"><b><? printf("%.2f", $impuesto[0]) ?></b>
-     <input type=hidden name="impuesto[0]" value=<? printf("%.2f", $impuesto[0]) ?>></td>
+     <td class="moneda"><b><? printf("%.2f", $impuesto[0]) ?></b>
+     <input type="hidden" name="impuesto[0]" value=<? printf("%.2f", $impuesto[0]) ?>></td>
     </tr>
 <? }
   $impuestos = $impuesto[0] + $iva;
@@ -178,8 +178,8 @@
     if ($DESGLOSAR_IMPUESTO[$i]) { ?>
     <tr>
      <td class="right"><b><? echo "Impuesto $i" ?></b></td>
-     <td class="right"><b><? printf("%.2f", $impuesto[$i]) ?></b>
-     <input type=hidden name="impuesto[<? echo $i ?>]" value=<? printf("%.2f", $impuesto[$i]) ?>></td>
+     <td class="moneda"><b><? printf("%.2f", $impuesto[$i]) ?></b>
+     <input type="hidden" name="impuesto[<? echo $i ?>]" value=<? printf("%.2f", $impuesto[$i]) ?>></td>
     </tr>
 <? }
   }
@@ -205,9 +205,9 @@
 <table border=0 width="100%">
 <tbody>
  <tr>
-  <td width=5  align=center><input type="radio" name="accion" value="agregarimprimir" checked>
+  <td width=5 align="center"><input type="radio" name="accion" value="agregarimprimir" checked>
   <td>Agregar e imprimir
-  <td width=5  align=center><input type="radio" name="accion" value="agregar">
+  <td width=5 align="center"><input type="radio" name="accion" value="agregar">
   <td>Sólo agregar
   <td align=right><input type=submit value="Registrar factura">
 </tbody>
