@@ -67,7 +67,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
     if (!empty($id_venta)) {
 
-      $conn = pg_connect("dbname=" . $DB_NAME . " user=" . $DB_OWNER);
+      //      $conn = pg_connect("dbname=" . $DB_NAME . " user=" . $DB_OWNER);
       if (!$conn) {
         echo "ERROR: Al conectarse a la base de datos $DB_NAME<br>\n</body></html>";
         exit();

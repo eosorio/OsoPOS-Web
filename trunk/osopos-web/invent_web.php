@@ -32,7 +32,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 ?>
 <HTML>
 
-<HEAD><TITLE>OsoPOS - Web Invent v. 0.6</TITLE></HEAD>
+<HEAD><TITLE>OSOPoS Web - Invent v. 0.6</TITLE></HEAD>
 <BODY BGCOLOR="white" BACKGROUND="imagenes/fondo.gif" <?
   if ($action == "muestra") {
     echo "onload=\"document.articulo.descripcion.focus()\"";
@@ -199,7 +199,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     echo " <tr>\n";
     echo "  <td><font face=\"helvetica, arial\">Existencia actual</font>\n";
     echo "  <td><font face=\"helvetica, arial\"><input type=text name=ex size=4 $val_ex>\n</font>";
-    echo "  <td><font face=\"helvetica, arial\">Existencia min./font>\n";
+    echo "  <td><font face=\"helvetica, arial\">Existencia min.</font>\n";
     echo "  <td><font face=\"helvetica, arial\"><input type=text size=4 name=ex_min $val_min></font>\n";
     echo "  <td><font face=\"helvetica, arial\">Existencia max.</font>\n";
     echo "  <td><font face=\"helvetica, arial\"><input type=text size=4 name=ex_max $val_max></font>\n";
