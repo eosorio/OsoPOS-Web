@@ -266,6 +266,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     }
     else {
       echo "<b>Art&iacute;culo <i>$codigo $descripcion</i> actualizado.</b><br>\n";
+      $action = "";
     }
   }
   if ($action == "borrar") {

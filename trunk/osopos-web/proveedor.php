@@ -1,6 +1,6 @@
 <?  /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 {
-  include("invent_web.config");
+  include("include/general_config.inc");
   if (isset($salir)) {
     include("include/logout.inc");
   }
