@@ -1,7 +1,7 @@
-<?  /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*- 
- Caja Web 0.0.4-1. Módulo de caja de OsoPOS Web.
+<?  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- 
+ Caja Web 0.7-1. Módulo de caja de OsoPOS Web.
 
-        Copyright (C) 2000,2001 Eduardo Israel Osorio Hernández
+        Copyright (C) 2000,2001,2003 Eduardo Israel Osorio Hernández
         iosorio@elpuntodeventa.com
 
         Este programa es un software libre; puede usted redistribuirlo y/o
@@ -21,8 +21,9 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 
   include("include/general_config.inc");
+  include("include/caja_config.inc");
   include("include/pos-var.inc");
-  include("include/caja_web.inc");
+  include("include/pos.inc");
 
 {
   if (isset($salir)) {
@@ -33,8 +34,25 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   }
 
   if (!isset($art)) {
-	$art = array(new articulosClass);
+    $art = array(new articulosClass);
   }
+  if (!isset($osopos_carrito))
+    $osopos_carrito = array();
+
+  /* Se introdujo un código desde la caja */
+  if (!empty($cod)) {
+    if (busca_codigo($conn, $cod, $alm)>0) {
+    setcookie("osopos_carrito[$cod]", 1);
+    header("Location: $PHP_SELF");
+    exit;
+    }
+    else
+      $bandera = 1;
+  }
+  else
+    if (isset($cod) && strlen($cod)==0 && count($osopos_carrito))
+      $bandera = 3;
+
   /* Hay que quitar estas cochinadas en un futuro */
   if (!isset($articulo_codigo)) {
     $articulo_cantidad = array();
@@ -45,8 +63,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   if (!isset($bandera))
     $bandera = 0;
   /* Opciones de la bandera: 0 Normal, 
-	                         1 No esta en base de datos,
-							 2 Se agrega descripción a mano
+                             1 No esta en base de datos,
+                             2 Se agrega descripción a mano
                              3 Fin de ingreso de artículos */
 
 }
@@ -58,8 +76,9 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
    <meta name="Author" content="E. Israel Osorio Hernández">
    <title>OsoPOS - CajaWeb v. <? echo $caja_web_vers ?></title>
+   <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
+   <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/numerico.css">
    <style type="text/css">
-    body { background: white; font-family: helvetica }
     td.bg1 { background: <? echo $bg_color1 ?> }
     td.bg1_center {text-align: center; background: <? echo $bg_color1 ?> }
     td.bg1_right {text-align: right; background: <? echo $bg_color1 ?>}
@@ -84,23 +103,22 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
  jcod = new Array();
  jpu  = new Array();
  jdesc = new Array();
- jdisc = new Array();
  jiva_porc = new Array();
 <?
     /* Cargamos la tabla de articulos en variables de javascript */
-    $query = "SELECT codigo, descripcion, pu, iva_porc, descuento FROM articulos ORDER BY codigo";
-    if (!$resultado = db_query($query, $conn)) {
-      echo "Error al ejecutar $peticion<br>\n";
-      exit();
-    }
-
+   $query = "SELECT DISTINCT ar.codigo, ar.descripcion, al.pu, ar.iva_porc ";
+   $query.= sprintf("FROM articulos ar, almacen_%d al ORDER BY codigo ", $alm);
+   if (!$resultado = db_query($query, $conn)) {
+     echo "Error al ejecutar $query<br>\n";
+     exit();
+   }
 
     $num_ren = db_num_rows($resultado);
     for ($i=0; $i<$num_ren; $i++) {
       $renglon = db_fetch_object($resultado, $i);
-      printf("jcod[%d] = '%s'; jpu[%d] = %.2f; jdesc[%d] = '%s'; jiva_porc[%d] = %.2f; jdisc[%d] = %.2f;\n",
-			 $i, $renglon->codigo, $i, $renglon->pu, $i, str_replace("'", "\'", $renglon->descripcion),
-			 $i, $renglon->iva_porc, $i, $renglon->descuento);
+      printf("jcod[%d] = '%s'; jpu[%d] = %.2f; jdesc[%d] = '%s'; jiva_porc[%d] = %.2f; \n",
+             $i, $renglon->codigo, $i, $renglon->pu, $i, 
+             str_replace("'", "\'", $renglon->descripcion), $i, $renglon->iva_porc, $i);
     }
   }
 
@@ -123,7 +141,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
   function muestra_articulo(code) {
     var s, t;
-	var j;
+        var j;
 
     if (document.forma_articulo.cod.value=="") {
       return(true);
@@ -135,24 +153,24 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       return(false);
     }
     s = jcod[i];
-	if (s.length > <? echo $MAXLEN_COD ?>)
-	  s.length =  <? echo $MAXLEN_COD ?>;
-	for (var j=0; j<<? echo $MAXLEN_COD ?>-jcod[i].length-1; s = s + " ", j++);
-	s = s + "|" + jdesc[i];
-	if (s.length > <? printf("%d", $MAXLEN_DESC + $MAXLEN_COD) ?>)
-	  s.length =  <? printf("%d", $MAXLEN_DESC + $MAXLEN_COD)  ?>;
-	for (j=0; j<<? echo $MAXLEN_DESC ?>-jdesc[i].length; s = s + " ", j++);
-	s = s + "|";
-	t = "" + jpu[i]; /* Aqui se pretende que se interprete como un string */
-	for (j=0; j<15-t.length; s = s + " ", j++);
+    if (s.length > <? echo $MAXLEN_COD ?>)
+        s.length =  <? echo $MAXLEN_COD ?>;
+    for (var j=0; j<<? echo $MAXLEN_COD ?>-jcod[i].length-1; s = s + " ", j++);
+    s = s + "|" + jdesc[i];
+    if (s.length > <? printf("%d", $MAXLEN_DESC + $MAXLEN_COD) ?>)
+      s.length =  <? printf("%d", $MAXLEN_DESC + $MAXLEN_COD)  ?>;
+    for (j=0; j<<? echo $MAXLEN_DESC ?>-jdesc[i].length; s = s + " ", j++);
+    s = s + "|";
+    t = "" + jpu[i]; /* Aqui se pretende que se interprete como un string */
+    for (j=0; j<15-t.length; s = s + " ", j++);
     s = s + jpu[i];
-	s = s + "|" + jiva_porc[i];
-	s = s + "|" + jdisc[i] + "\n";
+    s = s + "|" + jiva_porc[i] + "\n";
     document.forma_articulo.lista_arts.value = document.forma_articulo.lista_arts.value + s;
     document.forma_articulo.cod.value = "";
     document.forma_articulo.cod.focus();
     return(false);
   }
+
 </script>
 <?
   }
@@ -160,8 +178,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <? if (strlen($cod)!=0  || !isset($num_arts)) { ?>
 
-<body bgcolor="white" background="imagenes/fondo.gif"
- onload="document.forma_articulo.cod.focus()">
+<body onload="document.forma_articulo.cod.focus()">
 
 <?
   if ($imprime_cabecera == 1) {
@@ -180,14 +197,14 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   }    
 ?>
 
-<form action="<? echo $PHP_SELF ?>" method="POST" name="forma_articulo"<?
+<form action="<?php echo $PHP_SELF ?>" method="POST" name="forma_articulo"<?
    if ($mode == "express")
      echo " onsubmit=\"muestra_articulo(document.forma_articulo.cod.value)\">\n";
    else
      echo ">\n";
 ?>
 
-<table border=0 width=500>
+<table border=0 width=600>
 <tr>
 
 <td valign="middle">
@@ -196,9 +213,15 @@ C&oacute;digo, cantidad o descripci&oacute;n:
 
 <td><small>
 <input type="text" name="cod" size=20 maxlength=20
-onblur="muestra_articulo(forma_articulo.cod.value)">
+<?php
+    if ($mode=="express")
+      echo "onblur=\"muestra_articulo(forma_articulo.cod.value)\">\n";
+    else
+      echo "onChange=\"forma_articulo.submit()\">\n";
+?>
+
 </small>
-<input type="hidden" name="php_anterior" value="<? echo $PHP_SELF ?>">
+<input type="hidden" name="php_anterior" value="<?php echo $PHP_SELF ?>">
 </td>
 
 <td align="right">
@@ -213,12 +236,12 @@ onClick="muestra_articulo(forma_articulo.cod.value)"
 >
 </td>
 
-<td align=right>
-<input type=button value="Cancelar artículo" onClick="javascript:history.back()">
+<td align="right">
+<input type="submit" value="Finalizar venta">
 </td>
 
 <td align="right">
-<input type="submit" value="Finalizar venta">
+<a href="carro.php"><img src="imagenes/carrito.png" border=0></a>
 </td>
 
 <?
@@ -238,73 +261,45 @@ onClick="muestra_articulo(forma_articulo.cod.value)"
 
 <?
 
-  if (strlen($cod)) {
-    if ($bandera == 0) {
-      $peticion = "SELECT descripcion, pu, descuento,iva_porc FROM articulos ";
-      $peticion.= "WHERE codigo='$cod'";
-      if (!$resultado = db_query($peticion, $conn)) {
-        echo "Error al ejecutar $peticion<br>\n";
-        exit();
-      }
-      $num_arts++;
-      if (db_num_rows($resultado)) {
-        $reng = db_fetch_object($resultado, 0);
-		$art[$num_arts-1] = new articulosClass;
-		$art[$num_arts-1]->codigo = $cod;
-        /* Hacer esto una clase */
-        $articulo_codigo[$num_arts-1] = $cod;
-        $articulo_descripcion[$num_arts-1] = $reng->descripcion;
-        $articulo_pu[$num_arts-1] = $reng->pu;
-        $articulo_disc[$num_arts-1] = $reng->disc;
-        $articulo_iva_porc[$num_arts-1] = $reng->iva_porc;
-        $articulo_cantidad[$num_arts-1] = 1;
-      }
-      else
-        $bandera = 1;
-    }  /* fin de if ($bandera == 0) */
-    if ($bandera != 1) {
-      include("bodies/caja_lista_arts.bdy");
-      echo "</form>\n";     
+  if ($bandera != 1) {
+    include("bodies/caja_lista_arts.bdy");
+    echo "</form>\n";     
+  }
+  if ($bandera == 1) {
+    if ($mode == "express") {
+      echo "<font face=\"Courier\">\n";
+      printf("<textarea name=\"lista_arts\" cols=%d rows=20>\n", $lista_arts_cols);
+      include("forms/cajaexp_lista_arts.bdy");
+      echo "</textarea>\n";
+      echo "</font>\n";
+      echo "<input type=\"hidden\" name=\"mode\" value=\"express\">\n";
+      echo "<input type=\"hidden\" name=\"num_arts\" value=1>\n";
     }
-    if ($bandera == 1) {
-      if ($mode == "express") {
-		echo "<font face=\"Courier\">\n";
-        printf("<textarea name=\"lista_arts\" cols=%d rows=20>\n", $lista_arts_cols);
-        include("forms/cajaexp_lista_arts.bdy");
-        echo "</textarea>\n";
-		echo "</font>\n";
-		echo "<input type=\"hidden\" name=\"mode\" value=\"express\">\n";
-		echo "<input type=\"hidden\" name=\"num_arts\" value=1>\n";
-      }
-	  else
-		printf("<input type=\"hidden\" name=\"num_arts\" value=\"%d\">\n", $num_arts);
-      echo "</form>\n";
-      include("bodies/ingresa_articulo.bdy");
+    echo "</form>\n";
+    include("bodies/ingresa_articulo.bdy");
 
-    }
-  } // fin de if ($strlen(cod))
-  else {
-    if ($num_arts>0) {
-
+  }
+  else if ($bandera == 3) {
+    if (count($osopos_carrito)) {
       $nm_ticket = tempnam($TMP_DIR, "cajaweb");
-	  include("bodies/caja_web_cobro.bdy");
+      include("bodies/caja_web_cobro.bdy");
     }
     else {
       if ($mode == "express") {
-		echo "<font face=\"Courier\">\n";
+        echo "<font face=\"Courier\">\n";
         echo "<textarea name=\"lista_arts\" cols=100 rows=20>\n";
         echo "</textarea>\n";
-		echo "</font>\n";
-		echo "<input type=\"hidden\" name=\"mode\" value=\"express\">\n";
-		echo "<input type=\"hidden\" name=\"num_arts\" value=1>\n";
+        echo "</font>\n";
+        echo "<input type=\"hidden\" name=\"mode\" value=\"express\">\n";
+        echo "<input type=\"hidden\" name=\"num_arts\" value=1>\n";
       }
-      else
-		printf("<input type=hidden name=num_arts value=\"%d\">\n", $num_arts);
       echo "</form>\n";
       if ($mode != "express")
         echo "Sin art&iacute;culos a cobrar\n";
     }
   }
+  include("bodies/menu/general.bdy");
+
 ?>
 
 
