@@ -1,6 +1,27 @@
-<?  /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+<?php  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
+        Proveedores. Sub-Módulo de inventarios de OsoPOS Web.
+
+        Copyright (C) 2000-2003 Eduardo Israel Osorio Hernández
+
+        Este programa es un software libre; puede usted redistribuirlo y/o
+modificarlo de acuerdo con los términos de la Licencia Pública General GNU
+publicada por la Free Software Foundation: ya sea en la versión 2 de la
+Licencia, o (a su elección) en una versión posterior. 
+
+        Este programa es distribuido con la esperanza de que sea útil, pero
+SIN GARANTIA ALGUNA; incluso sin la garantía implícita de COMERCIABILIDAD o
+DE ADECUACION A UN PROPOSITO PARTICULAR. Véase la Licencia Pública General
+GNU para mayores detalles. 
+
+        Debería usted haber recibido una copia de la Licencia Pública General
+GNU junto con este programa; de no ser así, escriba a Free Software
+Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA. 
+
+*/ 
+
 {
   include("include/general_config.inc");
+  include("include/pos.inc");
   if (isset($salir)) {
     include("include/logout.inc");
   }
@@ -10,11 +31,16 @@
 }
 
 ?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-      "http://www.w3.org/TR/REC-html40/loose.dtd">
- 
-<HTML><HEAD><TITLE>OsoPOS Web - Subm&oacute;dulo de proveedores</TITLE></HEAD>
-<BODY BGCOLOR="white" BACKGROUND="imagenes/fondo.gif">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<HTML>
+
+<HEAD>
+  <TITLE>OsoPOS Web - Subm&oacute;dulo de proveedores</TITLE>
+   <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
+
+</HEAD>
+<BODY>
 
 
 <?
