@@ -4,7 +4,7 @@
 <table border=0 width='100%'>
  <tr>
  <th>&nbsp;</th>
-<?
+<?php
   if (puede_hacer($conn, $user->user, "invent_borrar_item"))
     echo "  <th>&nbsp;</th>\n";
 
@@ -81,6 +81,7 @@
       echo "     <input type=\"hidden\" name=\"order_by\" value=\"$order_by\">\n";
       echo "     <input type=\"hidden\" name=\"alm\" value=\"$alm\">\n";
       printf("     <input type=\"hidden\" name=\"codigo\" value=\"%s\">\n", $reng->codigo);
+      echo "     <input type=\"hidden\" name=\"qt\" value=1>\n";
       echo "     <input type=\"image\" src=\"imagenes/carrito.png\">\n";
       echo "   </form>\n";
       echo "   </td>\n";
