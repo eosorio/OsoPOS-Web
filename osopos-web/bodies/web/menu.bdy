@@ -1,11 +1,11 @@
 <table border=0 width="100%">
 <tr>
-  <td><a href="osopos.php">Menú principal</td>
-  <td><a href="caja_web.php">Caja</td>
-  <td><a href="factur_web.php">Facturación</td>
-  <td><a href="invent_web.php">Inventarios</td>
-  <td><a href="mov_invent.php">Movimientos al inv.</td>
-  <td><a href="reportes.php">Reportes</td>
-  <td><a href="carro.php">Carrito</td>
+  <td><small><a href="osopos.php">Menú principal</small></td>
+  <td><small><a href="submenu.php?modulo=caja">Caja</small></td>
+  <td><small><a href="renta_web.php">Rentas</small></td>
+  <td><small><a href="factur_web.php">Facturación</small></td>
+  <td><small><a href="submenu.php?modulo=inventarios">Inventarios</small></td>
+  <td><small><a href="submenu.php?modulo=clientes">Clientes</small></td>
+  <td><small><a href="carro.php">Carrito</small></td>
 </tr>
 </table>

@@ -16,7 +16,7 @@
   <td><select name="divisa"><?php echo lista_divisas($conn, $divisa) ?></select></td>
   <td><input type="text" name="iva_porc" size=5 value="<?php printf("%.2f", $iva_porc) ?>">
   <td><input type="text" size="3" name="entrega1" value="<?php printf("%d", $entrega1) ?>">
-      <input type="hidden" name="boton" value="general"></td>
+      <input type="hidden" name="boton" value="costos"></td>
   <td><input type="text" size="10" name="prov_clave" value="<?php printf("%s", $prov_clave) ?>">
       <input type="hidden" name="action" value="ver"></td>
   <td><input type="text" size="10" name="costo_envio1" value="<?php printf("%.2f", $costo_envio1) ?>">

@@ -1,7 +1,18 @@
-<? /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- */ ?>
+<?php /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- */ ?>
 <!-- bodies/invent_std_main.bdy -->
 
 <table border=0 width='100%'>
+<colgroup>
+  <col width=20 span=3><col width=150><col width=*>
+<?php
+  if (isset($alm) && $alm>0) {
+    echo "<col width=80><col width=30><col width=20 span=2><col width=160>\n";
+  }
+  else {
+    echo "<col width=150><col width=160><col width=80>\n";
+  }
+?>
+</colgroup>
  <tr>
  <th>&nbsp;</th>
  <th>&nbsp;</th>
@@ -35,11 +46,11 @@
     echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=id_dept&order=";
     printf("%d",  $order_by=="id_dept" && !$order);
     echo "$href_dept$href_prov\">Departamento</a></th>\n";
-    if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
+/*    if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
       echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=prov_clave&order=";
       printf("%d",  $order_by=="p_costo" && !$order);
       echo "$href_dept$href_prov\">Clave Prov.</a></th>\n";
-    }
+    }*/
 
     if (puede_hacer($conn, $user->user, "invent_ver_pcosto") && $alm==0) {
           echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=p_costo&order=";
@@ -50,7 +61,7 @@
 
     for ($i=0; $i<$num_ren; $i++) {
       $reng = db_fetch_object($resultado, $i);
-      if (!isset($alm))
+      if (empty($alm) || $alm==0)
         $id_prov1 = $reng->id_prov1 ;
       $id_dept = $reng->id_depto;
       if (empty($search))
@@ -73,10 +84,10 @@
 <?
       echo "  <tr>\n";
       echo "   <td>\n";
-      echo "   <form action=\"$PHP_SELF\" method=\"post\">";
-      echo "     $form_dept\n$form_prov\n";
+      echo "   <form action=\"$PHP_SELF\" method=\"post\">\n";
+      echo "     $form_dept\n     $form_prov\n";
       echo "     <input type=\"hidden\" name=\"action\" value=\"ver\">\n";
-      echo "     <input type=\"hidden\" name=\"offset\" value=\"$offset\"\n";
+      echo "     <input type=\"hidden\" name=\"offset\" value=\"$offset\">\n";
       echo "     <input type=\"hidden\" name=\"order\" value=\"$order\">\n";
       echo "     <input type=\"hidden\" name=\"order_by\" value=\"$order_by\">\n";
       printf("     <input type=\"hidden\" name=\"codigo\" value=\"%s\">\n", $reng->codigo);
@@ -88,7 +99,7 @@
       echo "   <form action=\"$PHP_SELF\" method=\"post\">";
       echo "     $form_dept\n$form_prov\n";
       echo "     <input type=\"hidden\" name=\"action\" value=\"add2cart\">\n";
-      echo "     <input type=\"hidden\" name=\"offset\" value=\"$offset\"\n";
+      echo "     <input type=\"hidden\" name=\"offset\" value=\"$offset\">\n";
       echo "     <input type=\"hidden\" name=\"order\" value=\"$order\">\n";
       echo "     <input type=\"hidden\" name=\"order_by\" value=\"$order_by\">\n";
       printf("     <input type=\"hidden\" name=\"codigo\" value=\"%s\">\n", $reng->codigo);
@@ -98,9 +109,9 @@
       echo "   </td>\n";
       if (puede_hacer($conn, $user->user, "invent_borrar_item")) {
         echo "  <td>\n";
-        echo "   <form action=\"$PHP_SELF\" method=\"post\">";
+        echo "   <form action=\"$PHP_SELF\" method=\"post\">\n";
         echo "     <input type=\"hidden\" name=\"action\" value=\"borrar\">\n";
-        echo "     <input type=\"hidden\" name=\"offset\" value=\"$offset\"\n";
+        echo "     <input type=\"hidden\" name=\"offset\" value=\"$offset\">\n";
         echo "     <input type=\"hidden\" name=\"order\" value=\"$order\">\n";
         echo "     <input type=\"hidden\" name=\"order_by\" value=\"$order_by\">\n";
         printf("     <input type=\"hidden\" name=\"codigo\" value=\"%s\">\n", $reng->codigo);
@@ -120,21 +131,27 @@
 
       if (isset($alm) && $alm>0) {
       echo "  <td align=\"right\"$td_fondo>";
-//      printf("%.2f</td>\n", $reng->pu);
       printf("%.2f</td>\n", $reng->unitario);
 
-      //      echo "  <td align=\"center\"$td_fondo>$reng->descuento</td>\n";
         echo "  <td align=\"center\"$td_fondo>";
-        if ($reng->cant <= $reng->c_min)
-          if (strstr($HTTP_USER_AGENT, "Mozilla/4"))
-            echo "  <blink>$reng->cant</blink>";
+        if ($reng->tangible=='t')
+          if ($reng->cant <= $reng->c_min)
+            if (strstr($HTTP_USER_AGENT, "Mozilla/4"))
+              echo "  <blink>$reng->cant</blink>";
+            else
+              echo "<div class=\"notify\">$reng->cant</div>";
           else
-            echo "<div class=\"notify\">$reng->cant</div>";
+            echo "$reng->cant";
         else
-          echo "$reng->cant";
+          echo "&nbsp;";
         echo "</td>\n";
-        echo "  <td align=\"center\"$td_fondo>$reng->c_min</td>\n";
-        echo "  <td align=\"center\"$td_fondo>$reng->c_max</td>\n";
+
+        echo "  <td align=\"center\"$td_fondo>";
+        if ($reng->tangible=='t') echo $reng->c_min; else echo "&nbsp;";
+        echo "</td>\n";
+        echo "  <td align=\"center\"$td_fondo>";
+        if ($reng->tangible=='t') echo $reng->c_max; else echo "&nbsp;";
+        echo "</td>\n";
       }
       else if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
         echo "  <td$td_fondo>";
@@ -155,14 +172,14 @@
         echo "&nbsp;";
       echo "</td>\n";
 
-      if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
+      /*      if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
 
         echo "  <td align=\"right\"$td_fondo>";
         if (strlen($reng->prov_clave))
           printf("%s</td>\n", $reng->prov_clave);
         else
           echo "&nbsp;</font>\n";
-      }
+      }*/
 
       if (puede_hacer($conn, $user->user, "invent_ver_pcosto") && $alm==0) {
                 echo "  <td align=\"right\"$td_fondo>";
