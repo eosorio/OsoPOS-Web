@@ -1,183 +1,174 @@
-<?php /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- 
-        invent_item_gral.bdy. Cuerpo del módulo de inventarios de OsoPOS Web.
+<? /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- */ ?>
+<!-- bodies/invent_std_main.bdy -->
 
-        Copyright (C) 2003 Eduardo Israel Osorio Hernández
-
-        Este programa es un software libre; puede usted redistribuirlo y/o
-modificarlo de acuerdo con los términos de la Licencia Pública General GNU
-publicada por la Free Software Foundation: ya sea en la versión 2 de la
-Licencia, o (a su elección) en una versión posterior. 
-
-        Este programa es distribuido con la esperanza de que sea útil, pero
-SIN GARANTIA ALGUNA; incluso sin la garantía implícita de COMERCIABILIDAD o
-DE ADECUACION A UN PROPOSITO PARTICULAR. Véase la Licencia Pública General
-GNU para mayores detalles. 
-
-        Debería usted haber recibido una copia de la Licencia Pública General
-GNU junto con este programa; de no ser así, escriba a Free Software
-Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA. 
-
-*/
-{
-  include("bodies/web/invent_costos_head.bdy");
-  include("include/tipo_cambio.inc");
-
-  $query = "SELECT a.* FROM articulos a WHERE codigo='$codigo' ";
-  if (!$db_res = db_query($query, $conn)) {
-    echo "Error al consultar información de catalogo del producto<br>\n";
-    exit();
-  }
-  $ren = db_fetch_object($db_res, 0);
-  include("bodies/web/invent_item_gral_head.bdy");
-
-
-  if (empty($DIVISA_OMISION))
-    $DIVISA_OMISION = "MXP";
-
-  $actualizacion = sprintf("%s %s", date("Y-m-d"), date("H:i:s"));
-  if ($subaction=="agrega_pcosto") {
-    $query = "INSERT INTO articulos_costos (codigo, id_prov, costo1, costo2, iva_porc, entrega1, ";
-    $query.= "prov_clave, costo_envio1, actualizacion, divisa, divisa_envio) VALUES ";
-    $query.= sprintf("('%s', %d, %f, %f, %f, %d, ", $codigo, $id_prov, $costo1,  $costo1, $iva_porc, $entrega1);
-    $query.= sprintf("'%s', %f, '%s', '%s', '%s') ", $prov_clave, $costo_envio1, $actualizacion, $divisa, $divisa_env);
-
-    if (!$db_res = db_query($query, $conn)) {
-      echo "Error al registrar información del producto<br>\n";
-      exit();
-    }
-    else
-      printf("<b>Art&iacute;culo <i>%s</i> actualizado.</b><br>\n", $codigo);
-    $subaction="";
-    unset($subaction);
-  }
-  else if ($subaction == "actualiza_pcosto") {
-    $query = sprintf("UPDATE articulos_costos SET costo1=%f, iva_porc=%f, entrega1=%d, ",
-                     $costo1, $iva_porc, $entrega);
-    $query.= sprintf("prov_clave='%s', costo_envio1=%f, actualizacion='%s', divisa='%s', status='%s', ",
-                     $prov_clave, $costo_envio1, $actualizacion, $divisa, $status);
-    $query.= sprintf("divisa_envio='%s' WHERE (codigo='%s' AND id_prov=%d) ", $divisa_env, $codigo, $id_prov);
-
-    if (!$db_res = db_query($query, $conn)) {
-      echo "Error al actualizar costo del producto<br>\n";
-      exit();
-    }
-    else
-      printf("<b>Art&iacute;culo <i>%s</i> actualizado.</b><br>\n", $codigo);
-    $subaction = "";
-    unset($subaction);
-  }
-  else if ($subaction == "borra_pcosto") {
-    $query = sprintf("DELETE FROM articulos_costos WHERE codigo='%s' AND id_prov=%d AND actualizacion='%s' ",
-                     $codigo, $id_prov, $act);
-
-    if (!$db_res = db_query($query, $conn)) {
-      echo "Error al actualizar costo del producto<br>\n";
-      exit();
-    }
-    else
-      printf("<b>Costo de art&iacute;culo <i>%s</i> eliminado.</b><br>\n", $codigo);
-
-    $subaction = "";
-    unset($subaction);
-  }
-  else if ($subaction == "cambia_pcosto") {
-    include("bodies/web/invent_item_gral_cambia.bdy");
-  }
-  else if (!isset($subaction)) {
-?>
-<table border="0">
-<colgroup>
-  <col width="25" span="2"><col width="200"><col width="100"><col width="50"><col width="40">
-  <col width="95"><col width="80"><col width="200"><col width="40">
-</colgroup>
-<tr>
-  <th>&nbsp;</th><th>&nbsp;</th><th>Proveedor</th><th>Costo (MXP)</th><th>% IVA</th>
-  <th>Tiempo entrega</th><th>Clave prov.</th><th>Costo envío</th><th>Última act.</th><th>Est.</th>
-</tr>
+<table border=0 width='100%'>
+ <tr>
+ <th>&nbsp;</th>
+ <th>&nbsp;</th>
 <?php
+  if (puede_hacer($conn, $user->user, "invent_borrar_item"))
+    echo "  <th>&nbsp;</th>\n";
 
-  $query = "SELECT codigo, id_prov, costo1, iva_porc, entrega1, prov_clave, costo_envio1, ";
-  $query.= "actualizacion, status, divisa, divisa_envio FROM articulos_costos WHERE codigo='$codigo' ";
-  $query.= "ORDER BY costo1 ASC ";
-  if (!$db_res = db_query($query, $conn)) {
-      echo "Error al consultar información del producto<br>\n";
-      exit();
-  }
-  $num_ren = db_num_rows($db_res);
-  for ($i=0; $i<$num_ren; $i++) {
- 
-    if (!($i%4) || $i==0)
-      $td_fondo = " bgcolor='#dcffdb'";
-    else if (!(($i+2)%2))
-      $td_fondo = " bgcolor='#fdffd3'";
-    else
-      $td_fondo = "";
+    echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=codigo&order=";
+    printf("%d",  $order_by=="codigo" && !$order);
+    echo "$href_dept$href_prov\">C&oacute;digo</a></th>\n";
 
-    echo "<tr>\n";
+    echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=descripcion&order=";
+    printf("%d",  $order_by=="descripcion" && !$order);
+    echo "$href_dept$href_prov\">Descripci&oacute;n</a></th>\n";
 
-    $ren = db_fetch_object($db_res, $i);
-
-    $hidden_vars = sprintf("   <input type=\"hidden\" name=\"codigo\" value=\"%s\">\n", $codigo);
-    $hidden_vars.= sprintf("   <input type=\"hidden\" name=\"id_depto\" value=\"%d\">\n", $id_depto);
-
-    $hidden_rvars = sprintf("   <input type=\"hidden\" name=\"id_prov\" value=\"%s\">\n", $ren->id_prov);
-    $hidden_rvars.= sprintf("   <input type=\"hidden\" name=\"costo1\" value=\"%.2f\">\n", $ren->costo1);
-
-    if ($ren->prov_clave == NULL)
-      $prov_clave = "<small>N/D</small>";
-    else
-      $prov_clave = htmlentities($ren->prov_clave);
-    echo "  <td>\n";
-    echo "   <form action=\"$PHP_SELF\" method=\"post\">\n";
-    echo "   <input type=\"hidden\" name=\"action\" value=\"ver\">\n";
-    echo "   <input type=\"hidden\" name=\"subaction\" value=\"cambia_pcosto\">\n";
-    echo $hidden_vars;
-    echo $hidden_rvars;
-    printf("   <input type=\"hidden\" name=\"iva_porc\" value=\"%f\">\n", $ren->iva_porc);
-    printf("   <input type=\"hidden\" name=\"costo_envio1\" value=\"%f\">\n", $ren->costo_envio1);
-    printf("   <input type=\"hidden\" name=\"divisa\" value=\"%s\">\n", $ren->divisa);
-    printf("   <input type=\"hidden\" name=\"prov_clave\" value=\"%s\">\n", $ren->prov_clave);
-    printf("   <input type=\"hidden\" name=\"entrega1\" value=\"%d\">\n", $ren->entrega1);
-    printf("   <input type=\"hidden\" name=\"status\" value=\"%s\">\n", $ren->status);
-    printf("   <input type=\"image\" src=\"imagenes/lapiz.png\">\n");
-    echo "   </form>\n";
-    echo "  </td>\n";
-    echo "  <td>\n";
-    echo "   <form action=\"$PHP_SELF\" method=\"post\">\n";
-    echo "   <input type=\"hidden\" name=\"action\" value=\"ver\">\n";
-    echo "   <input type=\"hidden\" name=\"subaction\" value=\"borra_pcosto\">\n";
-    echo $hidden_vars;
-    echo $hidden_rvars;
-    printf("   <input type=\"hidden\" name=\"act\" value=\"%s\">\n", $ren->actualizacion);
-    printf("   <input type=\"image\" src=\"imagenes/borrar.png\">\n");
-    echo "   </form>\n";
-    echo "  </td>\n";
-    printf("  <td $td_fondo>%s</td>\n", $nick_prov[$ren->id_prov]);
-    printf("  <td $td_fondo class=\"moneda\">%.2f</td>\n", $ren->costo1 * $tipo_cambio[$ren->divisa]);
-    printf("  <td $td_fondo class=\"moneda\">%.2f</td>\n", $ren->iva_porc);
-    printf("  <td $td_fondo class=\"serie\">%d</td>\n", $ren->entrega1);
-    printf("  <td $td_fondo>%s</td>\n", $prov_clave);
-    printf("  <td $td_fondo class=\"moneda\">%.2f</td>\n", $ren->costo_envio1 * $tipo_cambio[$ren->divisa_envio]);
-    printf("  <td $td_fondo class=\"serie\"><small>%s</small></td>\n", htmlentities($ren->actualizacion));
-    printf("  <td $td_fondo class=\"serie\">%s</td>\n", $ren->status);
-    echo "</tr>\n";
-  }
+    if (isset($alm) && $alm>0) {
+      echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=pu&order=";
+      printf("%d",  $order_by=="pu" && !$order);
+      echo "$href_dept$href_prov\">Precio</a></th>\n";
 ?>
-</table>
-<form action="<?php echo $PHP_SELF ?>" method="post">
-<?php printf("   <input type=\"hidden\" name=\"codigo\" value=\"%s\">\n", $codigo) ?>
-<input type="hidden" name="action" value="ver">
-<input type="hidden" name="subaction" value="nuevo_pcosto">
-<input type="image" src="imagenes/web/btn_nuevo_costo_inactivo.png">
-</form>
-<?php
-  }
-  else if ($subaction == "nuevo_pcosto") {
-    include("bodies/web/invent_item_gral_nuevo_pcosto.bdy");
-  } else {
-?>
+   <th>Ex.</th>
+   <th>Min</th>
+   <th>Max</th>
+<?
+    } else if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
+      echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=id_prov&order=";
+      printf("%d",  $order_by=="id_prov" && !$order);
+      echo "$href_dept$href_prov\">Proveedor</a></th>";
+    }
 
-<?php
-   }
-}
+    echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=id_dept&order=";
+    printf("%d",  $order_by=="id_dept" && !$order);
+    echo "$href_dept$href_prov\">Departamento</a></th>\n";
+    if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
+      echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=prov_clave&order=";
+      printf("%d",  $order_by=="p_costo" && !$order);
+      echo "$href_dept$href_prov\">Clave Prov.</a></th>\n";
+    }
+
+    if (puede_hacer($conn, $user->user, "invent_ver_pcosto") && $alm==0) {
+          echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=p_costo&order=";
+          printf("%d",  $order_by=="p_costo" && !$order);
+          echo "$href_dept$href_prov\">P. costo</a></th>\n";
+        }
+
+
+    for ($i=0; $i<$num_ren; $i++) {
+      $reng = db_fetch_object($resultado, $i);
+      if (!isset($alm))
+        $id_prov1 = $reng->id_prov1 ;
+      $id_dept = $reng->id_depto;
+      if (empty($search))
+        $descripcion = $reng->descripcion;
+      else
+        $descripcion = str_replace($search, "<b>$search</b>", $reng->descripcion);
+      if (empty($search))
+        $codigo = $reng->codigo;
+      else
+        $codigo = str_replace($search, "<b>$search</b>", $reng->codigo);
+
+      if (!($i%4) || $i==0)
+        $td_fondo = " bgcolor='#dcffdb'";
+      else if (!(($i+2)%2))
+        $td_fondo = " bgcolor='#fdffd3'";
+      else
+        $td_fondo = "";
 ?>
+ </tr>
+<?
+      echo "  <tr>\n";
+      echo "   <td>\n";
+      echo "   <form action=\"$PHP_SELF\" method=\"post\">";
+      echo "     $form_dept\n$form_prov\n";
+      echo "     <input type=\"hidden\" name=\"action\" value=\"ver\">\n";
+      echo "     <input type=\"hidden\" name=\"offset\" value=\"$offset\"\n";
+      echo "     <input type=\"hidden\" name=\"order\" value=\"$order\">\n";
+      echo "     <input type=\"hidden\" name=\"order_by\" value=\"$order_by\">\n";
+      printf("     <input type=\"hidden\" name=\"codigo\" value=\"%s\">\n", $reng->codigo);
+      printf("     <input type=\"hidden\" name=\"id_depto\" value=\"%d\">\n", $id_dept);
+      echo "     <input type=\"image\" src=\"imagenes/lupa.png\" alt=\"eliminar\">\n";
+      echo "   </form>\n";
+      echo "   </td>\n";
+      echo "   <td>\n";
+      echo "   <form action=\"$PHP_SELF\" method=\"post\">";
+      echo "     $form_dept\n$form_prov\n";
+      echo "     <input type=\"hidden\" name=\"action\" value=\"add2cart\">\n";
+      echo "     <input type=\"hidden\" name=\"offset\" value=\"$offset\"\n";
+      echo "     <input type=\"hidden\" name=\"order\" value=\"$order\">\n";
+      echo "     <input type=\"hidden\" name=\"order_by\" value=\"$order_by\">\n";
+      printf("     <input type=\"hidden\" name=\"codigo\" value=\"%s\">\n", $reng->codigo);
+      echo "     <input type=\"hidden\" name=\"qt\" value=1>\n";
+      echo "     <input type=\"image\" src=\"imagenes/carrito.png\">\n";
+      echo "   </form>\n";
+      echo "   </td>\n";
+      if (puede_hacer($conn, $user->user, "invent_borrar_item")) {
+        echo "  <td>\n";
+        echo "   <form action=\"$PHP_SELF\" method=\"post\">";
+        echo "     <input type=\"hidden\" name=\"action\" value=\"borrar\">\n";
+        echo "     <input type=\"hidden\" name=\"offset\" value=\"$offset\"\n";
+        echo "     <input type=\"hidden\" name=\"order\" value=\"$order\">\n";
+        echo "     <input type=\"hidden\" name=\"order_by\" value=\"$order_by\">\n";
+        printf("     <input type=\"hidden\" name=\"codigo\" value=\"%s\">\n", $reng->codigo);
+        echo "     <input type=\"image\" src=\"imagenes/borrar.gif\" border=0>\n";
+        echo "   </form>\n";
+        echo "  </td>\n";
+          }
+      printf("  <td$td_fondo><a href=\"%s?codigo=", $_SERVER['PHP_SELF']);
+      echo str_replace(" ", "%20", htmlentities($reng->codigo));
+      echo "&order_by=$order_by&order=$order&action=muestra&offset=$offset$href_dept$href_prov";
+          if ($debug)
+                echo "&debug=1";
+          echo "\">";
+      echo stripslashes($codigo) . "</a></td>\n";
+      printf("  <td%s>%s</td>\n",
+             $td_fondo, stripslashes($descripcion));
+
+      if (isset($alm) && $alm>0) {
+      echo "  <td align=\"right\"$td_fondo>";
+//      printf("%.2f</td>\n", $reng->pu);
+      printf("%.2f</td>\n", $reng->unitario);
+
+      //      echo "  <td align=\"center\"$td_fondo>$reng->descuento</td>\n";
+        echo "  <td align=\"center\"$td_fondo>";
+        if ($reng->cant <= $reng->c_min)
+          if (strstr($HTTP_USER_AGENT, "Mozilla/4"))
+            echo "  <blink>$reng->cant</blink>";
+          else
+            echo "<div class=\"notify\">$reng->cant</div>";
+        else
+          echo "$reng->cant";
+        echo "</td>\n";
+        echo "  <td align=\"center\"$td_fondo>$reng->c_min</td>\n";
+        echo "  <td align=\"center\"$td_fondo>$reng->c_max</td>\n";
+      }
+      else if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
+        echo "  <td$td_fondo>";
+        if ($nick_prov[$id_prov1]) {
+          echo "<a href=\"proveedor.php?accion=muestra&id=";
+          printf("%d\">", $id_prov1 + ($SQL_TYPE=="mysql"));
+          printf("%s</a>", $nick_prov[$id_prov1]);
+        }
+        else
+          echo "<small>N/D</small>";
+        echo "</td>\n";
+      }
+
+      echo "  <td$td_fondo>";
+      if ($nm_depto[$id_dept])
+        echo $nm_depto[$id_dept];
+      else
+        echo "&nbsp;";
+      echo "</td>\n";
+
+      if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
+
+        echo "  <td align=\"right\"$td_fondo>";
+        if (strlen($reng->prov_clave))
+          printf("%s</td>\n", $reng->prov_clave);
+        else
+          echo "&nbsp;</font>\n";
+      }
+
+      if (puede_hacer($conn, $user->user, "invent_ver_pcosto") && $alm==0) {
+                echo "  <td align=\"right\"$td_fondo>";
+                printf("%.2f</td>\n", $reng->pcosto);
+          }
+      echo " \n";
+    }
+?>
+  </table>
