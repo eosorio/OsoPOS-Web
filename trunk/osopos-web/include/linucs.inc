@@ -10,12 +10,14 @@ function Crea_Factura($cliente,    /*clase datoscliente */
                       $total,
                       $garantia,
                       $observaciones,
+                      $num_venta,
                       $nmfact,
                       $tipoimp)
 
 {
   global $ESC, $FF;
 
+  include("include/factur_config.inc");
   include ("include/linucs_factur_const.inc");
 
   $ffact = fopen($nmfact,"w");
@@ -43,9 +45,23 @@ function Crea_Factura($cliente,    /*clase datoscliente */
   /* 2/n-avos de pulgada */
   fputs($ffact, $linea);
 
-  for ($i=0; $i<11; $i++)
+  for ($i=0; $i<$MARGEN_SUP; $i++)
     fputs($ffact, "\n");
 
+  $linea = "Pedido: ";
+  if ($pedido)
+    $linea.= sprintf("%d", $num_venta);
+  else
+    $linea.= "s/n";
+
+  Espacios($ffact, $MARGEN);
+  fputs($ffact, $linea);
+
+  Espacios($ffact, 50-strlen($linea));
+  $linea = sprintf("Fecha: %d / %d / %d\n\n",$fecha->dia,$fecha->mes,$fecha->anio);
+  fputs($ffact, $linea);
+  fputs($ffact, "  =========================================================================\n");
+  fputs($ffact, "Cliente:\n");
   $linea = sprintf("%s\n",$cliente->nombre);
   Espacios($ffact, $MARGEN);
   fputs($ffact, $linea);
@@ -56,73 +72,40 @@ function Crea_Factura($cliente,    /*clase datoscliente */
   $linea .= "\n";
   Espacios($ffact, $MARGEN);
   fputs($ffact, $linea);
-  $linea = sprintf("Col. %s ", $cliente->dom_col);
-  Espacios($ffact, $MARGEN);
+  if (strlen($cliente->dom_col)) {
+    $linea = sprintf("Col. %s ", $cliente->dom_col);
+    Espacios($ffact, $MARGEN);
+    fputs($ffact, $linea);
+  }
+  $linea = sprintf("\n");
   fputs($ffact, $linea);
-  $linea = sprintf( "\n");
-  fputs($ffact, $linea);
+
   $linea = sprintf("%s, %s", $cliente->dom_ciudad, $cliente->dom_edo);
   Espacios($ffact, $MARGEN);
   fputs($ffact, $linea);
-  if (strlen($observaciones)) {
-    $renglon_largo = $observaciones;
-    for ($j=0; $j<$OBS_MAXRENS; $j++) {
-      $semi_renglon = substr($renglon_largo, 0, $OBS_MAXCOLS);
-      $pos_fin_reng = strrpos($semi_renglon, " ") ? strrpos($semi_renglon, " ") : strlen($semi_renglon) ;
-      $reng[$j] = substr($semi_renglon, 0, $pos_fin_reng);
-      if (!empty($j))
-        $reng[$j] .= "\n";
-      $renglon_largo = substr($renglon_largo, $pos_fin_reng+1, strlen($renglon_largo));
-    }
-    if (strlen($cliente->dom_ciudad)+strlen($cliente->dom_edo) <= 46)
-      Espacios($ffact,  46 - strlen($cliente->dom_ciudad) - strlen($cliente->dom_edo) - 2 );
-    $linea = sprintf( "%s", $reng[0]); /* Observaciones */
-    fputs($ffact, $linea);
-  }
-  else {
-    $j = 1;
-    $reng[0] = $observaciones;
-  }
 
   fputs($ffact, "\n");
   $linea = sprintf("C.P. %5d", $cliente->cp);
   Espacios($ffact, $MARGEN);
   fputs($ffact, $linea);
-  if (strlen($reng[1])) {
-    Espacios($ffact, 36);
-    $linea = sprintf( "%s", $reng[1]); /* Observaciones */
-  }
-  else
-    $linea = sprintf( "\n");
+
+  $linea = sprintf( "\n");
+
   fputs($ffact, $linea);
-  $linea = sprintf("%cJ%c",$ESC,16); /* 16 n-avos de pulgada de avance vert */
-  fputs($ffact, $linea);
-  $linea = sprintf("       %s",$cliente->rfc);
+/* 16 n-avos de pulgada de avance vert */
+  /*$linea = sprintf("%cJ%c",$ESC,16);
+    fputs($ffact, $linea);*/
+  $linea = sprintf("%s\n",$cliente->rfc);
   Espacios($ffact, $MARGEN);
   fputs($ffact, $linea);
-  if (strlen($reng[2])) {
-    Espacios($ffact, 39-strlen($cliente->rfc));
-    $linea = sprintf( "%s", chop($reng[2])); /* Observaciones */
-    if (strlen($linea>18))
-      $linea = substr($linea, 0, 18);
-    fputs($ffact, $linea);
-    Espacios($ffact, 23-strlen($linea));
-  }
-  else
-    Espacios($ffact, 63-strlen($cliente->rfc)-strlen($reng[2]));
-  $linea = sprintf("%d / %d / %d\n\n",$fecha->dia,$fecha->mes,$fecha->anio);
-  fputs($ffact, $linea);
-  $linea = sprintf("%cJ%c",$ESC,16);
-  fputs($ffact, $linea);
 
-  $linea = sprintf("%cJ%c",$ESC,90);
+  $linea = sprintf("%cJ%c",$ESC,116);
   fputs($ffact, $linea);
-
 
   for ($i=0; $i<$num_articulos; ++$i) {
     if (strlen($articulos[$i]->desc) > $DESC_MAXCOLS) {
       $reng = array();
-      $renglon_largo = $articulos[$i]->desc;
+      $renglon_largo = str_replace("&quot;", "\"", $articulos[$i]->desc);
       for ($j=0; $j<$DESC_MAXRENS; $j++) {
         $semi_renglon = substr($renglon_largo, 0, $DESC_MAXCOLS);
         $pos_fin_reng = strrpos($semi_renglon, " ") ? strrpos($semi_renglon, " ") : strlen($semi_renglon) ;
@@ -137,7 +120,7 @@ function Crea_Factura($cliente,    /*clase datoscliente */
     }
     else {
       $j = 1;
-      $reng[0] = $articulos[$i]->desc;
+      $reng[0] = stripslashes($articulos[$i]->desc);
     }
     $linea = sprintf("%-15s", $articulos[$i]->codigo);
     Espacios($ffact, $MARGEN);
@@ -163,20 +146,36 @@ function Crea_Factura($cliente,    /*clase datoscliente */
   $linea = sprintf("%cf1%c", $ESC, $ART_MAXRENS-$num_ren_articulos);
   fputs($ffact, $linea);
 
+  $linea = sprintf("El pago se hace en una sola exhibici%cn\n\n", 162);
+
+  Espacios($ffact, $MARGEN);
+  Espacios($ffact, 23);
+  fputs($ffact, $linea);
+  $linea = sprintf("Hecho con OsoPOS Web.\n");
+  Espacios($ffact, $MARGEN);
+  Espacios($ffact, 23);
+  fputs($ffact, $linea);
+  $linea = "http://elpuntodeventa.com/software.html\n\n";
+  Espacios($ffact, $MARGEN);
+  Espacios($ffact, 23);
+  fputs($ffact, $linea);
+
   $importe_letra = substr(str_cant($total,$buff), 0, $MAXIMPORT);
-  Espacios($ffact, 20);
+  Espacios($ffact, $MARGEN);
+  Espacios($ffact, 23);
   $linea = sprintf("%s---",$importe_letra);
   fputs($ffact, $linea);
   $linea = sprintf( "\n");
   fputs($ffact, "\n");
 
-  Espacios($ffact, 20);
+  Espacios($ffact, $MARGEN);
+  Espacios($ffact, 23);
   if ($buff>9)
     $linea = sprintf("pesos %2d/100 M.N.\n",$buff);
   else
     $linea = sprintf("pesos 0%1d/100 M.N.\n",$buff);
   fputs($ffact, $linea);
-  fputs($ffact, "\n");
+
 
   $linea = sprintf("%cJ%c",$ESC,12);
   if (strlen($garantia) > 3) {
@@ -202,8 +201,6 @@ function Crea_Factura($cliente,    /*clase datoscliente */
   $linea = sprintf("%cJ%c",$ESC,12);
   fputs($ffact, $linea);
   Espacios($ffact,15);
-  $linea = sprintf("Hecho con OsoPOS Web. http://elpuntodeventa.com/software.html\n");
-  fputs($ffact, $linea);
 
   $linea = sprintf("%c",$FF);
   fputs($ffact, $linea);

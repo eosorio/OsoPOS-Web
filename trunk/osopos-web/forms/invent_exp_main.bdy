@@ -1,4 +1,4 @@
-<? /* -*- mode: html; indent-tabs-mode: nil; c-basic-offset: 2 -*- */ ?>
+<? /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- */ ?>
 <!-- forms/invent_exp_main.bdy -->
 
 <form action=<? echo $PHP_SELF ?> method=<?/*"POST"*/?>GET name="f_articulos">
@@ -18,17 +18,22 @@
     printf("%d",  $order_by=="pu" && !$order);
     echo "$href_dept$href_prov\">P. Público</a></th>\n";
 
+    echo "  <th>Cant.</th>\n";
+    if (puede("existencias")) {
 ?>
-  <th>Ct.</th>
+
   <th>Entradas</th>
   <th>Salidas</th>
+<?
+}
+?>
   <th>Modif.</th>
  </tr>
 
 <?
 
     for ($i=0; $i<$num_ren; $i++) {
-      $reng = pg_fetch_object($resultado, $i);
+      $reng = db_fetch_object($resultado, $i);
       $id_prov = $reng->id_prov;
       $id_dept = $reng->id_depto;
       if (empty($search))
@@ -70,19 +75,28 @@
 	  echo "  </td>\n";
 
       printf("  <td class=\"%s_center\">", $class);
-      printf(" <input type=text name=\"qt[%d]\" size=5 value=\"%.2f\" ", $i, $reng->cant);
-	  printf("onChange=\"document.f_articulos.elements[%d].checked='true'\">", ($i+1)*8-1);
+	  if (puede("existencias")) {
+		printf(" <input type=\"text\" name=\"qt[%d]\" size=5 value=\"%.2f\" ", $i, $reng->cant);
+        printf("onChange=\"document.f_articulos.elements[%d].checked='true'\">", ($i+1)*8-1);
+      }
+      else
+        printf("%.2f", $reng->cant);
 	  echo "</td>\n";
 
-      printf("  <td class=\"%s_center\">+", $class);
-      echo "   <input type=\"text\" name=\"item_add[$i]\" size=3 ";
-	  printf("onChange=\"document.f_articulos.elements[%d].checked='true'\">", ($i+1)*8-1);
-      echo "</td>\n";
-      printf("  <td class=\"%s_center\">-", $class);
-      echo "   <input type=\"text\" name=\"item_minus[$i]\" size=3 ";
-	  printf("onChange=\"document.f_articulos.elements[%d].checked='true'\">",  ($i+1)*8-1);
-      echo "</td>\n";
-      printf("  <td class=\"%s_center\"><input type=checkbox name=\"modify[%d]\"></td>\n",
+	  if (puede("existencias")) {
+        printf("  <td class=\"%s_center\">+", $class);
+        echo "   <input type=\"text\" name=\"item_add[$i]\" size=3 ";
+        printf("onChange=\"document.f_articulos.elements[%d].checked='true'\">", ($i+1)*8-1);
+        echo "</td>\n";
+      }
+
+	  if (puede("existencias")) {
+        printf("  <td class=\"%s_center\">-", $class);
+        echo "   <input type=\"text\" name=\"item_minus[$i]\" size=3 ";
+	    printf("onChange=\"document.f_articulos.elements[%d].checked='true'\">",  ($i+1)*8-1);
+        echo "</td>\n";
+      }
+      printf("  <td class=\"%s_center\"><input type=\"checkbox\" name=\"modify[%d]\"></td>\n",
              $class, $i);
 	  unset($id_prov);
   }

@@ -1,4 +1,24 @@
-<?  /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+<?  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- 
+passwd.inc 0.0.2-1. include file for osopos_web
+
+        Copyright (C) 2000-2002 Eduardo Israel Osorio Hernández
+        desarrollo@elpuntodeventa.com
+
+        Este programa es un software libre; puede usted redistribuirlo y/o
+modificarlo de acuerdo con los términos de la Licencia Pública General GNU
+publicada por la Free Software Foundation: ya sea en la versión 2 de la
+Licencia, o (a su elección) en una versión posterior. 
+
+        Este programa es distribuido con la esperanza de que sea útil, pero
+SIN GARANTIA ALGUNA; incluso sin la garantía implícita de COMERCIABILIDAD o
+DE ADECUACION A UN PROPOSITO PARTICULAR. Véase la Licencia Pública General
+GNU para mayores detalles. 
+
+        Debería usted haber recibido una copia de la Licencia Pública General
+GNU junto con este programa; de no ser así, escriba a Free Software
+Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA. 
+
+*/
 {
 
   if(!isset($PHP_AUTH_USER)) {
@@ -11,8 +31,7 @@
     if (isset($PHP_AUTH_USER) && isset($PHP_AUTH_PW)) {
       $passwd = md5($PHP_AUTH_PW);
 
-      $conn = db_connect($DB_HOST, $DB_OWNER, "",  $DB_NAME);
-      /*igm*/ /*$conn = mysql_connect($DB_HOST, $DB_OWNER, "");*/
+      $conn = db_connect($DB_HOST, $DB_OWNER, $DB_PASSWD,  $DB_NAME);
       if ($conn == 0  &&  $SQL_TYPE == "postgres") {
         echo "ERROR: Al conectarse a la base de datos $DB_NAME<br>\n";
         echo db_errormsg($conn);
@@ -21,6 +40,7 @@
       }
       else if ($conn==-1  &&  $SQL_TYPE == "mysql") {
         echo "Error al seleccionar la base de datos $DB_NAME<br>\n";
+        /*igm*/ echo "#" . mysql_error() . "#";
         echo db_errormsg($conn);
         echo "<br>\n";
       }
@@ -30,11 +50,11 @@
         echo "<br>\n";
       }
      
-      $query = "SELECT * FROM users WHERE user='$PHP_AUTH_USER'";
-      //      if (!$result = pg_exec($conn, $query)) {
+      $query = "SELECT * FROM users WHERE \"user\"='$PHP_AUTH_USER'";
+
       if (!$result = db_query($query, $conn)) {
         echo "<b>Error al consultar password</b><br>\n";
-        //        echo pg_errormessage($conn) . "<br>\n";
+
         echo db_errormsg($conn) . "<br>\n";
         echo "</body></html>\n";
         exit();

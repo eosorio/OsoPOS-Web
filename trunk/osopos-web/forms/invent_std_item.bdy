@@ -1,4 +1,4 @@
-<? /* -*- mode: html; indent-tabs-mode: nil; c-basic-offset: 2 -*- */ ?>
+<? /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- */ ?>
 <!-- forms/invent_std_item.bdy -->
 <script type="text/javascript">
 var j_ex;
@@ -63,7 +63,7 @@ function deshacer(item, modificador) {
 
 </script>
 
-<form action="<? echo $form_action ?>" name="articulo" method="POST">
+<form action="<? echo $PHP_SELF ?>" name="articulo" method="POST" enctype="multipart/form-data">
 <table width="100%" border=1>
 <colgroup>
 <col width="30%">
@@ -78,25 +78,42 @@ function deshacer(item, modificador) {
       <td>C&oacute;digo</td>
 <?
     if (isset($codigo)) {
-      echo "<td>$codigo <input type=hidden name=codigo $val_cod></td>\n";
+      echo "<td>$codigo <input type=\"hidden\" name=\"codigo\" $val_cod></td>\n";
     }
     else {
-      echo "  <td><input type=\"text\" name=codigo maxlength=$MAXCOD></td>\n";
+      echo "  <td><input type=\"text\" name=\"codigo\" maxlength=$MAXCOD></td>\n";
     }
 ?>
      <td>Descripci&oacute;n</td>
-     <td colspan=3><input type="text" name="descripcion" maxlength=50
-     size=40 <? echo $val_desc ?>></td>
+     <td colspan=3><?
+     if (isset($alm) && $alm>0)
+       printf("%s\n", str_replace("\"", "", str_replace("value=", "", $val_desc)));
+     else
+       echo "<input type=\"text\" name=\"descripcion\" maxlength=50 size=40 $val_desc>\n";
+     ?></td>
     </tr>
     <tr>
      <td>Cód. alt.</td>
-     <td><input type="text" name="codigo2"
-         <? printf("maxlength=%d %s", $MAX_COD, $val_cod2) ?>></td>
-      <td>
-        <input type="hidden" name="search" value="<? echo $search ?>">C&oacute;d. prov.
-      </td>
-      <td><input type=text name="prov_clave" <? echo "size=$MAXCOD $val_prov_clave" ?>></td>
-    </tr>
+     <td><?
+       printf("<input type=\"text\" name=\"codigo2\" maxlength=%d %s>", $MAXCOD, $val_cod2) ?>
+       <input type="hidden" name="search" value="<? echo $search ?>">
+     </td>
+<?
+     if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
+       echo "     <td>\n";
+       echo "        C&oacute;d. prov.\n";
+       echo "     </td>\n";
+       echo "     <td>\n";
+       if (isset($alm) && $alm>0)
+         printf("%s\n", str_replace("value=", "", $val_prod_clave));
+       else
+         echo "<input type=text name=\"prov_clave\" size=$MAXCOD $val_prov_clave>";
+     }
+     else
+       echo "      <td>&nbsp;</td><td>&nbsp;</td>\n";
+?>
+     </td>
+     </tr>
    </table>
   </td>
  </tr>
@@ -108,6 +125,7 @@ function deshacer(item, modificador) {
      <td><input type="text" name="pu" size=10 <? echo $val_pu ?>></td>
      <td>+<input tpye="text" name="mod_pu1" size=2>%</td>
     </tr>
+     <? if ($alm>0) { ?>
     <tr>
      <td>Precio 2</td>
      <td><input type="text" name="precio2" size=10 <? echo $val_pu2 ?>></td>
@@ -128,9 +146,19 @@ function deshacer(item, modificador) {
      <td><input type="text" name="precio5" size=10 <? echo $val_pu5 ?>></td>
      <td>+<input tpye="text" name="mod_pu5" size=2>%</td>
     </tr>
+<?
+  }
+  if (puede_hacer($conn, $user->user, "invent_ver_pcosto") && !isset($alm)) {
+ ?>
+
     <tr>
      <td>P. Costo</td>
-     <td><input type=text name="p_costo" size=10 <? echo $val_p_costo ?>></td>
+     <td><?
+     if (isset($alm) && $alm>0)
+       printf("%.2f\n", str_replace("value=", "", $val_p_costo));
+     else 
+       echo "<input type=\"text\" name=\"p_costo\" size=10 $val_p_costo>"
+     ?></td>
     </tr>
     <tr>
      <td colspan=2 align="center">
@@ -144,6 +172,7 @@ function deshacer(item, modificador) {
      onclick="sincroniza_precios()">
      </td>
     </tr>
+<? } ?>
     <tr>
      <td colspan=2 align="center">
      <input type="button" name="boton_recarga_pu" value="Deshacer"
@@ -184,71 +213,72 @@ function deshacer(item, modificador) {
    </td>
    <td valign="top">
     <table>
+	<tr>
+	  <td>Unidad de medida</td>
+	  <td><input type="text" name="u_medida" size=4 <? echo $val_u_medida ?>></td>
+	</tr>
+	<tr>
+	  <td>Unidad de empaque</td>
+	  <td><input type="text" name="u_empaque" size=4 <? echo $val_u_empaque ?>></td>
+	</tr>
+	<? if (isset($alm) && $alm>0) {
+	  if ($action!="agrega") { ?>
     <tr>
      <td>Existencia actual</td>
-     <td><input type=text name=ex size=4 <? echo $val_ex ?>></td>
+     <td>
+     <input type="hidden" name="ex" <? echo $val_ex ?>>
+     <? printf("%.2f", str_replace("value=", "", $val_ex)) ?>
+     </td>
     </tr>
+     <? } ?>
     <tr>
      <td>Existencia min.</td>
-     <td><input type=text size=4 name=ex_min <? echo $val_min ?>></td>
+     <td><input type="text" size=4 name="ex_min" <? echo $val_min ?>></td>
     </tr>
     <tr>
      <td>Existencia max.</td>
-     <td><input type=text size=4 name=ex_max <? echo $val_max ?>></td>
+     <td><input type="text" size=4 name="ex_max" <? echo $val_max ?>></td>
     </tr>
-    <tr>
-     <td>Ex. act.
-     <select name="mas_menos">
-      <option value="+">+
-      <option value="-">-
-     </select></td>
-     <td><input type="text" name="modificador" size=4></td>
-    </tr>
-    <tr>
-     <td colspan=2 align="center">
-     <input type="button" name="boton_actualiza_ex" value="Calcular"
-     onclick="calcula_ex(document.articulo.modificador.value)">
-     </td>
-    </tr>
-    <tr>
-     <td colspan=2 align="center">
-     <input type="button" name="boton_recarga_ex" value="Deshacer"
-     onclick="deshacer(document.articulo.ex, j_ex)">
-     </td>
-    </tr>
+<?
+}
+ ?>
+
     </table>
    </td>
    <td valign="top">
     <table>
+<?
+     if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
+?>
      <tr>
-      <td>Proveedor</td>
-      <td><select name=prov>
-   <?
-    for ($i=0; $i<$num_ren_prov; $i++) {
-      if (strlen($nick_prov[$i])) {
-        echo "   <option";
-        if ($i == ($reng->id_prov - ($SQL_TYPE=="mysql")))
-          echo " selected";
-        echo ">$nick_prov[$i]</option>\n";
-      }
-    }
-   ?>
-      </select></td>
+      <td>Proveedor 1</td>
+      <td><? lista_proveedores(FALSE, "id_prov1", $reng->id_prov1) ?></td>
      </tr>
      <tr>
-      <td>Departamento</td>
-      <td><select name=depto>
+      <td>Proveedor 2</td>
+      <td><? lista_proveedores(FALSE, "id_prov2", $reng->id_prov2) ?></td>
+     </tr>
+<? } ?>
+     <tr>
+      <td>Depto./Línea</td>
+      <td>
   <?
-    for ($i=0; $i<$num_ren_depto; $i++) {
-      if (strlen($nm_depto[$i])) {
-        echo "   <option";
-        if ($i == ($reng->id_depto - ($SQL_TYPE=="mysql")))
+    if (!isset($alm) || $alm==0) {
+      echo "          <select name=depto>\n";
+      for ($i=0; $i<$num_ren_depto; $i++) {
+        if (strlen($nm_depto[$i])) {
+          echo "   <option";
+          if ($i == ($reng->id_depto))
           echo " selected";
-        echo ">$nm_depto[$i]\n";
+          echo ">$nm_depto[$i]\n";
+        }
       }
+      echo "        </select>\n";
     }
+    else
+      printf("%s\n", $nm_depto[$reng->id_depto]);
   ?>
-  </select></td>
+  </td>
   </tr>
   </table>
   </td>
@@ -260,4 +290,46 @@ function deshacer(item, modificador) {
 </td>
  </tr>
 </table>
+
+<table width="100%">
+<tr>
+  <td>Descripción ampliada del producto:</td><td>&nbsp;</td>
+</tr>
+<tr>
+  <td width="100%">
+  <textarea name="long_desc" cols=80 rows=8><? echo $long_desc ?></textarea>
+  </td>
+  <td>
+<? if ($action!="agrega")
+     printf("   <img src=\"%s/%s\">\n", $IMG_DIR, $img_location);
+   else
+	 echo "&nbsp;\n";
+?>
+  </td>
+</tr>
+<tr>
+  <td colspan=2>Ubicación de la imagen:
+  <input type="file" name="img_source" size=60 value="<? echo "$PWD_DIR/$IMG_DIR/$img_location" ?>">
+<?
+  if (isset($debug) && $debug>0)
+    echo "  <input type=\"hidden\" name=\"debug\" value=\"$debug\">\n"; 
+  if (isset($alm) && $alm>0)
+    echo "  <input type=\"hidden\" name=\"alm\" value=\"$alm\">\n";
+?>
+  </td>
+</tr>
+</table>
+<input type="hidden" name="order_by" value="<? echo $order_by ?>">
+<input type="hidden" name="offset" value="<? echo $offset ?>">
+<input type="hidden" name="order" value="<? echo $order ?>">
+<input type="hidden" name="mode" value="<? echo $mode ?>">
+<?
+{
+if ($action=="agrega")
+  echo "<input type=\"hidden\" name=\"action\" value=\"inserta\">\n";
+else if ($action=="muestra")
+  echo "<input type=\"hidden\" name=\"action\" value=\"cambia\">\n";
+}
+?>
+
 </form>

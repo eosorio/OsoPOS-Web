@@ -4,6 +4,7 @@
   @Header("HTTP/1.0 401 Unauthorized");
   echo "<HTML><HEAD><TITLE>OsoPOS - Web Invent v. 0.3</TITLE></HEAD>\n";
   echo "<BODY BGCOLOR=\"white\" BACKGROUND=\"imagenes/fondo.gif\">\n";
+    /*igm*/ echo "Passwd: $passwd<br>\n";
   echo "<h4>Ya está fuera del sistema.</h4>";
   echo "<center><h2>Gracias por usar un producto de</h2>\n";
   echo "<br><br><br><br>\n";
