@@ -4,9 +4,9 @@ General:
 * Hacer un frontend para administración de usuarios
 
 Factur:
-* CORREGIR BUG DE INSERCION DE CLIENTES FISCALES
-* Cancelar modo condensado al comenzar impresión
 * Hacer código para mostrar y modificar facturas capturadas.
+* Colocar javascript para que se cambie a mayusculas el RFC
+* Cancelar modo condensado al comenzar impresión
 
 Caja:
 * Hacer submódulo de impresión de notas de mostrador
@@ -17,3 +17,5 @@ Invent:
 * Corregir desfase en telefonos de proveedor al agregar nuevo proveedor
 * Revisar inserción de proveedores con psql y mysql
 * Hacer submódulo para imprimir reporte de existencias
+* En el submódulo de proveedores, quitar el hardcode en arreglo de 
+  variables de la forma para agregar o cambiar datos de proveedor
