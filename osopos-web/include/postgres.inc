@@ -58,15 +58,15 @@ function db_num_rows($resultado)
 
 function db_fetch_row($resultado_db, $row)
 {
-  return(pg_fetch_row($resultado_db, $row));
+  return(@pg_fetch_row($resultado_db, $row));
 }
 
 function db_fetch_object($resultado_bd, $row, $tipo_resultado = "")
 {
   if ($tipo_resultado != "")
-    return(pg_fetch_object($resultado_bd, $row, $tipo_resultado));
+    return(@pg_fetch_object($resultado_bd, $row, $tipo_resultado));
   else
-    return(pg_fetch_object($resultado_bd, $row));
+    return(@pg_fetch_object($resultado_bd, $row));
 }
 
 function db_affected_rows($resultado_bd)

@@ -17,36 +17,34 @@
 
       for($i=$num_arts-1, $subtotal=0;  $i>=0;  $i--) {
 		/* Aumenta cantidad en lugar de duplicar entrada */
-		//        if ($articulo_codigo[$i] == $articulo_codigo[$i-1]) {
-        if ($art[$i]->codigo == $art[$i-1]->codigo) {
+		        if ($articulo_codigo[$i] == $articulo_codigo[$i-1]) {
           $i--;
           $num_arts--;
           $articulo_cantidad[$i] += 1;
         }
         echo "<tr>\n";
-        echo "<td align=center><font size=-1 face=\"helvetica,arial\">";
-        echo $articulo_cantidad[$i] . "</font>\n";
+        echo "<td align=center><small>";
+        echo $articulo_cantidad[$i] . "</small>\n";
         echo "<input type=hidden name=articulo_cantidad[$i] value=\"" . $articulo_cantidad[$i] . "\">\n";
         echo "<td><small>\n";
-        echo "<input type=hidden name=articulo_codigo[$i] value=\"" . $art[$i]->codigo . "\">\n";
-        printf("</small></td>\n", $art[$i]->codigo);
-        echo "<td><font size=-1 face=\"helvetica,arial\">";
+        echo "<input type=hidden name=articulo_codigo[$i] value=\"" . $articulo_codigo[$i] . "\">";
+        printf("%s\n</small></td>\n", $articulo_codigo[$i]);
+        echo "<td><small>";
         echo $articulo_descripcion[$i] . "\n";
         echo "<input type=hidden name=articulo_descripcion[$i] value=\"";
-        echo $articulo_descripcion[$i] . "\"></font>\n";
-        printf("<td align=right><font size=-1 face=\"helvetica,arial\">\n%.2f\n", $articulo_pu[$i]);
-        echo "\n";
-        printf("<input type=hidden name=articulo_pu[%d] value=\"%.2f\"></font></td>\n",
+        echo $articulo_descripcion[$i] . "\"></small>\n";
+        printf("<td align=right>\n<small>%.2f</small>", $articulo_pu[$i]);
+        printf("<input type=hidden name=articulo_pu[%d] value=\"%.2f\"></td>\n",
                $i, $articulo_pu[$i]);
-        printf("<td align=right><font size=-1 face=\"helvetica,arial\">\n%.2f\n", $articulo_disc[$i]);
-        printf("<input type=hidden name=articulo_disc[%d] value=\"%.2f\"></font>\n",
+        printf("<td align=right><small>\n%.2f\n", $articulo_disc[$i]);
+        printf("<input type=hidden name=articulo_disc[%d] value=\"%.2f\"></small>\n",
                $i, $articulo_disc[$i]);
-        echo "<td><font size=-1 face=\"helvetica,arial\">";
+        echo "<td><small>";
         if(!$articulo_iva_porc[$i])
           echo "E";
         else
           echo "&nbsp;";
-        echo "</font>\n<input type=hidden name=articulo_iva_porc[$i]";
+        echo "</small>\n<input type=\"hidden\" name=\"articulo_iva_porc[$i]\"";
         echo " value=\"$articulo_iva_porc[$i]\">\n";
         echo "</tr>\n";
 

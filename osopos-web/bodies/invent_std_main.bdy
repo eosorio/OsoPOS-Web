@@ -3,8 +3,10 @@
 
 <table border=0 width='100%'>
  <tr>
-      <th>&nbsp;</th>
 <?
+  if ($user->level == 0)
+	echo "  <th>&nbsp;</th>\n";
+
     echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=codigo&order=";
     printf("%d",  $order_by=="codigo" && !$order);
     echo "$href_dept$href_prov\">C&oacute;digo</a></th>\n";
@@ -18,9 +20,9 @@
     echo "$href_dept$href_prov\">Precio</a></th>\n";
 ?>
    <th>Des</th>
-   <th>Cant</th>
-   <th>Ex. Min</th>
-   <th>Ex. max</th>
+   <th>Ex.</th>
+   <th>Min</th>
+   <th>Max</th>
 <?
     echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=id_prov&order=";
     printf("%d",  $order_by=="id_prov" && !$order);
@@ -32,10 +34,13 @@
     echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=prov_clave&order=";
     printf("%d",  $order_by=="p_costo" && !$order);
     echo "$href_dept$href_prov\">Clave Prov.</a></th>\n";
-    echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=p_costo&order=";
-    printf("%d",  $order_by=="p_costo" && !$order);
-    echo "$href_dept$href_prov\">P. costo</a></th>\n";
-    echo " \n";
+
+    if ($user->level == 0) {
+	  echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=p_costo&order=";
+	  printf("%d",  $order_by=="p_costo" && !$order);
+	  echo "$href_dept$href_prov\">P. costo</a></th>\n";
+	}
+
 
     for ($i=0; $i<$num_ren; $i++) {
 	  if ($SQL_TYPE == "mysql"  &&  $i<$offset) {
@@ -63,11 +68,13 @@
  </tr>
 <?
       echo " <tr>\n";
-      echo "  <td>\n";
-      echo "   <a href=\"$PHP_SELF?order_by=$order_by&order=$order&action=borrar&offset=$offset";
-      echo "$href_dept$href_prov&codigo=";
-      echo str_replace(" ", "%20", htmlentities($reng->codigo));
-      echo "\" border=0><img src=\"imagenes/borrar.gif\" border=0></a></td>";
+      if ($user->level == 0) {
+		echo "  <td>\n";
+		echo "   <a href=\"$PHP_SELF?order_by=$order_by&order=$order&action=borrar&offset=$offset";
+		echo "$href_dept$href_prov&codigo=";
+		echo str_replace(" ", "%20", htmlentities($reng->codigo));
+		echo "\" border=0><img src=\"imagenes/borrar.gif\" border=0></a></td>";
+	  }
       echo "  <td$td_fondo><a href=\"$PHP_SELF?codigo=";
       echo str_replace(" ", "%20", htmlentities($reng->codigo));
       echo "&order_by=$order_by&order=$order&action=muestra&offset=$offset$href_dept$href_prov\">";
@@ -107,9 +114,11 @@
         printf("%s</td>\n", $reng->prov_clave);
       else
         echo "&nbsp;</font>\n";
-      echo "  <td align=\"right\"$td_fondo>";
-//      printf("%.2f</td>\n", $reng->p_costo);
-      printf("%.2f</td>\n", $reng->pcosto);
+
+      if ($user->level == 0) {
+		echo "  <td align=\"right\"$td_fondo>";
+		printf("%.2f</td>\n", $reng->pcosto);
+	  }
       echo " \n";
     }
 ?>

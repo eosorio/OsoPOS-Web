@@ -10,7 +10,7 @@
 
     if (isset($PHP_AUTH_USER) && isset($PHP_AUTH_PW)) {
       $passwd = md5($PHP_AUTH_PW);
-      //      $conn = pg_connect("host=$DB_HOST dbname=$DB_NAME user=$DB_OWNER");
+
       $conn = db_connect($DB_HOST, $DB_OWNER, "",  $DB_NAME);
       /*igm*/ /*$conn = mysql_connect($DB_HOST, $DB_OWNER, "");*/
       if ($conn == 0  &&  $SQL_TYPE == "postgres") {

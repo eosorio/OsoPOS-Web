@@ -15,6 +15,9 @@ else
 $MAXRFC    = 14;
 $MAXCURP   = 19;
 
+if (!isset($MAXTAX))
+  $MAXTAX = 6;
+
 class datosclienteClass {
   var      $rfc;
   var      $curp;
@@ -38,7 +41,13 @@ class articulosClass {
   var      $id_prov;            /* Id del proveedor */
   var      $id_depto;
   var      $exist_min, $exist_max;
-  var      $iva_porc;          /* Gravamen de iva (int) */
+  var      $iva_porc;          /* Gravamen de iva  */
+  var      $tax_0;             /* Porcentaje de I.E.P.S. */
+  var      $tax_1;             /* Porcentaje de impuesto 1 */
+  var      $tax_2;
+  var      $tax_3;
+  var      $tax_4;
+  var      $tax_5;
 };
 
 class fechaClass {
