@@ -29,9 +29,12 @@ else {
 include("include/auth.inc");
 include("include/pos.inc");
 ?>
-
-
-<HTML><HEAD><TITLE>OsoPOS Web - Contraseñas</TITLE></HEAD>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+<HEAD>
+  <TITLE>OsoPOS Web - Contraseñas</TITLE>
+  <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
+</HEAD>
 <BODY>
 
 <?php
@@ -47,7 +50,12 @@ include("include/pos.inc");
     include("bodies/usuarios.bdy");
   }
   else {
-    echo "<a href=\"$PHP_SELF?action=listar\">Ver usuarios</a><br>\n";
+    echo "<form action=\"$PHP_SELF\" method=\"post\">\n";
+    echo "  <input type=\"hidden\" name=\"action\" value=\"listar\">\n";
+    echo "  <input type=\"image\" src=\"imagenes/lupa.png\">\n";
+    echo "Ver usuarios<br>\n";
+    echo "</form>\n";
+    //    echo "<a href=\"$PHP_SELF?action=listar\">Ver usuarios</a><br>\n";
     echo "<hr>\n";
 
     if (puede_hacer($conn, $user->user, "usuarios_general")) {
@@ -79,6 +87,8 @@ include("include/pos.inc");
       //    echo md5("mi_password") . "<br>\n";
     }
   }
+  db_close($conn);
+  include("bodies/menu/general.bdy");
 }
 ?>
 
