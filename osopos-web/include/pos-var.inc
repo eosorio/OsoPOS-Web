@@ -6,17 +6,32 @@ $DB_ERROR = -2;
 $ESC =  27;
 $FF  =  12;
 
+/* constantes de movimiento al inventario */
+$MOVINV_VENTA       = 1;
+$MOVINV_COMPRA      = 2;
+$MOVINV_DEVVENTA    = 3;
+$MOVINV_DEVCOMPRA   = 4;
+$MOVINV_MERMA       = 5;
+$MOVINV_TSALIDA     = 6;
+$MOVINV_TENTRADA    = 7;
+
+/* Constantes de tipos de comprobantes */
+$TCOMP_NOTA   = 1;
+$TCOMP_FACTUR = 3;
+$TCOMP_TICKET = 5;
+
 if (!isset($MAXLEN_COD))
   $MAXCOD    = 20;
 else
   $MAXCOD  = $MAXLEN_COD;
 if (!isset($MAXLEN_DESC))
-  $MAXDES    = 39;
+  $MAXDES    = 35;
 else
-  $MADES     = $MAXLEN_DESC;
+  $MAXDES     = $MAXLEN_DESC;
 $MAXRFC    = 14;
 $MAXCURP   = 19;
 
+$MXT_VENTAS_DET_DESC = 40;
 if (!isset($MAXTAX))
   $MAXTAX = 6;
 
@@ -33,12 +48,15 @@ class datosclienteClass {
   var      $cp;
 };
 
+/*************************** OJO ***********************/
+/* Revisar esta clase de acuerdo al nuevo esquema de las tablas almacen_n y artículos */
 class articulosClass {
   var      $cant, $exist;
   var      $desc;
   var      $codigo;
   var      $pu,                 /* Precio Unitario      */
-           $p_costo;            /* Precio de cosro      */
+           $pu2, $pu3, $pu4, $pu5,
+           $p_costo;            /* Precio de costo      */
   var      $disc;               /* Discuento   .=)      */
   var      $id_prov;            /* Id del proveedor */
   var      $id_depto;
