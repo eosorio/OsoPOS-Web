@@ -1,7 +1,7 @@
 <?  /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*- 
- pos.inc 0.0.2-1. include file for osopos_web
+ pos.inc 0.3-1. include file for osopos_web
 
-        Copyright (C) 2000 Eduardo Israel Osorio Hernández
+        Copyright (C) 2000-2003 Eduardo Israel Osorio Hernández
         desarrollo@elpuntodeventa.com
 
         Este programa es un software libre; puede usted redistribuirlo y/o
@@ -22,16 +22,18 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 function registra_venta($id_vendor, $tipo_pago, $tipo_comprobante,  $total) {
 
-  global $articulo_descripcion, $articulo_cantidad, $articulo_codigo, $user, $conn;
+  global $articulo_descripcion, $articulo_cantidad, $articulo_codigo, 
+         $user, $conn, $iva, $MXT_VENTAS_DET_DESC;
   $fecha = date("Y-m-d");
   $hora = date("H:i:s");
 
   /*igm*/$utilidad = $total;
-  $query = "INSERT INTO ventas (monto, tipo_pago, tipo_factur, corte_parcial, ";
-  $query.= "utilidad, id_vendedor, id_cajero, fecha, hora ) VALUES (";
-  $query.= sprintf("%.2f, %d, %d, '%s', %.2f, %d, %d, '%s', '%s')",
-					  $total, $tipo_pago, $tipo_comprobante, "f", $utilidad, $id_vendor,
-					  $user->id, $fecha, $hora);
+  $query = "INSERT INTO ventas (monto, tipo_pago, tipo_factur, ";
+  $query.= "utilidad, id_vendedor, id_cajero, fecha, hora, corte, ";
+  $query.= "iva) VALUES (";
+  $query.= sprintf("%.2f, %d, %d, %.2f, %d, %d, '%s', '%s', B'00000000', %.2f)",
+                   $total, $tipo_pago, $tipo_comprobante, $utilidad, $id_vendor,
+					  $user->id, $fecha, $hora, $iva);
   if (!$resultado = db_query($query, $conn)) {
 	echo "Error al ejecutar $query<br>\n";
 	exit();
@@ -49,9 +51,10 @@ function registra_venta($id_vendor, $tipo_pago, $tipo_comprobante,  $total) {
   $id_venta = db_result($resultado, 0, 0);
 
   for ($i=0; $i<count($articulo_descripcion); $i++) {
-	$query = "INSERT INTO ventas_detalle (id_venta, codigo, cantidad)";
-	$query.= sprintf(" VALUES (%d, '%s', %d)", $id_venta, $articulo_codigo[$i],
-						$articulo_cantidad[$i]);
+	$query = "INSERT INTO ventas_detalle (id_venta, codigo, cantidad, descrip)";
+	$query.= sprintf(" VALUES (%d, '%s', %d, '%s')", $id_venta, $articulo_codigo[$i],
+                         $articulo_cantidad[$i],
+                         substr($articulo_descripcion[$i], 0, $MXT_VENTAS_DET_DESC ));
 	if (!$resultado = db_query($query, $conn)) {
 	  echo "Error al ejecutar $query<br>\n";
 	  exit();
@@ -229,7 +232,7 @@ function lee_venta($id) {
 
   $art = array(new articulosClass);
 
-  $query = "SELECT codigo, cantidad FROM ventas_detalle WHERE id_venta=$id";
+  $query = "SELECT codigo, descrip, cantidad,pu, iva_porc FROM ventas_detalle WHERE id_venta=$id";
   if (!$resultado = db_query($query, $conn)) {
     echo "Error al ejecutar $query<br>";
     echo "No se pudo encontrar los datos de la venta<br>" . db_errormsg($conn) . "<br>\n";
@@ -242,25 +245,9 @@ function lee_venta($id) {
     $reng = db_fetch_object($resultado, $i);
     $art[$i]->codigo = $reng->codigo;
     $art[$i]->cant = $reng->cantidad;
-
-    $query = "SELECT descripcion,pu,iva_porc FROM articulos WHERE ";
-    $query.= sprintf("codigo='%s'", $art[$i]->codigo);
-    if (!$resultado2 = db_query($query, $conn)) {
-      echo "Error al ejecutar $query<br>";
-      echo "No se pudo accesar la tabla <i>articulos</i><br>\n";
-      echo db_errormsg($conn) . "<br>\n";
-      return 0;
-    }
-
-    if (!db_num_rows($resultado2)) {
-      echo "<b>Error: No puedo encontrar los datos del articulo" . $art[$i]->codigo . "</b><br>\n";
-      echo db_errormsg($conn) . "<br>\n";
-      return;
-    }
-    $reng2 = db_fetch_object($resultado2, 0);
-    $art[$i]->desc = $reng2->descripcion;
-    $art[$i]->pu = $reng2->pu;
-    $art[$i]->iva_porc = $reng2->iva_porc;
+    $art[$i]->desc = $reng->descrip;
+    $art[$i]->pu = $reng->pu;
+    $art[$i]->iva_porc = $reng->iva_porc;
   }
   return($art);
 }
@@ -452,11 +439,11 @@ function CalculaIVA($numarticulos) {
 
 function open_drawer()
 {
-  global $IMPRESORA_TIPO, $CMD_IMPRESION, $ESC;
+  global $MINI_IMP_TIPO, $CMD_IMPRESION, $COLA_TICKET, $ESC;
   $nm_ar = tempnam("/tmp", "caja_w");
 
   $ar = fopen($nm_ar, "w");
-  switch ($IMPRESORA_TIPO) {
+  switch ($MINI_IMP_TIPO) {
   case "EPSON":
     fputs($ar, sprintf("%c%c%c%c%c", $ESC,'p', 0, 255, 255));
     break;
@@ -466,7 +453,7 @@ function open_drawer()
     break;
   }
   fclose($ar);
-  $comando = $CMD_IMPRESION . $nm_ar;
+  $comando = sprintf("%s -P %s $s", $CMD_IMPRESION, $COLA_TICKET, $nm_ar);
   if ( !($impresion = @popen($comando, "w")) )
     return(2);
   else {
@@ -484,7 +471,7 @@ function lista_proveedores($bandera_todos, $nm_campo, $num_prov = -1) {
 
   if (!isset($nick_prov) || !is_array($nick_prov)) {
     $query = "SELECT nick FROM proveedores ORDER BY id";
-    if ($debug>0)
+    if ($debug>1)
       echo "<i>$query</i><br>\n";
     if (!$db_res = db_query($query, $conn)) {
       echo db_errormsg($conn);
@@ -519,7 +506,8 @@ function lista_proveedores($bandera_todos, $nm_campo, $num_prov = -1) {
 }
 
 function lista_movimientos($db_con, $nm_campo="tipo_mov[]") {
-  global $nm_tipo_mov;
+  global $MOVINV_COMPRA, $MOVINV_COMPRA, $MOVINV_DEVVENTA, $MOVINV_DEVCOMPRA, 
+    $MOVINV_MERMA, $MOVINV_TSALIDA, $MOVINV_TENTRADA, $nm_tipo_mov, $user;
 
   if (!is_array($tipo_mov)) {
     $query = "SELECT nombre FROM tipo_mov_inv ORDER BY id ASC ";
@@ -539,11 +527,46 @@ function lista_movimientos($db_con, $nm_campo="tipo_mov[]") {
 
 
 
-  for ($i=0; $i<count($nm_tipo_mov); $i++)
-    printf("   <option value=%d>%s\n", $i+1, $nm_tipo_mov[$i+1]);
+  for ($i=0; $i<count($nm_tipo_mov); $i++) {
+    if ($i+1==$MOVINV_VENTA && !puede_hacer($db_con, $user->user, "movinv_venta"))
+      continue;
+    else
+    if ($i+1==$MOVINV_COMPRA && !puede_hacer($db_con, $user->user, "movinv_compra"))
+      continue;
+    else
+    if ($i+1==$MOVINV_DEVVENTA && !puede_hacer($db_con, $user->user, "movinv_devventa"))
+      continue;
+    else
+    if ($i+1==$MOVINV_DEVCOMPRA && !puede_hacer($db_con, $user->user, "movinv_devcompra"))
+      continue;
+    else
+    if ($i+1==$MOVINV_MERMA && !puede_hacer($db_con, $user->user, "movinv_merma"))
+      continue;
+    else
+    if ($i+1==$MOVINV_TSALIDA && !puede_hacer($db_con, $user->user, "movinv_tsalida"))
+      continue;
+    else
+    if ($i+1==$MOVINV_TENTRADA && !puede_hacer($db_con, $user->user, "movinv_tentrada"))
+      continue;
+    else
+      printf("   <option value=%d>%s\n", $i+1, $nm_tipo_mov[$i+1]);
+  }
   echo "</select>\n";
 
 }
+
+function tipo_mov($db_con, $num_tipo_mov) {
+
+  $query = "SELECT nombre FROM tipo_mov_inv WHERE id=$num_tipo_mov ";
+
+  if (!$db_res = db_query($query, $db_con)) {
+    echo "Error al ejecutar $query<br>\n";
+    exit();
+  }
+
+  return(db_result($db_res, 0, 0));
+}
+
 
 function inserta_cab_movinv($db_con, $almacen, $tipo_mov, $id_prov1, $usuario, $tiempo=0) {
   $fecha = date("Y-m-d");
@@ -623,7 +646,7 @@ function puede_hacer($db_con, $usuario, $accion) {
 
   $query = "SELECT mod_usr.usuario FROM modulo, modulo_usuarios mod_usr WHERE modulo.id=mod_usr.id ";
   $query.= sprintf("AND modulo.nombre='%s' AND usuario='%s' ", $accion, $usuario);
-  if ($debug>0)
+  if ($debug>2)
     echo "<i>puede_hacer</i> $query<br>\n";
   if (!$db_res = db_query($query, $db_con)) {
     echo "Error al consultar permisos del usuario<br>\n";
@@ -633,4 +656,56 @@ function puede_hacer($db_con, $usuario, $accion) {
   return(db_num_rows($db_res));
 }
 
-?>
+function articulo_descripcion($db_con, $codigo) {
+  $query = "SELECT descripcion FROM articulos WHERE codigo='$codigo'";
+  if (!$db_res = db_query($query, $db_con)) {
+    echo "Error al leer descripción del artículo<br>\n";
+    db_errormsg($db_res);
+    return(-1);
+  }
+  return(db_result($db_res, 0, 0));
+}
+
+function imprime_movimiento($db_con, $almacen, $id_mov, $codigo, $ct, $pu, $p_costo,
+                            $alm_dest, $tipo_mov) {
+  global $CMD_IMPRESION, $COLA_DEFAULT;
+
+  $nm_archivo = tempnam($TMP_DIR, "movinvw");
+  $ar = fopen($nm_archivo, "w");
+
+  $linea = sprintf("\n  REPORTE DE MOVIMIENTO AL INVENTARIO\n\n");
+  $linea.= sprintf("Movimiento No. %d\n", $id_mov);
+  $linea.= sprintf("Tipo de movimiento: %d (%s)\n", $tipo_mov, tipo_mov($db_con, $tipo_mov));
+  $linea.= sprintf("Almacen: %d\n\n", $almacen);
+  fputs($ar, $linea);
+
+  for ($i=0; $i<count($codigo) && !empty($codigo[$i]); $i++) {
+    $linea = sprintf("Código: %s, %s\n", $codigo[$i], 
+                     substr(articulo_descripcion($db_con, $codigo)), 0, 15);
+    $linea.= sprintf("Cantidad: %.2f\nP.U.: %.2f, P. Costo: %.2f\n", $ct[$i], $pu[$i], $p_costo[$i]);
+    $linea.= sprintf("Almacen destino: %d\n", $alm_dest[$i]);
+    $linea.= sprintf("-----------------------------------\n");
+    fputs ($ar, $linea);
+  }
+  fclose($ar);
+  $comando = sprintf("%s -P %s %s"  , $CMD_IMPRESION, $COLA_DEFAULT, $nm_archivo);
+
+  $ar  = popen($comando, "w");
+  pclose($ar);
+  
+}
+
+
+function checklist_almacen($db_con)
+{
+  $query = "SELECT id FROM almacenes ORDER BY id ASC";
+  if (!$db_res = db_query($query, $db_con)) {
+    echo "Error al leer listado del almacenes<br>\n";
+    db_errormsg($db_res);
+    return(-1);
+  }
+  for ($i=0; $i<db_num_rows($db_res); $i++) {
+    $almac = db_result($db_res, $i, 0);
+    printf("<input type=\"checkbox\" name=\"almac[]\" value=\"%d\"> %d<br>\n", $almac, $almac);
+  }
+}
