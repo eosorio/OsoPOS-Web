@@ -9,7 +9,7 @@ Introduzca los datos del cliente. Cuando termine, apriete el bot&oacute;n de  co
  <tr>
   <td align="right" height=10>Folio
   <td colspan=2 height=10>
-    <input type="text" value="<? printf("%d", $id+1) ?>" name=id size=4>
+    <input type="text" value="<? printf("%d", $id+1) ?>" name="id" size=4>
 
   <td align="right" height=10>Venta No.
   <td><input type="text" name="id_venta" size=4 value="<? echo $id_venta ?>">
@@ -36,45 +36,45 @@ Introduzca los datos del cliente. Cuando termine, apriete el bot&oacute;n de  co
   <td align="right">Raz&oacute;n social
   <td colspan=4><input type="text" name="razon_soc" size=40 maxlength=50 value="<? echo $razon_soc ?>">
   <td align="right">R.F.C.
-  <td><input type="text" name=rfc size=15 maxlength=13
+  <td><input type="text" name="rfc" size=15 maxlength=13
 <?php
   if(isset($rfc)) {
     echo " value=\"$rfc\">\n";
     echo "<input type=\"hidden\" name=\"accion\" value=\"agregar\">";
   }
 ?>
-  <td align="right"><font face="helvetica,arial" >C.U.R.P.</font>
-  <td><font face="helvetica,arial" >
+  <td align="right">C.U.R.P.
+  <td>
     <input type="text" value="<? echo $curp ?>" name=curp size="<? echo $MAXCURP ?>"
-    maxlength="<? echo $MAXCURP ?>"></font>
+    maxlength="<? echo $MAXCURP ?>">
 
  </tr>
  <tr>
-  <td align="right"><font face="helvetica,arial" >Domicilio</font>
-  <td colspan=4><font face="helvetica,arial" >
-    <input type="text" name=dom_calle size=40 maxlength=30 value="<?php echo $dom_calle ?>"></font>
-  <td align="right"><font face="helvetica,arial" >N&uacute;mero</font>
-  <td><font face="helvetica,arial" ><input type="text" name="dom_ext" size=15 maxlength=15 value="<? echo $dom_ext ?>"></font>
+  <td align="right">Domicilio
+  <td colspan=4>
+    <input type="text" name=dom_calle size=40 maxlength=30 value="<?php echo $dom_calle ?>">
+  <td align="right">N&uacute;mero
+  <td><input type="text" name="dom_ext" size=15 maxlength=15 value="<? echo $dom_ext ?>">
   <td align="right">Interior</td>
-  <td><font face="helvetica,arial" >
-    <input type="text" name=dom_int size=4 maxlength=7 value="<? echo $dom_int ?>"></font>
+  <td>
+    <input type="text" name=dom_int size=4 maxlength=7 value="<? echo $dom_int ?>">
 
  </tr>
  <tr>
-  <td align="right"><font face="helvetica,arial" >Colonia:</font>
-  <td colspan=4><font face="helvetica,arial" >
-    <input type="text" name=dom_col size=40 value="<? echo $dom_col ?>"></font>
-  <td align="right"><font face="helvetica,arial" >C.P.</font>
-  <td colspan=3><font face="helvetica,arial" >
-    <input type="text" name=dom_cp size=5 maxlength=5 value=<? echo $dom_cp ?>></font>
+  <td align="right">Colonia:
+  <td colspan=4>
+    <input type="text" name="dom_col" size=40 value="<? echo $dom_col ?>">
+  <td align="right">C.P.
+  <td colspan=3>
+    <input type="text" name="dom_cp" size=5 maxlength=5 value=<? echo $dom_cp ?>>
 
  </tr>
  <tr>
-  <td align="right"><font face="helvetica,arial" >Ciudad</font>
-  <td colspan=4><font face="helvetica,arial" >
-    <input type="text" name=dom_ciudad size=40 value=<? echo "\"$dom_ciudad\""?>></font>
-  <td align="right"><font face="helvetica,arial" >Estado</font>
-  <td colspan=3><select name=dom_edo>
+  <td align="right">Ciudad
+  <td colspan=4>
+    <input type="text" name="dom_ciudad" size=40 value=<? echo "\"$dom_ciudad\""?>>
+  <td align="right">Estado
+  <td colspan=3><select name="dom_edo">
   <option>-- Sin estado --
   <? 
   if (empty($estado) && !empty($ESTADO_OMISION))
@@ -98,7 +98,7 @@ Introduzca los datos del cliente. Cuando termine, apriete el bot&oacute;n de  co
    else
      echo "<input type=\"hidden\" name=\"accion\" value=\"mostrar\">\n";
   ?>
-   <font face="helvetica,arial" color="blue">
+   <font color="blue">
    <input type=submit value="Continuar"></font>
    <input type=reset value="Limpiar datos">
  </tr>
@@ -106,7 +106,7 @@ Introduzca los datos del cliente. Cuando termine, apriete el bot&oacute;n de  co
   <td colspan=9 align=right><hr>
  </tr>
  <tr>
-  <td colspan=9 align=right><font face="helvetica,arial" size="+1">
+  <td colspan=9 align=right><font size="+1">
    <a href="busca_cliente.php?php_anterior=<? echo $PHP_SELF
    ?>&id_venta=<? echo $id_venta ?>">Buscar cliente</a> |
    <a href="factur_web_muestra.php">Listado de facturas</a></font>

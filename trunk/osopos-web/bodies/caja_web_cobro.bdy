@@ -21,7 +21,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 */
 {
-  include("include/pos.inc"); 
   
 ?>
 <!-- bodies/caja_web/cobro.bdy -->
@@ -57,7 +56,7 @@ if ($mode == "express") {
 
 <body bgcolor="white" background="imagenes/fondo.gif" onload="document.pago.efectivo.focus()">
 
-<form action=caja_web_imprime.php method=post name="pago">
+<form action="caja_web_imprime.php" method="post" name="pago">
 <h4>Indique la forma de pago</h4>
 
 <table width="100%">

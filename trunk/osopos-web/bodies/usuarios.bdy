@@ -12,7 +12,7 @@ for ($i=0; $i<$max_usr; $i++) {
   $usr = db_fetch_object($db_res, $i);
   echo "<tr>\n";
   printf("  <td><a href=\"%s?action=borrar&login=%s\">", $PHP_SELF, $usr->user);
-  echo "<img src=\"imagenes/borrar.gif\" alt=\"Eliminar\"></a></td>\n";
+  echo "<img src=\"imagenes/borrar.gif\" alt=\"Eliminar\" border=0></a></td>\n";
   echo "  <td align=\"right\">$usr->id</td>\n";
   echo "  <td>$usr->user</td>\n";
   echo "  <td align=\"center\">$usr->level</td>\n";

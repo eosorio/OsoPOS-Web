@@ -17,7 +17,7 @@
       echo "<b>Error: No puedo activar el cajón</b><br>\n";
   }
 
-  if ($comprobante==1) {
+  if ($comprobante==$TCOMP_NOTA) {
 	if ($pago == 20)
 	  $monto = $efectivo;
 	else
@@ -27,16 +27,17 @@
 				$articulo_cantidad, $articulo_pu, $articulo_iva_porc, $articulo_disc,
 				$pago, $monto, 0);
 
-	$impresion = popen($CMD_IMPRESION . $nm_ticket, "w");
+        $comando = sprintf("%s -P %s %s", $CMD_IMPRESION, $COLA_NOTA, $nm_ticket);
+	$impresion = popen($comando, "w");
 	if (!$impresion) {
-	  echo "<b>Error al ejecutar <i>$CMD_IMPRESION $nm_ticket</i></b><br>\n";
+	  echo "<b>Error al ejecutar <i>$comando</i></b><br>\n";
 	}
 	else {
-	  echo "<center><i>Nota impresa con comando $CMD_IMPRESION $nm_ticket.</i></center>\n";
+	  echo "<center><i>Nota impresa con comando $comando.</i></center>\n";
 	  pclose($impresion);
 	}
   }
-  else if ($comprobante==5) {
+  else if ($comprobante==$TCOMP_TICKET) {
 	if ($pago == 20)
 	  $monto = $efectivo;
 	else
@@ -44,11 +45,12 @@
 
 	Crea_Ticket($nm_ticket, $id_venta, $articulo_codigo, $articulo_descripcion,
 				$articulo_cantidad, $articulo_pu, $articulo_iva_porc, $articulo_disc,
-				$pago, $monto, 1);
+				$pago, $monto, 0);
 
-	$impresion = @popen($CMD_IMPRESION . $nm_ticket, "w");
+        $comando = sprintf("%s -P %s %s", $CMD_IMPRESION, $COLA_TICKET, $nm_ticket);
+	$impresion = @popen($comando, "w");
 	if (!$impresion) {
-	  echo "<b>Error al ejecutar <i>$CMD_IMPRESION $nm_ticket</i></b><br>\n";
+	  echo "<b>Error al ejecutar <i>$comando</i></b><br>\n";
 	}
 	else {
       pclose($impresion);
@@ -58,22 +60,24 @@
         $tmp_name = tempnam("/tmp", "pieticket");
         $pie_ticket = fopen($tmp_name, "w");
         fputs($pie_ticket, "         Gracias por su compra.\n\n");
-        fputs($pie_ticket, " Este es un sistema de elpuntodeventa.com\n");
+        fputs($pie_ticket, "     Este es un sistema de\n          elpuntodeventa.com\n");
         fputs($pie_ticket, "        http://elpuntodeventa.com\n");
-        fputs($pie_ticket, "           Tel. (9)626-5040\n\n\n");
+        fputs($pie_ticket, "        Tel. (962)626-5040\n\n\n");
         fclose($pie_ticket);
-        if ($impresion = popen($CMD_IMPRESION . $tmp_name, "w"))
+        $comando = sprintf("%s -P %s %s", $CMD_IMPRESION, $COLA_TICKET, $tmp_name);
+        if ($impresion = popen($comando, "w"))
           pclose($impresion);
         unlink($tmp_name);
         imprime_ticket_razon();
       }
       else {
-        $impresion = popen($CMD_IMPRESION . $ARCHIVO_PIE_TICKET, "w");
+        $comando = sprintf("%s -P %s %s", $CMD_IMPRESION, $COLA_TICKET, $ARCHIVO_PIE_TICKET);
+        $impresion = popen($comando, "w");
         if (!$impresion) {
-          echo "<b>Error al ejecutar <i>$CMD_IMPRESION $ARCHIVO_PIE_TICKET</i></b><br>\n";
+          echo "<b>Error al ejecutar <i>$comando</i></b><br>\n";
         }
         else {
-          echo "<center><i>Ticket impreso con comando $CMD_IMPRESION $nm_ticket.</i></center>\n";
+          echo "<center><i>Ticket impreso con comando $comando.</i></center>\n";
           pclose($impresion);
           imprime_ticket_razon();
         }
@@ -83,7 +87,7 @@
 
 ?>
 
-<form action="<? echo $php_anterior ?>" method=post name="confirmar">
+<form action="<? echo $php_anterior ?>" method="post" name="confirmar">
 <table border=0 cellpadding=0 cellspacing=0>
 <tbody>
 <tr>
@@ -102,13 +106,13 @@
  <td>
   <?
   if($pago>=20) {
-	printf("Cambio de $<input type=text size=10 name=cambio value=%.2f>", $efectivo-$total);
+	printf("Cambio de $<input type=text size=10 name=\"cambio\" value=%.2f>", $efectivo-$total);
   }
   else
     echo "&nbsp;";
  ?>
  </td>
- <td align="right"><input type=submit value="Continuar"></td>
+ <td align="right"><input type="submit" value="Continuar"></td>
 </tr>
 </tbody>
 </table>
