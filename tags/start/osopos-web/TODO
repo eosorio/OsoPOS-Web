@@ -1,0 +1,18 @@
+General:
+* Hacer un fontend que reúna los trés módulos principales (osopos_web.php)
+* Hacer un frontend para administración de usuarios
+* Hacer módulo de corte de caja (corte_web.php)
+
+Factur:
+* Cancelar modo condensado al comenzar impresión
+* Hacer código para mostrar y modificar facturas capturadas.
+
+Caja:
+* Hacer submódulo de impresión de notas de mostrador
+* Hacer código para mostrar las ventas por vendedor, por cajero o todas.
+* Notificar por e-mail baja existencia de productos.
+
+Invent:
+* Colocar campo para agregar o restar cantidad de articulos
+* Hacer submódulo para imprimir reporte de existencias
+* Notificar baja existencia en productos
