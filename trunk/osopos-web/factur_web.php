@@ -291,7 +291,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
     for ($i=0; $i<count($desc); $i++) {
       $peticion = "INSERT INTO fact_ingresos_detalle ";
-      $peticion.= "(\"id_factura\", \"codigo\", \"concepto\", \"cant\", \"precio\")";
+      $peticion.= "(id_factura, codigo, concepto, cant, precio)";
       $peticion.= " VALUES (";
       $peticion.= sprintf("%d, '%s', '%s', %d, %.2f)",
                           $id, $codigo[$i], $desc[$i], $cant[$i], $pu[$i]);

@@ -88,22 +88,31 @@ if ($fase == 2) {
   $datos = "?";
 
   if (strlen($razon_soc))
-	$query = "nombre~*'$razon_soc'";
+    if ($SQL_TYPE == "postgres")
+      $query = "nombre~*'$razon_soc'";
+    else
+      $query = "nombre LIKE '%$razon_soc%'";
   if (strlen($rfc)) {
 	if (strlen($query))
 	  $query .= " AND ";
-	$query .= "rfc~*'$rfc'";
+    if ($SQL_TYPE == "postgres")
+      $query .= "rfc~*'$rfc'";
+    else
+      $query = "rfc LIKE '%$rfc%'";
   }
   if (strlen($curp)) {
 	if (strlen($query))
 	  $query .= " AND ";
-	$query .= "curp~*'$curp'";
+    if ($SQL_TYPE == "postgres")
+      $query .= "curp~*'$curp'";
+    else
+      $query = "curp LIKE '%$curp%'";
   }
 
   $query = "SELECT * FROM clientes_fiscales WHERE " . $query;
-  $result =  pg_exec($conn, $query);
+  $result =  db_query($query, $conn);
   if (!$result) {
-	echo "Error al ejecutar $query<br>" . pg_errormessage($conn) . "<br>\n";
+	echo "Error al ejecutar $query<br>" . db_errormsg($conn) . "<br>\n";
 	exit();
   }
 
@@ -119,8 +128,8 @@ Seleccione uno de los registros siguientes:<br>
  <tbody>
 
 <?
-  for ($i=0; $i<pg_numrows($result); $i++) {
-	$renglon = pg_fetch_object($result, $renglon);
+  for ($i=0; $i<db_num_rows($result); $i++) {
+	$renglon = db_fetch_object($result, $renglon);
 	echo "<tr>\n";
 	echo "  <td><input type=radio name=rfc value=";
 	printf ("\"%s|%s|%s\"", $renglon->rfc, $renglon->nombre, $renglon->curp);

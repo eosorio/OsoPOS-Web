@@ -14,5 +14,6 @@ Caja:
 * Notificar por e-mail baja existencia de productos.
 
 Invent:
+* Corregir desfase en telefonos de proveedor al agregar nuevo proveedor
 * Revisar inserción de proveedores con psql y mysql
 * Hacer submódulo para imprimir reporte de existencias

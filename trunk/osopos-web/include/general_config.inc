@@ -2,7 +2,7 @@
 {
 
   /* Type of SQL client/server. For now is postgres or mysql */
-  //  $SQL_TYPE = "mysql";
+  //$SQL_TYPE = "mysql";
   $SQL_TYPE = "postgres";
 
   include("include/$SQL_TYPE.inc");
@@ -13,6 +13,7 @@
   //$DB_OWNER    =  "scaja";
   //$DB_NAME     =  "osopos";
   $DB_HOST     =  "localhost";
+  //$DB_HOST     = "mysql.elpuntodeventa.com";
 
   // Seccion de archivos y directorios
   $TMP_DIR     =  "/tmp";
@@ -35,7 +36,7 @@
 
   // Versiones
   $factur_web_vers = "0.06";
-  $caja_web_vers   = "0.03";
+  $caja_web_vers   = "0.04";
 
   // Estado por omisión
   $ESTADO_OMISION = "Chiapas";

@@ -13,17 +13,22 @@
       //      $conn = pg_connect("host=$DB_HOST dbname=$DB_NAME user=$DB_OWNER");
       $conn = db_connect($DB_HOST, $DB_OWNER, "",  $DB_NAME);
       /*igm*/ /*$conn = mysql_connect($DB_HOST, $DB_OWNER, "");*/
-      if ($conn == 0) {
+      if ($conn == 0  &&  $SQL_TYPE == "postgres") {
         echo "ERROR: Al conectarse a la base de datos $DB_NAME<br>\n";
         echo db_errormsg($conn);
         echo "</body></html>";
         exit();
       }
-      /*      if (mysql_select_db($DB_NAME, $conn) == 0) {
+      else if ($conn==-1  &&  $SQL_TYPE == "mysql") {
         echo "Error al seleccionar la base de datos $DB_NAME<br>\n";
         echo db_errormsg($conn);
         echo "<br>\n";
-        }*/
+      }
+      else if ($conn==-2  &&  $SQL_TYPE == "mysql") {
+        echo "Error al conectarse al servidor $DB_HOST<br>\n";
+        echo db_errormsg($conn);
+        echo "<br>\n";
+      }
      
       $query = "SELECT * FROM users WHERE user='$PHP_AUTH_USER'";
       //      if (!$result = pg_exec($conn, $query)) {
