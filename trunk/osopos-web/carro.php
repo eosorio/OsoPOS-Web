@@ -28,14 +28,20 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     include("include/logout.inc");
   }
   else {
-  include("include/passwd.inc");
+    include("include/passwd.inc");
   }
 
   if (isset($osopos_carrito))
-   if ($accion=="borrar") {
-      $i=0;
+    if ($accion=="borrar") {
       while (list ($nombre, $valor) = each ($osopos_carrito))
         setcookie(sprintf("osopos_carrito[%s]", $nombre), "", time() - 3600);
+    }
+    else if ($accion=="borra_item")
+      setcookie(sprintf("osopos_carrito[%s]", $item), "", time() - 3600);
+    else if ($accion=="escribir") {
+      while (list ($nombre, $valor) = each ($osopos_carrito))
+        setcookie(sprintf("osopos_carrito[%s]", $nombre), $item[$nombre]);
+      reset($osopos_carrito);
     }
 }
 ?>
@@ -45,22 +51,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <HTML>
 
 <HEAD>
- <TITLE>OSOPoS Web - Movimientos de inventario v. <? echo $MOVINV_VERSION ?></TITLE>
+ <TITLE>OSOPoS Web - Carrito de compras v. 0.02</TITLE>
+   <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/numerico.css">
    <style type="text/css">
-    body { background: white; font-family: helvetica;
-           background-image: url(imagenes/fondo.gif) }
-    td.bg1 { background: <? echo $bg_color1 ?> }
-    td.bg1_center {text-align: center; background: <? echo $bg_color1 ?> }
-    td.bg1_right {text-align: right; background: <? echo $bg_color1 ?>}
-    td.bg2 { background: <? echo $bg_color2 ?> }
-    td.bg2_center {text-align: center; background: <? echo $bg_color2 ?> }
-    td.bg2_right {text-align: right; background: <? echo $bg_color2 ?> }
-    td.bg0 { }
-    td.bg0_center {text-align: center }
-    td.bg0_right {text-align: right }
-    td.right_red {text-align: right; font-color: red}
-    td.item_modify {text-align: top }
     div.notify {font-style: italic; color: red}
     div.head_almacen { text-align: center; font-size: big; font-weight: bold }
    </style>
@@ -70,16 +64,47 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <body>
 
 <?php
+{
+  include("bodies/menu/carrito.bdy");
+  echo "<hr>\n";
   if (isset($osopos_carrito) && is_array($osopos_carrito)) {
-    echo "<a href=\"$PHP_SELF?accion=borrar\">Borrar carrito</a><br><br>\n";
-    echo "Contenido del carrito:<br>\n<br>\n";
-    echo "<table border=0 width=600>\n";
-    while (list ($nombre, $valor) = each ($osopos_carrito)) {
-      echo "<tr>\n";
-      printf("  <td>%s</td><td>%.2f</td><td>%s</td>\n", $nombre, $valor, articulo_descripcion($conn, $nombre));
-      echo "</tr>\n";
+  $descripcion = lista_campo($conn, array_keys($osopos_carrito), "descripcion", "articulos");
+    if (isset($accion) && $accion=="cambiar") {
+      echo "<form action=\"$PHP_SELF\" method=\"post\">\n";
+      echo "<table border=0 width=650>\n";
+      while (list ($nombre, $valor) = each ($osopos_carrito)) {
+        echo "<tr>\n";
+        printf("  <td>%s</td>\n",  $nombre);
+        printf("  <td><input type=\"text\" name=\"item[%s]\" size=4 value=\"%.2f\"></td>\n", $nombre, $valor);
+        printf("  <td>%s</td>\n", $descripcion[$nombre]);
+        echo "</tr>\n";
+      }
+      echo "</table>\n";
+      echo "<input type=\"submit\" value=\"Aceptar\">\n";
+      echo "<input type=\"hidden\" name=\"accion\" value=\"escribir\">\n";
+      echo "</form>\n";
     }
-    echo "</table>\n";
+    else if (isset($accion) && $accion=="borra_item") {
+      printf("Articulo %s, %s eliminado del carrito<br>\n", $item, $descripcion[$item]);
+    }
+    else {
+      if ($accion=="escribir")
+        $lista = $item;
+      else
+        $lista = $osopos_carrito;
+      echo "Contenido del carrito:<br>\n<br>\n";
+      echo "<table border=0 width=600>\n";
+      while (list ($nombre, $valor) = each ($lista)) {
+        echo "<tr>\n";
+        echo "  <td><form action=\"$PHP_SELF\" method=\"post\">\n";
+        echo "     <input type=\"image\" src=\"imagenes/borrar.png\"><input type=\"hidden\" name=\"accion\" value=\"borra_item\">\n";
+        echo "     <input type=\"hidden\" name=\"item\" value=\"$nombre\">\n";
+        echo "  </td>\n";
+        printf("  <td>%s</td><td>%.2f</td><td>%s</td>\n", $nombre, $valor, $descripcion[$nombre]);
+        echo "</tr>\n";
+      }
+      echo "</table>\n";
+    }
   }
   else {
     echo "No hay artículos en el carro de compras<br>\n";
@@ -87,5 +112,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
   echo "<hr>\n";
   include("bodies/web/menu.bdy");
+}
 ?>
 
