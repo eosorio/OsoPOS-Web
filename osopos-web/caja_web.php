@@ -1,8 +1,8 @@
 <?  /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*- 
- Caja Web 0.0.2-1. Módulo de caja de OsoPOS Web.
+ Caja Web 0.0.4-1. Módulo de caja de OsoPOS Web.
 
-        Copyright (C) 2000 Eduardo Israel Osorio Hernández
-        iosorio@punto-deventa.com
+        Copyright (C) 2000,2001 Eduardo Israel Osorio Hernández
+        iosorio@elpuntodeventa.com
 
         Este programa es un software libre; puede usted redistribuirlo y/o
 modificarlo de acuerdo con los términos de la Licencia Pública General GNU
@@ -32,6 +32,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   include("include/passwd.inc");
   }
 
+  if (!isset($art)) {
+	$art = array(new articulosClass);
+  }
+  /* Hay que quitar estas cochinadas en un futuro */
   if (!isset($articulo_codigo)) {
     $articulo_cantidad = array();
     $articulo_codigo = array();
@@ -47,55 +51,156 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 }
 ?>
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
    <meta name="Author" content="E. Israel Osorio Hernández">
    <title>OsoPOS - CajaWeb v. <? echo $caja_web_vers ?></title>
+   <style type="text/css">
+    body { background: white; font-family: helvetica }
+    td.bg1 { background: <? echo $bg_color1 ?> }
+    td.bg1_center {text-align: center; background: <? echo $bg_color1 ?> }
+    td.bg1_right {text-align: right; background: <? echo $bg_color1 ?>}
+    td.bg2 { background: <? echo $bg_color2 ?> }
+    td.bg2_center {text-align: center; background: <? echo $bg_color2 ?> }
+    td.bg2_right {text-align: right; background: <? echo $bg_color2 ?> }
+    td.bg0 { }
+    td.bg0_center {text-align: center }
+    td.bg0_right {text-align: right }
+    td.right_red {text-align: right; font-color: red}
+    div.notify {font-style: italic; color: red}
+   </style>
+
 </head>
 
+<?
+  if ($mode == "express" && empty($codigo) && empty($num_arts)) {
+    if ($bandera==0) {
+?>
+<script type="text/javascript">
+ jcod = new Array();
+ jpu  = new Array();
+ jdesc = new Array();
+ jdisc = new Array();
+ jiva_porc = new Array();
+<?
+    /* Cargamos la tabla de articulos en variables de javascript */
+    $query = "SELECT codigo, descripcion, pu, iva_porc, descuento FROM articulos";
+    if (!$resultado = db_query($query, $conn)) {
+      echo "Error al ejecutar $peticion<br>\n";
+      exit();
+    }
+
+
+    $num_ren = db_num_rows($resultado);
+    for ($i=0; $i<$num_ren; $i++) {
+      $renglon = db_fetch_object($resultado, $i);
+      printf("jcod[%d] = '%s'; jpu[%d] = %.2f; jdesc[%d] = '%s'; jiva_porc[%d] = %.2f; jdisc[%d] = %.2f;\n",
+			 $i, $renglon->codigo, $i, $renglon->pu, $i, str_replace("'", "\'", $renglon->descripcion),
+			 $i, $renglon->iva_porc, $i, $renglon->descuento);
+    }
+  }
+
+?>
+
+  function busca_codigo(codigo) {
+    for (var i=0; i<<? echo $num_ren ?> && codigo!=jcod[i]; i++);
+    return(jdesc[i]);
+  }
+
+  function muestra_articulo(codigo) {
+    var s, t;
+	var j;
+
+    if (document.forma_articulo.cod.value=="")
+      return(true);
+    for (var i=0; i<<? echo $num_ren ?> && codigo!=jcod[i]; i++);
+    if (i == <? printf("%d", $num_ren) ?>) {
+      alert("Artículo " + codigo + " no encontrado, introdúzcalo manualmente");
+      return(false);
+    }
+    s = jcod[i];
+	if (s.length > <? echo $MAXLEN_COD ?>)
+	  s.length =  <? echo $MAXLEN_COD ?>;
+	for (var j=0; j<<? echo $MAXLEN_COD ?>-jcod[i].length-1; s = s + " ", j++);
+	s = s + "|" + jdesc[i];
+	if (s.length > <? printf("%d", $MAXLEN_DESC + $MAXLEN_COD) ?>)
+	  s.length =  <? printf("%d", $MAXLEN_DESC + $MAXLEN_COD)  ?>;
+	for (j=0; j<<? echo $MAXLEN_DESC ?>-jdesc[i].length; s = s + " ", j++);
+	s = s + "|";
+	t = "" + jpu[i]; /* Aqui se pretende que se interprete como un string */
+	for (j=0; j<15-t.length; s = s + " ", j++);
+    s = s + jpu[i];
+	s = s + "|" + jiva_porc[i];
+	s = s + "|" + jdisc[i] + "\n";
+    document.forma_articulo.lista_arts.value = document.forma_articulo.lista_arts.value + s;
+    document.forma_articulo.cod.value = "";
+    document.forma_articulo.cod.focus();
+    return(false);
+  }
+</script>
+<?
+  }
+?>
 
 <? if (strlen($cod)!=0  || !isset($num_arts)) { ?>
 
-<body bgcolor="white" background="imagenes/fondo.gif" onload="document.forma_articulo.cod.focus()">
+<body bgcolor="white" background="imagenes/fondo.gif"
+ onload="document.forma_articulo.cod.focus()">
 
-<form action="<? echo $PHP_SELF ?>" method=POST name=forma_articulo>
-
+<form action="<? echo $PHP_SELF ?>" method="POST" name="forma_articulo"<?
+   if ($mode == "express")
+     echo " onsubmit=\"muestra_articulo(document.forma_articulo.cod.value)\">\n";
+   else
+     echo ">\n";
+?>
 
 <table border=0 width=500>
 <tr>
 
-<td valign=middle><font face="helvetica,arial">
-C&oacute;digo, cantidad o descripci&oacute;n:</font>
+<td valign=middle>
+C&oacute;digo, cantidad o descripci&oacute;n:
+</td>
 
-<td><font size=-1 face="helvetica,arial">
+<td><small>
 <input type=text name=cod size=20 maxlength=20>
-</font>
-<input type=hidden name=php_anterior value="<? echo $PHP_SELF ?>">
+</small>
+<input type="hidden" name="php_anterior" value="<? echo $PHP_SELF ?>">
+</td>
 
-<td align=right><font face="helvetica,arial">
-<input type=submit value="Finalizar venta"></font>
+<td align=right>
+<input type=submit value="Finalizar venta">
+
+<input type="button" name="ingresa" value="Ingresa articulo"
+onClick="muestra_articulo(forma_articulo.cod.value)">
+</td>
 
 <td align=right><font face="helvetica,arial">
 <input type=button value="Cancelar artículo" onClick="javascript:history.back()">
-</font>
+</td>
+
+</tr>
 </table>
+
 <? }  /* fin de if(!isset$cod).... */ ?>
 
 <?
+
   if (strlen($cod)) {
     if ($bandera == 0) {
       $peticion = "SELECT descripcion, pu, descuento,iva_porc FROM articulos ";
       $peticion.= "WHERE codigo='$cod'";
-      if (!$resultado = pg_exec($conn, $peticion)) {
+      if (!$resultado = db_query($peticion, $conn)) {
         echo "Error al ejecutar $peticion<br>\n";
         exit();
       }
       $num_arts++;
-      if (pg_numrows($resultado)) {
-        $reng = pg_fetch_object($resultado, 0);
+      if (db_num_rows($resultado)) {
+        $reng = db_fetch_object($resultado, 0);
+		$art[$num_arts-1] = new articulosClass;
+		$art[$num_arts-1]->codigo = $cod;
         /* Hacer esto una clase */
         $articulo_codigo[$num_arts-1] = $cod;
         $articulo_descripcion[$num_arts-1] = $reng->descripcion;
@@ -108,87 +213,25 @@ C&oacute;digo, cantidad o descripci&oacute;n:</font>
         $bandera = 1;
     }  /* fin de if ($bandera == 0) */
     if ($bandera != 1) {
-
-?>
-
-<!-- Lista de articulos -->
-<table border=0>
-<tr>
-<th>CT.</th>
-<th>C&oacute;digo</th>
-<th width=300>Descripci&oacute;n</th>
-<th>P.U.</th>
-<th>Desc.</th>
-<th>&nbsp;</th>
-</tr>
-
-<tr>
-<td colspan=6><hr></td>
-</tr>
-
-<?
-
-      for($i=$num_arts-1, $subtotal=0;  $i>=0;  $i--) {
-        if ($articulo_codigo[$i] == $articulo_codigo[$i-1]) {
-          $i--;
-          $num_arts--;
-          $articulo_cantidad[$i] += 1;
-        }
-        echo "<tr>\n";
-        echo "<td align=center><font size=-1 face=\"helvetica,arial\">";
-        echo $articulo_cantidad[$i] . "</font>\n";
-        echo "<input type=hidden name=articulo_cantidad[$i] value=\"" . $articulo_cantidad[$i] . "\">\n";
-        echo "<td><font size=-1 face=\"helvetica,arial\">\n";
-        echo "<input type=hidden name=articulo_codigo[$i] value=\"" . $articulo_codigo[$i] . "\">\n";
-        echo "$articulo_codigo[$i]</font></td>\n";
-        echo "<td><font size=-1 face=\"helvetica,arial\">";
-        echo $articulo_descripcion[$i] . "\n";
-        echo "<input type=hidden name=articulo_descripcion[$i] value=\"";
-        echo $articulo_descripcion[$i] . "\"></font>\n";
-        printf("<td align=right><font size=-1 face=\"helvetica,arial\">\n%.2f\n", $articulo_pu[$i]);
-        echo "\n";
-        printf("<input type=hidden name=articulo_pu[%d] value=\"%.2f\"></font></td>\n",
-               $i, $articulo_pu[$i]);
-        printf("<td align=right><font size=-1 face=\"helvetica,arial\">\n%.2f\n", $articulo_disc[$i]);
-        printf("<input type=hidden name=articulo_disc[%d] value=\"%.2f\"></font>\n",
-               $i, $articulo_disc[$i]);
-        echo "<td><font size=-1 face=\"helvetica,arial\">";
-        if(!$articulo_iva_porc[$i])
-          echo "E";
-        else
-          echo "&nbsp;";
-        echo "</font>\n<input type=hidden name=articulo_iva_porc[$i]";
-        echo " value=\"$articulo_iva_porc[$i]\">\n";
-        echo "</tr>\n";
-
-        $subtotal += $articulo_pu[$i] * $articulo_cantidad[$i];
-        $iva += $articulo_pu[$i] / (1+($articulo_iva_porc[$i]/100));
-      }
-
-?>
-    <tr>
-       <td colspan=6><hr></td>
-    </tr>
-
-    <tr>
-      <td colspan=3 align=right><font size=+1 face="helvetica,arial">Total acumulado:</font></td>
-      <td><font size=+1 face="helvetica,arial"><b><?php printf("%.2f", $subtotal) ?></b></font></td>
-    </tr>
-  <input type=hidden name=num_arts value="<? printf("%d", $num_arts) ?>">
-  <input type=hidden name=subtotal value="<? printf("%.2f", $subtotal) ?>">
-</table>
-
-</form>
-
-<?
-    } /* fin de if($bandera!=1) */
-
+      include("bodies/caja_lista_arts.bdy");
+    }
     if ($bandera == 1) {
-      printf("<input type=hidden name=num_arts value=\"%d\">\n", $num_arts);
+      if ($mode == "express") {
+		echo "<font face=\"Courier\">\n";
+        printf("<textarea name=\"lista_arts\" cols=%d rows=20>\n", $lista_arts_cols);
+        include("forms/cajaexp_lista_arts.bdy");
+        echo "</textarea>\n";
+		echo "</font>\n";
+		echo "<input type=\"hidden\" name=\"mode\" value=\"express\">\n";
+		echo "<input type=\"hidden\" name=\"num_arts\" value=1>\n";
+      }
+	  else
+		printf("<input type=\"hidden\" name=\"num_arts\" value=\"%d\">\n", $num_arts);
       echo "</form>\n";
       include("bodies/ingresa_articulo.bdy");
+
     }
-  }
+  } // fin de if ($strlen(cod))
   else {
     if ($num_arts>0) {
 
@@ -199,9 +242,19 @@ C&oacute;digo, cantidad o descripci&oacute;n:</font>
 	  include("bodies/caja_web_cobro.bdy");
     }
     else {
-      printf("<input type=hidden name=num_arts value=\"%d\">\n", $num_arts);
+      if ($mode == "express") {
+		echo "<font face=\"Courier\">\n";
+        echo "<textarea name=\"lista_arts\" cols=100 rows=20>\n";
+        echo "</textarea>\n";
+		echo "</font>\n";
+		echo "<input type=\"hidden\" name=\"mode\" value=\"express\">\n";
+		echo "<input type=\"hidden\" name=\"num_arts\" value=1>\n";
+      }
+      else
+		printf("<input type=hidden name=num_arts value=\"%d\">\n", $num_arts);
       echo "</form>\n";
-      echo "<font face=\"helvetica,arial\">Sin art&iacute;culos a cobrar</font>\n";
+      if ($mode != "express")
+        echo "Sin art&iacute;culos a cobrar\n";
     }
   }
 ?>

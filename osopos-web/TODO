@@ -4,6 +4,7 @@ General:
 * Hacer un frontend para administración de usuarios
 
 Factur:
+* CORREGIR BUG DE INSERCION DE CLIENTES FISCALES
 * Cancelar modo condensado al comenzar impresión
 * Hacer código para mostrar y modificar facturas capturadas.
 
@@ -13,6 +14,5 @@ Caja:
 * Notificar por e-mail baja existencia de productos.
 
 Invent:
-* Colocar campo para agregar o restar cantidad de articulos
+* Revisar inserción de proveedores con psql y mysql
 * Hacer submódulo para imprimir reporte de existencias
-* Notificar baja existencia en productos

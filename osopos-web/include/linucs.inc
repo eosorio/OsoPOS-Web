@@ -125,7 +125,6 @@ function Crea_Factura($cliente,    /*clase datoscliente */
       $renglon_largo = $articulos[$i]->desc;
       for ($j=0; $j<$DESC_MAXRENS; $j++) {
         $semi_renglon = substr($renglon_largo, 0, $DESC_MAXCOLS);
-        echo "semi-renglon: $semi_renglon<br>\n";
         $pos_fin_reng = strrpos($semi_renglon, " ") ? strrpos($semi_renglon, " ") : strlen($semi_renglon) ;
         //        echo "pos_fin_reng: $pos_fin_reng<br>\n"; /*igm*/
         $reng[$j] = substr($semi_renglon, 0, $pos_fin_reng);

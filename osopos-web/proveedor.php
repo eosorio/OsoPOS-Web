@@ -38,16 +38,18 @@
       $peticion.= ", url='$url'";
     $peticion.= " WHERE id=$id";
 
-    if (!$resultado = pg_exec($conn, $peticion)) {
+    //    if (!$resultado = pg_exec($conn, $peticion)) {
+    if (!$resultado = db_query($peticion, $conn)) {
       echo "Error al ejecutar $peticion<br>\n";
-      echo pg_errormessage($conn) . "<br></body></html>\n";
+      echo db_errormessage($conn) . "<br></body></html>\n";
       exit();
     }
 
     $peticion = "DELETE FROM telefonos_proveedor WHERE id_proveedor=$id";
-    if (!$resultado = pg_exec($conn, $peticion)) {
+    //    if (!$resultado = pg_exec($conn, $peticion)) {
+    if (!$resultado = db_query($peticion, $conn)) {
       echo "Error al ejecutar $peticion<br>\n";
-      echo pg_errormessage($conn) . "<br></body></html>\n";
+      echo db_errormsg($conn) . "<br></body></html>\n";
       exit();
     }
       /* Ahora que no hay registro, se insertan */
@@ -60,9 +62,10 @@
         else
           $peticion.= "'f'";
         $peticion.= ")";
-        if (!$resultado = pg_exec($conn, $peticion)) {
-          echo "Error al ejecutar $peticion<br>\n";
-          echo pg_errormessage($conn) . "<br></body></html>\n";
+        //        if (!$resultado = pg_exec($conn, $peticion)) {
+         if (!$resultado = db_query($peticion, $conn)) {
+         echo "Error al ejecutar $peticion<br>\n";
+          echo db_errormsg($conn) . "<br></body></html>\n";
           exit();
         }
       }
@@ -71,12 +74,13 @@
   else if ($accion == "muestra"  ||  $accion == "agrega") {
     if ($accion == "muestra") {
       $peticion = "SELECT * FROM proveedores WHERE id=$id";
-      if (!$resultado = pg_exec($conn, $peticion)) {
+      //      if (!$resultado = pg_exec($conn, $peticion)) {
+      if (!$resultado = db_query($peticion, $conn)) {
         echo "Error al ejecutar $peticion<br>\n";
-        echo pg_errormessage($conn) . "<br></body></html>\n";
+        echo db_errormsg($conn) . "<br></body></html>\n";
         exit();
       }
-      $reng = pg_fetch_object($resultado, 0);
+      $reng = db_fetch_object($resultado, 0);
 
       $val_nick =     "value=\"" . $reng->nick . "\"";
       $val_razon =    "value=\"" . $reng->razon_soc . "\"";
@@ -90,14 +94,15 @@
       $val_submit =  "value=\"Modificar datos\"";
 
       $peticion = "SELECT * FROM telefonos_proveedor WHERE id_proveedor=$id";
-      if (!$resultado = pg_exec($conn, $peticion)) {
+      //      if (!$resultado = pg_exec($conn, $peticion)) {
+      if (!$resultado = db_query($peticion, $conn)) {
         echo "Error al ejecutar $peticion<br>\n";
-        echo pg_errormessage($conn) . "<br></body></html>\n";
+        echo db_errormsg($conn) . "<br></body></html>\n";
         exit();
       }
-      if ($num_ren = pg_numrows($resultado)) {
+      if ($num_ren = db_num_rows($resultado)) {
         for ($i=0;  $i<3 && $i<$num_ren; $i++) {
-          $reng = pg_fetch_object($resultado, $i);
+          $reng = db_fetch_object($resultado, $i);
           $val_clave_ld[$i] = "value=\"" . $reng->clave_ld . "\"";
           $val_tel[$i] =      "value=\"" . $reng->numero . "\"";
           $val_ext[$i]      = "value=\"" . $reng->ext . "\"";
@@ -162,17 +167,22 @@
     $peticion = "INSERT INTO proveedores (nick, razon_soc, calle, colonia, ciudad,";
     $peticion.= "estado, contacto) VALUES ('$nick', '$razon_soc', '$calle', '$colonia', '$ciudad',";
     $peticion.= "'$estado', '$contacto')";
-    if (!$resultado = pg_exec($conn, $peticion)) {
+    //    if (!$resultado = pg_exec($conn, $peticion)) {
+    if (!$resultado = db_query($peticion, $conn)) {
       echo "Error al ejecutar $peticion<br>\n";
       exit();
     }
-    $peticion = "SELECT max(id) FROM proveedores";
-    if (!$resultado = pg_exec($conn, $peticion)) {
+    $peticion = "SELECT max(id) as max_id FROM proveedores";
+    //    if (!$resultado = pg_exec($conn, $peticion)) {
+    if (!$resultado = db_query($peticion, $conn)) {
       echo "Error al ejecutar $peticion<br>\n";
       exit();
     }
-    $renglon = pg_fetch_object($resultado, 0);
-    $id = $renglon->id + 1;
+    $renglon = db_fetch_object($resultado, 0);
+    $id = $renglon->max_id;
+    if ($SQL_TYPE == "postgres")
+      $id++;
+    
     for ($k=0; $k<3; $k++) {
       if ($tel[$k]) {
         if ($tel_fax[$k] == "on")
@@ -193,7 +203,8 @@
         if ($ext[$k])
           $peticion.= ", " . $ext[$k];
         $peticion.= ", '$tel_fax')";
-        if (!$resultado = pg_exec($conn, $peticion)) {
+
+        if (!$resultado = db_query($peticion, $conn)) {
           echo "Error al ejecutar $peticion<br>\n";
           exit();
         }
@@ -205,11 +216,12 @@
 
   $peticion = "SELECT id, nick, razon_soc, calle, colonia, ciudad, estado, contacto";
   $peticion.= " FROM proveedores ORDER BY id";
-  if (!$resultado = pg_exec($conn, $peticion)) {
+//  if (!$resultado = pg_exec($conn, $peticion)) {
+  if (!$resultado = db_query($peticion, $conn)) {
     echo "Error al ejecutar $peticion<br>\n";
     exit();
   }
-  $num_ren_prov = pg_numrows($resultado);
+  $num_ren_prov = db_num_rows($resultado);
 
   echo "<table width=\"100%\">\n";
   echo " <tr>\n";
@@ -224,15 +236,16 @@
     else
       $td_fondo = "";
 
-    $reng = pg_fetch_object($resultado, $i); 
-    $peticion = "SELECT \"clave_ld\", \"numero\", \"ext\", \"fax\" FROM ";
+    $reng = db_fetch_object($resultado, $i); 
+    $peticion = "SELECT clave_ld, numero, ext, fax FROM ";
     $peticion.= "telefonos_proveedor WHERE id_proveedor=$reng->id";
-    if (!$resultado2 = pg_exec($conn, $peticion)) {
+
+    if (!$resultado2 = db_query($peticion, $conn)) {
       echo "<tr><td colspan=5><b>Error al ejecutar $peticion<br>\n";
-      echo pg_errormessage($conn) . "</b></td></tr></table></body></html>\n";
+      echo db_errormesg($conn) . "</b></td></tr></table></body></html>\n";
       exit();
     }
-    $num_ren2 = pg_numrows($resultado2);
+    $num_ren2 = db_num_rows($resultado2);
 
     echo " <tr>\n";
     echo "  <td $td_fondo>";
@@ -280,7 +293,7 @@
       echo " <tr>\n  <td>&nbsp;</td>\n";
       for ($j=0; $j<$num_ren2; $j++) {
         echo "  <td $td_fondo>";
-        $reng2 = pg_fetch_object($resultado2, $j); 
+        $reng2 = db_fetch_object($resultado2, $j); 
         if (strtoupper($reng2->fax) != "F")
           echo "Fax: ";
         echo "($reng2->clave_ld)$reng2->numero";
@@ -304,7 +317,7 @@
   echo "<a href=\"$PHP_SELF?salir=1\">Salir del sistema</a>\n";
   echo "</div>\n";
 
-  pg_close($conn);
+  db_close($conn);
 ?>
 
 

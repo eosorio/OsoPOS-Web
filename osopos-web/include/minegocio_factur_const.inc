@@ -3,10 +3,10 @@ if (!isset($MAXDES))
   $MAXDES = 60;
 
 if (!isset($OBS_MAXCOLS))
-  $OBS_MAXCOLS = 40;
+  $OBS_MAXCOLS = 22;
 
 if (!isset($OBS_MAXRENS))
-  $OBS_MAXRENS = 10;
+  $OBS_MAXRENS = 3;
 
 if (!isset($MAXIMPORT))
   $MAXIMPORT = 250;
@@ -15,7 +15,7 @@ if (!isset($MAXART))
   $MAXART = 40;
 
 if (!isset($ART_MAXRENS))
-  $ART_MAXRENS = 18;
+  $ART_MAXRENS = 22;
 
 if (!isset($MARGEN))
   $MARGEN = 4;
@@ -27,5 +27,5 @@ if (!isset($DESC_MAXRENS))
   $DESC_MAXRENS = 3;
 
 if (!isset($DESC_MAXCOLS))
-  $DESC_MAXCOLS = 40;
+  $DESC_MAXCOLS = 35;
 ?>

@@ -14,12 +14,9 @@ function Crea_Factura($cliente,    /*clase datoscliente */
                       $tipoimp)
 
 {
-  include ("include/electroh_factur_const.inc");
+  global $ESC, $FF;
 
-  global $ESC, $FF, $MARGEN;
-
-  if ($ESC != 27)
-    $ESC = 27;
+  include ("include/linucs_factur_const.inc");
 
   $ffact = fopen($nmfact,"w");
 
@@ -28,203 +25,185 @@ function Crea_Factura($cliente,    /*clase datoscliente */
     exit();
   }
 
-  $linea = sprintf("%c@", $ESC);
-  /* Reset de impresora */
-  fputs($ffact, $linea);
 
   $linea = sprintf("%c",18);
   /* Cancela modo condensado */
   fputs($ffact, $linea);
 
   if ($tipoimp == "EPSON") {
-    $linea = sprintf("%c%c", $ESC,77);
+    $linea = sprintf("%c%c",$ESC,77);
     fputs($ffact, $linea);
   }
   else {
-    $linea = sprintf("%c%c", $ESC,58);
+    $linea = sprintf("%c%c",$ESC,58);
   /* 12cpi en modo Epson: ESC,77, en modo IBM: ESC,58 */
     fputs($ffact, $linea);
   }
-
-  fputs($ffact, "\r\n");
-  $linea = sprintf("%cJ%c", $ESC,2);
+  $linea = sprintf("%cJ%c",$ESC,800);
   /* 2/n-avos de pulgada */
   fputs($ffact, $linea);
 
-  fputs($ffact, "\n\r");
+  for ($i=0; $i<11; $i++)
+    fputs($ffact, "\n");
 
-  Espacios($ffact, 52);
-
+  $linea = sprintf("%s\n",$cliente->nombre);
   Espacios($ffact, $MARGEN);
-  if ($fecha->mes<10)
-    $linea = sprintf("%d    0%d   ",$fecha->dia,$fecha->mes);
-  else
-    $linea = sprintf("%d     %d   ",$fecha->dia,$fecha->mes);
   fputs($ffact, $linea);
-  $linea = sprintf("%d\n\r",$fecha->anio);
-  fputs($ffact, $linea);
-
-  Espacios($ffact, $MARGEN);
-  $linea = sprintf("%cJ%c",$ESC,30);
-  $linea.= sprintf("      %s\n\r",$cliente->nombre);
-  fputs($ffact, $linea);
-
-  $linea = sprintf("%cJ%c",$ESC,15);
-  Espacios($ffact, $MARGEN);
-  $linea.= sprintf("       %s %s",$cliente->dom_calle, $cliente->dom_numero);
+  $linea = sprintf("%s, %s",
+                   $cliente->dom_calle, $cliente->dom_numero);
   if ( strlen($cliente->dom_inter) )
-    $linea .= sprintf("-%s ",  $cliente->dom_inter);
-  $linea.= ". ";
-  if (strlen($cliente->dom_col))
-    $linea.= sprintf("Col. %s", $cliente->dom_col);
-  $linea .= "\n\r";
-  fputs($ffact, $linea);
-
-  $linea = sprintf("%cJ%c",$ESC,15);
-  fputs($ffact, $linea);
-
+    $linea .= sprintf("-%s",  $cliente->dom_inter);
+  $linea .= "\n";
   Espacios($ffact, $MARGEN);
-  $linea = sprintf("       %s, %s", $cliente->dom_ciudad, $cliente->dom_edo);
   fputs($ffact, $linea);
-  Espacios($ffact, 45-strlen($linea));
-  $linea = sprintf("%s\n\n\n\n\r",$cliente->rfc);
+  $linea = sprintf("Col. %s ", $cliente->dom_col);
+  Espacios($ffact, $MARGEN);
   fputs($ffact, $linea);
-
-  for ($i=0; $i<$num_articulos; ++$i) {
-    if (strlen($articulos[$i]->desc) > $DESC_MAXCOLS) {
-      $reng = array();
-      $renglon_largo = $articulos[$i]->desc;
-      /* Aplica el wrapping */
-      for ($j=0; $j<$DESC_MAXRENS; $j++) {
-        $semi_renglon = substr($renglon_largo, 0, $DESC_MAXCOLS);
-        if ($char_pos=strrpos($semi_renglon, "\n")) {
-          $pos_fin_reng = $char_pos;
-        }
-        else if ($char_pos=strrpos($semi_renglon, " ")) {
-          $pos_fin_reng = $char_pos;
-        }
-        else
-          $pos_fin_reng = strlen($semi_renglon);
-
-        $reng[$j] = substr($semi_renglon, 0, $pos_fin_reng);
-
-        if (!empty($reng[$j]) && !strpos($reng[$j], "\n"))
-          $reng[$j] .= "\n";
-        $reng[$j] = str_replace("\n", "\n\r", $reng[$j]);
-        $renglon_largo = substr($renglon_largo, $pos_fin_reng+1, strlen($renglon_largo));
-      }
-    }
-    else {
-      $j = 1;
-      $reng[0] = $articulos[$i]->desc;
-    }
-
-    Espacios($ffact, $MARGEN);
-    $linea = sprintf("%4.0d ",$articulos[$i]->cant);
-    fputs($ffact, $linea);
-
-    $linea = sprintf("  %-35s ",$reng[0]);
-    fputs($ffact, $linea);
-    $buff = strlen($reng);
-    $linea = sprintf("%8.2f %8.2f\n\r",$articulos[$i]->pu,$articulos[$i]->pu*$articulos[$i]->cant);
-    fputs($ffact, $linea);
-    $num_ren_articulos++;
-    for ($k=1; $k<$j; $k++) {
-      Espacios($ffact, $MARGEN);
-      Espacios($ffact, 7);
-      fputs($ffact, $reng[$k]);
-      $num_ren_articulos++;
-    }
-  }
-
-  fputs($ffact, "\n");
-
-  /* Colocar aqui las observaciones */
-  if (strlen($observaciones) > $OBS_MAXCOLS) {
-    $reng = array();
+  $linea = sprintf( "\n");
+  fputs($ffact, $linea);
+  $linea = sprintf("%s, %s", $cliente->dom_ciudad, $cliente->dom_edo);
+  Espacios($ffact, $MARGEN);
+  fputs($ffact, $linea);
+  if (strlen($observaciones)) {
     $renglon_largo = $observaciones;
-    /* Aplica el wrapping */
     for ($j=0; $j<$OBS_MAXRENS; $j++) {
-      $semi_renglon = substr($renglon_largo, 0, $OBS_MAXCOLS-1);
-      if ($char_pos=strrpos($semi_renglon, "\n")) {
-        $pos_fin_reng = $char_pos;
-      }
-      else if($char_pos =  strrpos($semi_renglon, " ")) {
-        $pos_fin_reng = $char_pos;
-        while ($semi_renglon[$pos_fin_reng-1] == " ")
-          $pos_fin_reng--;
-      }
+      $semi_renglon = substr($renglon_largo, 0, $OBS_MAXCOLS);
+      $pos_fin_reng = strrpos($semi_renglon, " ") ? strrpos($semi_renglon, " ") : strlen($semi_renglon) ;
       $reng[$j] = substr($semi_renglon, 0, $pos_fin_reng);
-      if (!empty($reng[$j]) && !strpos($reng[$j], "\n"))
-        $reng[$j].= "\n";
-      $reng[$j] = str_replace("\n", "\n\r", $reng[$j]);
-      $renglon_largo = ltrim(substr($renglon_largo, $pos_fin_reng+1, strlen($renglon_largo)));
+      if (!empty($j))
+        $reng[$j] .= "\n";
+      $renglon_largo = substr($renglon_largo, $pos_fin_reng+1, strlen($renglon_largo));
     }
+    if (strlen($cliente->dom_ciudad)+strlen($cliente->dom_edo) <= 46)
+      Espacios($ffact,  46 - strlen($cliente->dom_ciudad) - strlen($cliente->dom_edo) - 2 );
+    $linea = sprintf( "%s", $reng[0]); /* Observaciones */
+    fputs($ffact, $linea);
   }
   else {
     $j = 1;
     $reng[0] = $observaciones;
   }
 
-  for ($k=0; $k<$j; $k++) {
-    Espacios($ffact, $MARGEN);
-    $linea = sprintf("       %s", $reng[$k]);
+  fputs($ffact, "\n");
+  $linea = sprintf("C.P. %5d", $cliente->cp);
+  Espacios($ffact, $MARGEN);
+  fputs($ffact, $linea);
+  if (strlen($reng[1])) {
+    Espacios($ffact, 36);
+    $linea = sprintf( "%s", $reng[1]); /* Observaciones */
+  }
+  else
+    $linea = sprintf( "\n");
+  fputs($ffact, $linea);
+  $linea = sprintf("%cJ%c",$ESC,16); /* 16 n-avos de pulgada de avance vert */
+  fputs($ffact, $linea);
+  $linea = sprintf("       %s",$cliente->rfc);
+  Espacios($ffact, $MARGEN);
+  fputs($ffact, $linea);
+  if (strlen($reng[2])) {
+    Espacios($ffact, 39-strlen($cliente->rfc));
+    $linea = sprintf( "%s", chop($reng[2])); /* Observaciones */
+    if (strlen($linea>18))
+      $linea = substr($linea, 0, 18);
     fputs($ffact, $linea);
+    Espacios($ffact, 23-strlen($linea));
+  }
+  else
+    Espacios($ffact, 63-strlen($cliente->rfc)-strlen($reng[2]));
+  $linea = sprintf("%d / %d / %d\n\n",$fecha->dia,$fecha->mes,$fecha->anio);
+  fputs($ffact, $linea);
+  $linea = sprintf("%cJ%c",$ESC,16);
+  fputs($ffact, $linea);
+
+  $linea = sprintf("%cJ%c",$ESC,90);
+  fputs($ffact, $linea);
+
+
+  for ($i=0; $i<$num_articulos; ++$i) {
+    if (strlen($articulos[$i]->desc) > $DESC_MAXCOLS) {
+      $reng = array();
+      $renglon_largo = $articulos[$i]->desc;
+      for ($j=0; $j<$DESC_MAXRENS; $j++) {
+        $semi_renglon = substr($renglon_largo, 0, $DESC_MAXCOLS);
+        $pos_fin_reng = strrpos($semi_renglon, " ") ? strrpos($semi_renglon, " ") : strlen($semi_renglon) ;
+        //        echo "pos_fin_reng: $pos_fin_reng<br>\n"; /*igm*/
+        $reng[$j] = substr($semi_renglon, 0, $pos_fin_reng);
+        //        printf("reng[%d]: %s<br>\n", $j, $reng[$j]); /*igm*/
+        if (!empty($j))
+          $reng[$j] .= "\n";
+        $renglon_largo = substr($renglon_largo, $pos_fin_reng+1, strlen($renglon_largo));
+        //        echo "renglon largo: $renglon_largo<br>\n"; /*igm*/
+      }
+    }
+    else {
+      $j = 1;
+      $reng[0] = $articulos[$i]->desc;
+    }
+    $linea = sprintf("%-15s", $articulos[$i]->codigo);
+    Espacios($ffact, $MARGEN);
+    fputs($ffact, $linea);
+    $linea = sprintf(" %5.0d",$articulos[$i]->cant);
+    fputs($ffact, $linea);
+    $linea = sprintf("  %-35s ",$reng[0]);
+    fputs($ffact, $linea);
+    $buff = strlen($reng);
+    $linea = sprintf("%10.2f %11.2f\n\r",$articulos[$i]->pu,$articulos[$i]->pu*$articulos[$i]->cant);
+    fputs($ffact, $linea);
+    $num_ren_articulos++;
+    for ($k=1; $k<$j; $k++) {
+      Espacios($ffact, $MARGEN);
+      Espacios($ffact, 23);
+      fputs($ffact, $reng[$k]);
+      $num_ren_articulos++;
+    }
   }
 
-  for ($i=0; $i<$ART_MAXRENS-$num_ren_articulos-$k-1; $i++) {
-    fputs($ffact, "\n");
-  }
-  fputs($ffact, "\r");
+  //  for ($i=0; $i<(($ART_MAXRENS)-$num_ren_articulos); ++$i)
+  //    fputs($ffact,"\n"); /* imprime renglones no usados en articulos */
+  $linea = sprintf("%cf1%c", $ESC, $ART_MAXRENS-$num_ren_articulos);
+  fputs($ffact, $linea);
 
-  /*  if (strlen($garantia) > 3) {
+  $importe_letra = substr(str_cant($total,$buff), 0, $MAXIMPORT);
+  Espacios($ffact, 20);
+  $linea = sprintf("%s---",$importe_letra);
+  fputs($ffact, $linea);
+  $linea = sprintf( "\n");
+  fputs($ffact, "\n");
+
+  Espacios($ffact, 20);
+  if ($buff>9)
+    $linea = sprintf("pesos %2d/100 M.N.\n",$buff);
+  else
+    $linea = sprintf("pesos 0%1d/100 M.N.\n",$buff);
+  fputs($ffact, $linea);
+  fputs($ffact, "\n");
+
+  $linea = sprintf("%cJ%c",$ESC,12);
+  if (strlen($garantia) > 3) {
     Espacios($ffact, 5);
     $linea = sprintf("%s de garantia",$garantia);
-    }*/
-  fputs($ffact,"\n\r");
-  Espacios($ffact, 15);
-  fputs($ffact, "\n\n\r");
-
-  $linea = sprintf("%cJ%c",$ESC,20);
+  }
+  fputs($ffact,"\n\n");
+  Espacios($ffact, 80);
+  $linea = sprintf("%9.2f\n\n",$subtotal);
+  fputs($ffact, $linea);
+  $linea = sprintf("%cJ%c",$ESC,15);
+  fputs($ffact, $linea);
+  Espacios($ffact, 80);
+  $linea = sprintf("%9.2f\n\n",$iva);
+  fputs($ffact, $linea);
+  $linea = sprintf("%cJ%c",$ESC,15);
+  fputs($ffact, $linea);
+  Espacios($ffact,80);
+  $linea = sprintf("%c%c%9.2f%c%c\n\n", $ESC,71, $total, $ESC,72);
   fputs($ffact, $linea);
 
-  Espacios($ffact, $MARGEN);
-  Espacios($ffact, 50);
-  $linea = sprintf("    %9.2f\n\n\r", $subtotal);
+  fputs($ffact, "\n\n\n\n");
+  $linea = sprintf("%cJ%c",$ESC,12);
   fputs($ffact, $linea);
-
-  Espacios($ffact, $MARGEN);
-  Espacios($ffact, 50);
-  $linea = sprintf("    %9.2f\n\n\r", $iva);
-  fputs($ffact, $linea);
-
-  Espacios($ffact, $MARGEN);
-  Espacios($ffact, 50);
-  $linea = sprintf("    %9.2f\n\n\n\r", $total);
-  fputs($ffact, $linea);
-
-  Espacios($ffact, $MARGEN);
-  $importe_letra = substr(str_cant($total,$buff), 0, $MAXIMPORT);
-  Espacios($ffact, 13);
-  /*  $linea = sprintf("%s---",$importe_letra);
-  fputs($ffact, $linea);
-  $linea = sprintf( "\n\r");
-  fputs($ffact, "\n\r");*/
-  $linea = sprintf("%s ",$importe_letra);
-  fputs($ffact, $linea);
-
-  //  Espacios($ffact, 15);
-  $linea = sprintf("pesos %s/100 M.N.\n\r",$buff);
-
-  fputs($ffact, $linea);
-  fputs($ffact, "\n\r");
-
-  /*  $linea = sprintf("%cJ%c",$ESC,12);
-  fputs($ffact, $linea);
-  Espacios($ffact, $MARGEN);
   Espacios($ffact,15);
-  $linea = sprintf("Hecho con OsoPOS Web. http://punto-deventa.com/software.html\n\r");
-  fputs($ffact, $linea);*/
+  $linea = sprintf("Hecho con OsoPOS Web. http://punto-deventa.com/software.html\n");
+  fputs($ffact, $linea);
 
   $linea = sprintf("%c",$FF);
   fputs($ffact, $linea);

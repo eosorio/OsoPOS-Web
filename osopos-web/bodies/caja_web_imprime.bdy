@@ -59,10 +59,10 @@
     echo "&nbsp;";
  ?>
  </font>
- <td align="right"><font face="helvetica, arial" color=blue><input type=submit value="Continuar"></font>
+ <td align="right"><font color=blue><input type=submit value="Continuar"></font>
 </tbody>
 </table>
-
+<input type="hidden" name="mode" value="<? echo $mode ?>">
 
 </form>
 

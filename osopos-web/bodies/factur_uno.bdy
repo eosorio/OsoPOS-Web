@@ -33,6 +33,7 @@ Introduzca los datos del cliente. Cuando termine, apriete el bot&oacute;n de  co
       <input type=text size=4 maxlength=4 name=anio value=<? echo $anio ?>></font>
       <input type=hidden name=fase value=1>
   </td>
+ </tr>
  <tr>
   <td align="right"><font face="helvetica,arial" >Raz&oacute;n social</font>
   <td colspan=4><font face="helvetica,arial" ><input type=text name=razon_soc size=40 maxlength=50 value="<? echo $razon_soc ?>"></font>
@@ -50,16 +51,18 @@ Introduzca los datos del cliente. Cuando termine, apriete el bot&oacute;n de  co
     <input type=text value="<? echo $curp ?>" name=curp size="<? echo $MAXCURP ?>"
     maxlength="<? echo $MAXCURP ?>"></font>
 
+ </tr>
  <tr>
   <td align="right"><font face="helvetica,arial" >Domicilio</font>
   <td colspan=4><font face="helvetica,arial" >
-    <input type=text name=dom_calle size=40 value="<?php echo $dom_calle ?>"></font>
+    <input type=text name=dom_calle size=40 maxlength=30 value="<?php echo $dom_calle ?>"></font>
   <td align="right"><font face="helvetica,arial" >N&uacute;mero</font>
   <td><font face="helvetica,arial" ><input type=text name=dom_ext size=5 maxlength=7 value=<? echo $dom_ext ?>></font>
   <td align="right"><font face="helvetica,arial" >Interior</font></td>
   <td><font face="helvetica,arial" >
     <input type=text name=dom_int size=4 maxlength=7 value="<? echo $dom_int ?>"></font>
 
+ </tr>
  <tr>
   <td align="right"><font face="helvetica,arial" >Colonia:</font>
   <td colspan=4><font face="helvetica,arial" >
@@ -68,16 +71,19 @@ Introduzca los datos del cliente. Cuando termine, apriete el bot&oacute;n de  co
   <td colspan=3><font face="helvetica,arial" >
     <input type=text name=dom_cp size=5 maxlength=5 value=<? echo $dom_cp ?>></font>
 
+ </tr>
  <tr>
   <td align="right"><font face="helvetica,arial" >Ciudad</font>
   <td colspan=4><font face="helvetica,arial" >
     <input type=text name=dom_ciudad size=40 value=<? echo "\"$dom_ciudad\""?>></font>
   <td align="right"><font face="helvetica,arial" >Estado</font>
   <td colspan=3><font face="helvetica,arial" ><select name=dom_edo>
+  <option>-- Sin estado --
   <? 
+  if (empty($estado) && !empty($ESTADO_OMISION))
+    $dom_edo = $ESTADO_OMISION;
+
  include "include/estados.inc";
- if (empty($dom_edo))
-   $dom_edo = "Chiapas";
  for ($i=1; $i<=count($estado); $i++){
    echo "    <option";
    if ($estado[$i] == $dom_edo)
@@ -86,6 +92,7 @@ Introduzca los datos del cliente. Cuando termine, apriete el bot&oacute;n de  co
  }
  ?>
    </select></font>
+ </tr>
  <tr>
   <td colspan=9 align=right>
   <?
@@ -96,12 +103,17 @@ Introduzca los datos del cliente. Cuando termine, apriete el bot&oacute;n de  co
   ?>
    <font face="helvetica,arial" color="blue">
    <input type=submit value="Continuar"></font>
+   <input type=reset value="Limpiar datos">
+ </tr>
  <tr>
   <td colspan=9 align=right><hr>
+ </tr>
  <tr>
   <td colspan=9 align=right><font face="helvetica,arial" size="+1">
    <a href="busca_cliente.php?php_anterior=<? echo $PHP_SELF
-   ?>&id_venta=<? echo $id_venta ?>">Buscar cliente</a></font>
+   ?>&id_venta=<? echo $id_venta ?>">Buscar cliente</a> |
+   <a href="factur_web_muestra.php">Listado de facturas</a></font>
+ </tr>
 
 </tbody>
 </table>
