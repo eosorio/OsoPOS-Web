@@ -7,7 +7,7 @@ Agregar usuario:
 </tr>
 <tr>
   <td align="right">Contraseña:</td>
-  <td><input type="password" name="passwd" size=20></td>
+  <td><input type="password" name="new_passwd" size=20></td>
 </tr>
 <tr>
   <td align="right">Nivel:</td>
