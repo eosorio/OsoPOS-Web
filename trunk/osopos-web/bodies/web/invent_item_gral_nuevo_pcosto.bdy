@@ -24,7 +24,7 @@ Licencia, o (a su elección) en una versión posterior. */
   <td><input type="text" size="10" name="costo1"><input type="hidden" name="codigo" value="<?php echo $codigo ?>"></td>
   <td><input type="text" size="5" name="iva_porc"></td>
   <td><select name="divisa"><?php echo lista_divisas($conn, $DIVISA_OMISION) ?></select></td>
-  <td><input type="text" size="3" name="entrega1"><input type="hidden" name="boton" value="general"></td>
+  <td><input type="text" size="3" name="entrega1"><input type="hidden" name="boton" value="costos"></td>
   <td><input type="text" size="10" name="prov_clave"><input type="hidden" name="action" value="ver"></td>
   <td><input type="text" size="10" name="costo_envio1"><input type="hidden" name="subaction" value="agrega_pcosto">
   <td><select name="divisa_env"><?php echo lista_divisas($conn, $DIVISA_OMISION) ?></select></td>

@@ -91,25 +91,13 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 }
 ?>
 <?php
-  $boton = "pventa"; /* Indicador de que botón debe aparecer presionado */
+  $boton = "pventa"; /* Indicador de cual botón debe aparecer presionado */
   include("bodies/web/invent_costos_head.bdy");
+  include("bodies/web/invent_item_descripcion.bdy");
 ?>
-<table border=0 width="100%">
-<colgroup>
-  <col width="50"><col width="200"><col width="200"><col>
-</colgroup>
-<tr>
-  <td>Clave</td><td><?php echo $codigo ?></td>
-  <td>Descripción</td><td><?php echo articulo_descripcion($conn, $codigo) ?></td>
-</tr>
-<tr>
-  <td>Divisa</td><td><?php lista_divisas($conn, $DIVISA_OMISION) ?></td>
-  <td>Departamento</td><td><?php echo nombre_depto($conn, $id_depto) ?></td>
-</tr>
-</table>
 
 
-<table border="1" width="<?php echo $t_width ?>">
+<table border="1" cellpadding=2 width="<?php echo $t_width ?>">
 <?php
     printf("<colgroup>\n%s\n</colgroup>\n", $r_colgroup);
     for ($i=0; $i< count($renglon); $i++)
