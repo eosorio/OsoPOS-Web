@@ -77,7 +77,7 @@ Introduzca los datos del cliente. Cuando termine, apriete el bot&oacute;n de  co
   <td colspan=4><font face="helvetica,arial" >
     <input type=text name=dom_ciudad size=40 value=<? echo "\"$dom_ciudad\""?>></font>
   <td align="right"><font face="helvetica,arial" >Estado</font>
-  <td colspan=3><font face="helvetica,arial" ><select name=dom_edo>
+  <td colspan=3><select name=dom_edo>
   <option>-- Sin estado --
   <? 
   if (empty($estado) && !empty($ESTADO_OMISION))
@@ -91,7 +91,7 @@ Introduzca los datos del cliente. Cuando termine, apriete el bot&oacute;n de  co
    echo ">$estado[$i]\n";
  }
  ?>
-   </select></font>
+   </select>
  </tr>
  <tr>
   <td colspan=9 align=right>
