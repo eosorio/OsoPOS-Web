@@ -1,4 +1,4 @@
-<?  /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*-
+<?  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
 
  Facturación Web 0.4-1. Módulo de facturación de OsoPOS Web.
 
@@ -20,11 +20,11 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 */
   /*igm*/ $debug = 0;
+{
   include("include/general_config.inc");
   include("include/factur_config.inc");
   include("include/pos-var.inc");
 
-{
   if (isset($salir)) {
     include("include/logout.inc");
   }
@@ -45,11 +45,9 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
    <meta name="Author" content="E. Israel Osorio Hernández">
    <title>OsoPOS - FacturWeb v. <? echo $factur_web_vers ?></title>
+   <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
+   <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/numerico.css">
    <style type="text/css">
-    body { font-family: helvetica, sans-serif;
-       text-size: 12pt;
-       background-image: url(imagenes/fondo.gif);
-       background-color: #FFFFFF }
     td.campo {font-face: helvetica,arial}
     td.nm_campo {text-align: right}
     td.right {font-face: helvetica, arial; text-align: right}
@@ -63,44 +61,47 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <?
   include("include/encabezado.inc");
-  if (!isset($dia))
-    $dia = date("j");
-  if (!empty($mes_s)) {
-    include "include/mes.inc";
-    $mes_a = array_keys($meses, $mes_s);
-    $mes = $mes_a[0]+1;
-  }
-  if (!isset($mes))
-    $mes = date("n");
-  if (!isset($anio))
-    $anio = date("Y");
+  if (!isset($accion) || $accion!="lista") {
+
+        if (!isset($dia))
+          $dia = date("j");
+        if (!empty($mes_s)) {
+          include "include/mes.inc";
+          $mes_a = array_keys($meses, $mes_s);
+          $mes = $mes_a[0]+1;
+        }
+        if (!isset($mes))
+          $mes = date("n");
+        if (!isset($anio))
+          $anio = date("Y");
 
 
     /******************** fase dos ******************/
-  if ($fase == 1) {
-    include("include/pos.inc");
+        if ($fase == 1) {
+          include("include/pos.inc");
 
-    if (!empty($id_venta)) {
+          if (!empty($id_venta)) {
 
-      if (!$conn) {
-        echo "ERROR: Al conectarse a la base de datos $DB_NAME<br>\n</body></html>";
-        exit();
-      }
+                if (!$conn) {
+                  echo "ERROR: Al conectarse a la base de datos $DB_NAME<br>\n</body></html>";
+                  exit();
+                }
 
-      if (!isset($existe_venta))
-        $existe_venta = 0;
-      if (!is_array($articulo = lee_venta($id_venta))) {
-        echo "<b>Error al leer artículos de la venta $id_venta</b><br>\n";
-        $accion = "articulos";
-      }
-      else {
-        if ($num_arts = count($articulo))
-          $existe_venta = 1;
-        else {
-          $existe_venta = 0;
-          $accion = "articulos";
-        }
-      }
+                if (!isset($existe_venta))
+                  $existe_venta = 0;
+                if (!is_array($articulo = lee_venta($id_venta))) {
+                  echo "<b>Error al leer artículos de la venta $id_venta</b><br>\n";
+                  $accion = "articulos";
+                }
+                else {
+                  if ($num_arts = count($articulo)) {
+                    $existe_venta = 1;
+                  }
+                  else {
+                    $existe_venta = 0;
+                    $accion = "articulos";
+                  }
+                }
 
     }
     else {
@@ -199,7 +200,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     include("include/pos.inc");
     include("include/minegocio.inc");
     include("include/minegocio_factur_const.inc"); 
-    /*igm*/ $tipoimp = "EPSON";
+
     /*igm*/ $obs = array();
 
     $cliente = new datosclienteClass;
@@ -230,21 +231,25 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
     $observaciones = chop (str_replace("\n", " ", str_replace("\r", "", $observaciones)) );
 
-    $nm_archivo = tempnam($TMP_DIR, "factweb");
+    //$nm_archivo = tempnam($TMP_DIR, "factweb");
+    $nm_archivo = "";
 
-    Crea_Factura($cliente, $fecha, $art, count($desc), $subtotal, $iva, $subtotal+$iva,
-                 $garantia, $observaciones, $id_venta, $nm_archivo, $tipoimp);
+    $imp_buff= Crea_Factura($cliente, $fecha, $art, count($desc), $subtotal, $iva, $subtotal+$iva,
+                            $garantia, $observaciones, $id_venta, $nm_archivo, $tipoimp);
 
-    $linea = "$CMD_IMPRESION $LP_PRINTER $nm_archivo";
+    $linea = "$CMD_IMPRESION -P $COLA_FACTUR $nm_archivo";
+    /*IGM*/ echo "$linea<br>\n";
     $impresion = popen($linea, "w");
     if (!$impresion) {
       echo "<b>Error al ejecutar <i>$CMD_IMPRESION $nm_archivo</i></b><br>\n";
     }
     else {
+      /*igm */echo "<pre>$imp_buff</pre>";
       echo "<center><i>Factura impresa.</i></center>\n";
+      fputs($impresion, $imp_buff);
       pclose($impresion);
     }
-  } /* if ($accion=="imprimir"  ||  $accion=="agregarimprimir") */
+  } /* (fin) if ($accion=="imprimir"  ||  $accion=="agregarimprimir") */
 
 
 ?>
@@ -304,14 +309,26 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       }
     }
     
-	include("bodies/factur_uno.bdy");
+        include("bodies/factur_uno.bdy");
 
 ?>
 
 
 
 <?
-      }
+          }
+  }
+  else if ($accion=="lista") {
+        if ($debug>0)
+          echo "<i>$query</i><br>\n";
+        $query = "SELECT * FROM facturas_ingresos ORDER BY id ASC";
+        if (!$db_res = db_query($query, $conn)) {
+    echo "Error al ejecutar $query<br>\n";
+    exit();
+        }
+        include("bodies/ingresos_lista.bdy");
+  } 
+
 }
 
 /*

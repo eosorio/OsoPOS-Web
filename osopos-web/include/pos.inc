@@ -431,8 +431,16 @@ function str_cant($total, &$centavos) {
 function Espacios($file_pointer, $num_espacios)
 {
   for ($i=0; $i<$num_espacios; $i++)
-    fputs($file_pointer, " ");
-  return($i);
+    $linea.= " ";
+  fputs($file_pointer, $linea);
+  return($linea);
+}
+
+function espacio($num_espacios)
+{
+  for ($i=0; $i<$num_espacios; $i++)
+    $linea.= " ";
+  return($linea);
 }
 
 function CalculaIVA($numarticulos) {
