@@ -27,16 +27,16 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     include("include/logout.inc");
   }
   else {
-    include("include/passwd.inc");
-    /*$conn = pg_connect("dbname=$DB_NAME user=$DB_OWNER");
+//    include("include/passwd.inc");
+    $conn = pg_connect("dbname=$DB_NAME user=$DB_OWNER");
     if (!$conn) {
       echo "ERROR: Al conectarse a la base de datos $DB_NAME<br>\n</body></html>";
       exit();
-      }*/
+    }
   }
 
 ?>
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<!doctype html public "-//w3c//dtd html 4.0 Transitional//en">
 
 <html>
 
@@ -371,6 +371,19 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     if (!$conn) {
       echo "ERROR: Al conectarse a la base de datos $DB_NAME<br>\n</body></html>";
       exit();
+    }
+
+    if (!$REPEAT_FACT_DATA) {
+      $rfc = "";
+      $razon_soc = "";
+      $curp = "";
+      $dom_calle = "";
+      $dom_ext = "";
+      $dom_int = "";
+      $dom_col = "";
+      $dom_cp = "";
+      $dom_ciudad = "";
+      $dom_edo = "";
     }
 
     if (isset($decodifica_rfc)) {

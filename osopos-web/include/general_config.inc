@@ -24,9 +24,10 @@
   $LP_PRINTER            = "lp";
   $AGREGA_CLIENTES       =  TRUE;
   $OBS_DEFAULT           = " dias de garantia.";
+  $REPEAT_FACT_DATA      = TRUE;
 
   // Versiones
-  $factur_web_vers = "0.06";
+  $factur_web_vers = "0.08";
   $caja_web_vers   = "0.03";
 
 }

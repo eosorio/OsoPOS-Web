@@ -42,12 +42,12 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     include("include/logout.inc");
   }
   else {
-    include("include/passwd.inc");
-    /*    $conn = pg_connect("dbname=$DB_NAME user=$DB_OWNER");
+//    include("include/passwd.inc");
+        $conn = pg_connect("dbname=$DB_NAME user=$DB_OWNER");
     if (!$conn) {
       echo "ERROR: Al conectarse a la base de datos $DB_NAME<br>\n</body></html>";
       exit();
-      }*/
+      }
   }
 
 ?>
