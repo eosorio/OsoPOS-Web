@@ -10,7 +10,8 @@ CREATE TABLE articulos (
   id_depto      int4 DEFAULT 0,
   p_costo       real DEFAULT 0,
   prov_clave    varchar(20) DEFAULT '',
-  iva_porc      int DEFAULT 15 NOT NULL
+  iva_porc      int DEFAULT 15 NOT NULL,
+  divisa        character(3) NOT NULL DEFAULT 'MXP'
 );
 REVOKE ALL ON articulos FROM PUBLIC;
 GRANT SELECT,UPDATE ON articulos TO "caja1";
@@ -104,4 +105,9 @@ CREATE TABLE users (
   "level"        int NOT NULL DEFAULT 0
 );
 
+CREATE TABLE divisas (
+  "id"           char(3) NOT NULL,
+  "nombre"       varchar(20),
+  "tipo_cambio"  real
+);
 

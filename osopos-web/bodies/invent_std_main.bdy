@@ -42,8 +42,8 @@
 		continue $offset;
 	  }
       $reng = db_fetch_object($resultado, $i);
-      $id_prov = $reng->id_prov;
-      $id_dept = $reng->id_depto;
+      $id_prov = $reng->id_prov - ($SQL_TYPE=="mysql");
+      $id_dept = $reng->id_depto - ($SQL_TYPE=="mysql");
       if (empty($search))
         $descripcion = $reng->descripcion;
       else
@@ -75,7 +75,8 @@
       printf("  <td%s>%s</td>\n",
              $td_fondo, stripslashes($descripcion));
       echo "  <td align=\"right\"$td_fondo>";
-      printf("%.2f</td>\n", $reng->pu);
+//      printf("%.2f</td>\n", $reng->pu);
+      printf("%.2f</td>\n", $reng->unitario);
       echo "  <td align=\"center\"$td_fondo>$reng->descuento</td>\n";
 	  echo "  <td align=\"center\"$td_fondo>";
       if ($reng->cant <= $reng->min)
@@ -88,7 +89,8 @@
 	  echo "</td>\n";
       echo "  <td align=\"center\"$td_fondo>$reng->min</td>\n";
       echo "  <td align=\"center\"$td_fondo>$reng->max</td>\n";
-      echo "  <td$td_fondo><a href=\"proveedor.php?accion=muestra&id=$id_prov\">";
+      echo "  <td$td_fondo><a href=\"proveedor.php?accion=muestra&id=";
+      printf("%d\">", $id_prov + ($SQL_TYPE=="mysql"));
       if ($nick_prov[$id_prov])
         echo $nick_prov[$id_prov];
       else
@@ -106,7 +108,8 @@
       else
         echo "&nbsp;</font>\n";
       echo "  <td align=\"right\"$td_fondo>";
-      printf("%.2f</td>\n", $reng->p_costo);
+//      printf("%.2f</td>\n", $reng->p_costo);
+      printf("%.2f</td>\n", $reng->pcosto);
       echo " \n";
     }
 ?>

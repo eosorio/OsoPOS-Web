@@ -73,7 +73,7 @@ CREATE TABLE departamento (
   id                smallint AUTO_INCREMENT PRIMARY KEY,
   nombre            varchar(25)
 );
-INSERT INTO departamento VALUES (0, 'Sin clasificar');
+INSERT INTO departamento VALUES (1, 'Sin clasificar');
 
 CREATE TABLE proveedores (
   id          smallint AUTO_INCREMENT PRIMARY KEY,
@@ -87,7 +87,7 @@ CREATE TABLE proveedores (
   email       varchar(40),
   url         varchar(80)
 );
-INSERT INTO proveedores (id, nick) VALUES (0, 'Sin proveedor');
+INSERT INTO proveedores (id, nick) VALUES (1, 'Sin proveedor');
 
 CREATE TABLE telefonos_proveedor (
   id_proveedor smallint NOT NULL,

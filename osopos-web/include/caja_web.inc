@@ -18,6 +18,8 @@ GNU junto con este programa; de no ser así, escriba a Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA. 
 */
 
+   $caja_web_vers =    "0.05";
+
    $MAXLEN_COD    =    20;
    $MAXLEN_DESC   =    50;
 

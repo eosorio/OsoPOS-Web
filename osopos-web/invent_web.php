@@ -114,7 +114,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   for ($i=0; $i<$num_ren_prov; $i++) {
     $reng = db_fetch_object($resultado, $i);
     $id = $reng->id;
-    $nick_prov[$id] = $reng->nick;
+    $nick_prov[$id - ($SQL_TYPE=="mysql")] = $reng->nick;
   }
 
   $query = "SELECT id,nombre FROM departamento ORDER BY id";
@@ -130,7 +130,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   for ($i=0; $i<$num_ren_depto; $i++) {
     $reng = db_fetch_object($resultado, $i);
     $id = $reng->id;
-    $nm_depto[$id] = $reng->nombre;
+    if ($SQL_TYPE == "mysql")
+      $nm_depto[$id-1] = $reng->nombre;
+    else
+      $nm_depto[$id] = $reng->nombre;
   }
 
 
@@ -197,6 +200,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $val_max = "value=" . $reng->max;
       $val_iva_porc =  sprintf("value=\"%.2f\"", $reng->iva_porc);
       $val_prov_clave = sprintf("value=\"%s\"", $reng->prov_clave);
+      $val_divisa = sprintf("value=\"%s\"", $reng->divisa);
       $val_submit = "value=\"Cambiar datos\"";
       $form_action = "$PHP_SELF?order_by=$order_by&action=cambia&offset=$offset&order=$order&mode=$mode";
     }
@@ -258,7 +262,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
                        str_replace("&quot;", "\"", $descripcion), $pu, $descuento);
       $query.= "cant=$ex, min=$ex_min, max=$ex_max, id_prov=$id_prov,";
       $query.= sprintf("id_depto=%d, p_costo=%.2f, prov_clave='%s', ", $id_dept, $p_costo, $prov_clave);
-      $query.= sprintf("iva_porc=%.2f WHERE codigo='%s'", $iva_porc, $codigo);
+      $query.= sprintf("iva_porc=%.2f, divisa='%s' WHERE codigo='%s'", $iva_porc, $divisa, $codigo);
     
       //  if (!$resultado = pg_exec($conn, $query)) {
       if (!$resultado = db_query($query, $conn)) {
@@ -319,32 +323,38 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   include("forms/invent_clasify.bdy");
 
 
-  $query = "SELECT * FROM articulos";
+  $query = "SELECT a.*, a.pu*d.tipo_cambio as unitario, a.p_costo*d.tipo_cambio as pcosto FROM articulos a,divisas d WHERE a.divisa=d.id";
   if (isset($id_dept) || isset($id_prov) || !empty($search) || (isset($mode) && $mode=="baja_ex"))
-     $query .= " WHERE ";
-  $query.= isset($id_dept) ? "id_depto=$id_dept " : "";
+     $query .= " AND ";
+  $query.= isset($id_dept) ? "a.id_depto=$id_dept " : "";
 
   if (isset($id_dept) && isset($id_prov))
      $query .= " AND ";
-  $query.= isset($id_prov) ? sprintf("id_prov=%d", $id_prov) : "";
+  $query.= isset($id_prov) ? sprintf("a.id_prov=%d", $id_prov) : "";
 
   if (isset($mode) && $mode=="baja_ex") {
     if (isset($id_prov) || isset($id_dept))
       $query.= " AND ";
-    $query.= "cant<min";
+    $query.= "a.cant<a.min";
   }
 
   if (!empty($search) && (isset($id_prov) || isset($id_dept) || isset($id_dept) || $mode=="baja_ex"))
     $query.= " AND ";
-  $query.= !empty($search) ? sprintf("(codigo~*'%s' OR descripcion~*'%s')", $search, $search) : "";
+  $query.= !empty($search) ? sprintf("(a.codigo~*'%s' OR a.descripcion~*'%s')", $search, $search) : "";
 
   $query.= " ORDER BY ";
   switch ($order_by) {
     case "id_dept" : 
-      $query.= "\"id_depto\" ";
+      $query.= "a.id_depto ";
+      break;
+    case "pu" :
+      $query.= "unitario ";
+      break;
+    case "p_costo" :
+      $query.= "pcosto ";
       break;
     default:
-      $query.= "\"$order_by\" ";
+      $query.= "a.$order_by ";
   }
   $query.= $order ? "ASC" : "DESC";
 //  if (!$resultado = pg_exec($conn, $query)) {
@@ -399,7 +409,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       printf("\">%d</a>", $i);
     }
     else {
-      printf("<font color=\"#e0e0e0\">%d%d</font>", $i, $fin_bloque);
+      printf("<font color=\"#e0e0e0\">%d</font>", $i);
     }
     echo "</small></td>\n";
   }
