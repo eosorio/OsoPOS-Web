@@ -53,8 +53,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   for ($i=1; $i<=$max_alm; $i++) {
     $art[$i] = new articulosClass;
     $query1 = "SELECT nombre FROM almacenes WHERE id=$i";
-    $query2 = "SELECT pu,pu2,pu3,pu4,pu5, cant, c_min, c_max FROM almacen_$i ";
-    $query2.= sprintf("WHERE codigo='%s' ", $codigo);
+    $query2 = "SELECT pu,pu2,pu3,pu4,pu5, cant, c_min, c_max FROM almacen_1 ";
+    $query2.= sprintf("WHERE codigo='%s' AND id_alm=%d", $codigo, $i);
 
     if ((!$db_res2 = db_query($query2, $conn)) || (!$db_res1 = db_query($query1, $conn))) {
       echo "Error al consultar información del producto<br>\n";

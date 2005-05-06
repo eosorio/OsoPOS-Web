@@ -20,14 +20,16 @@
 <? 
 {
   for ($i=0; $i<count($codigo); $i++) {
-	echo "<tr>\n";
-	printf("  <td>%s</td>\n",
-		   $codigo[$i]);
-	printf("  <td>%s</td>\n", articulo_descripcion($conn, $codigo[$i]));
-	printf("  <td class=\"numero\">%.2f</td>\n", $ct[$i]);
-	printf("  <td class=\"moneda\">%.2f</td>\n", $p_costo[$i]);
-	printf("  <td class=\"serie\">%d</td>\n", $alm_dest[$i]);
-	echo "</tr>\n\n";
+    echo "<tr>\n";
+    printf("  <td>%s</td>\n",
+	   $codigo[$i]);
+    printf("  <td>%s</td>\n", articulo_descripcion($conn, $codigo[$i]));
+    printf("  <td class=\"numero\">%.2f</td>\n", $ct[$i]);
+    printf("  <td class=\"moneda\">%.2f</td>\n", $p_costo[$i]);
+    printf("  <td class=\"serie\">%d</td>\n", $alm_dest[$i]);
+    echo "</tr>\n\n";
+
+    $pcosto[$codigo[$i]] = $p_costo[$i];
   }
 }
 ?>
