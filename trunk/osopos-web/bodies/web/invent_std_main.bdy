@@ -1,15 +1,15 @@
 <?php /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- */ ?>
 <!-- bodies/invent_std_main.bdy -->
 
-<table border=0 width='100%'>
+<table border=0 width='100%' cellpadding=0 cellspan=0>
 <colgroup>
-  <col width=20 span=3><col width=150><col width=*>
+  <col width=20 span=3><col width=110><col width=*>
 <?php
   if (isset($alm) && $alm>0) {
     echo "<col width=80><col width=30><col width=20 span=2><col width=160>\n";
   }
   else {
-    echo "<col width=150><col width=160><col width=80>\n";
+    echo "<col width=120><col width=120><col width=80>\n";
   }
 ?>
 </colgroup>
@@ -45,7 +45,7 @@
 
     echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=id_dept&order=";
     printf("%d",  $order_by=="id_dept" && !$order);
-    echo "$href_dept$href_prov\">Departamento</a></th>\n";
+    echo "$href_dept$href_prov\">Depto.</a></th>\n";
 /*    if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
       echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=prov_clave&order=";
       printf("%d",  $order_by=="p_costo" && !$order);
@@ -74,11 +74,14 @@
         $codigo = str_replace($search, "<b>$search</b>", $reng->codigo);
 
       if (!($i%4) || $i==0)
-        $td_fondo = " bgcolor='#dcffdb'";
+        /*        $td_fondo = " bgcolor='#dcffdb'"; */
+        $estilo = "a";
       else if (!(($i+2)%2))
-        $td_fondo = " bgcolor='#fdffd3'";
+        /*        $td_fondo = " bgcolor='#fdffd3'"; */
+        $estilo = "c";
       else
-        $td_fondo = "";
+        /*        $td_fondo = ""; */
+        $estilo = "b";
 ?>
  </tr>
 <?
@@ -119,21 +122,21 @@
         echo "   </form>\n";
         echo "  </td>\n";
           }
-      printf("  <td$td_fondo><a href=\"%s?codigo=", $_SERVER['PHP_SELF']);
+      printf("  <td class=\"ren_codigo_%s\"><a href=\"%s?codigo=", $estilo, $_SERVER['PHP_SELF']);
       echo str_replace(" ", "%20", htmlentities($reng->codigo));
       echo "&order_by=$order_by&order=$order&action=muestra&offset=$offset$href_dept$href_prov";
           if ($debug)
                 echo "&debug=1";
           echo "\">";
       echo stripslashes($codigo) . "</a></td>\n";
-      printf("  <td%s>%s</td>\n",
-             $td_fondo, stripslashes($descripcion));
+      printf("  <td class=\"ren_%s\">%s</td>\n",
+             $estilo, stripslashes($descripcion));
 
       if (isset($alm) && $alm>0) {
-      echo "  <td align=\"right\"$td_fondo>";
+      printf("  <td class=\"ren_moneda_%s\">", $estilo);
       printf("%.2f</td>\n", $reng->unitario);
 
-        echo "  <td align=\"center\"$td_fondo>";
+        printf("  <td class=\"ren_serie_%s\">", $estilo);
         if ($reng->tangible=='t')
           if ($reng->cant <= $reng->c_min)
             if (strstr($HTTP_USER_AGENT, "Mozilla/4"))
@@ -146,15 +149,15 @@
           echo "&nbsp;";
         echo "</td>\n";
 
-        echo "  <td align=\"center\"$td_fondo>";
+        printf("  <td class=\"ren_serie_%s\">", $estilo);
         if ($reng->tangible=='t') echo $reng->c_min; else echo "&nbsp;";
         echo "</td>\n";
-        echo "  <td align=\"center\"$td_fondo>";
+        printf("  <td class=\"ren_serie_%s\">", $estilo);
         if ($reng->tangible=='t') echo $reng->c_max; else echo "&nbsp;";
         echo "</td>\n";
       }
       else if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
-        echo "  <td$td_fondo>";
+        printf("  <td class=\"ren_prov_%s\">", $estilo);
         if ($nick_prov[$id_prov1]) {
           echo "<a href=\"proveedor.php?accion=muestra&id=";
           printf("%d\">", $id_prov1 + ($SQL_TYPE=="mysql"));
@@ -165,7 +168,7 @@
         echo "</td>\n";
       }
 
-      echo "  <td$td_fondo>";
+      printf("  <td class=\"ren_depto_%s\">", $estilo);
       if ($nm_depto[$id_dept])
         echo $nm_depto[$id_dept];
       else
@@ -182,9 +185,9 @@
       }*/
 
       if (puede_hacer($conn, $user->user, "invent_ver_pcosto") && $alm==0) {
-                echo "  <td align=\"right\"$td_fondo>";
-                printf("%.2f</td>\n", $reng->pcosto);
-          }
+        printf("  <td class=\"ren_moneda_%s\">", $estilo);
+        printf("%.2f</td>\n", $reng->pcosto);
+      }
       echo " \n";
     }
 ?>

@@ -53,7 +53,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
    /* Construcción de renglones de la tabla */
 
   $ren = array(array());
-  $query = "SELECT id,codigo,almacen from articulos_series WHERE codigo='$codigo' ORDER BY id";
+  $query = "SELECT id,codigo,almacen,status from articulos_series WHERE codigo='$codigo' ORDER BY id";
   if (!$res = db_query($query, $conn)) {
     echo "Error al ejecutar $query<br>\n";
     exit();
@@ -61,8 +61,12 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
   for ($i=0; $i < db_num_rows($res); $i++) {
     $tupla = db_fetch_object($res, $i);
-	$ren[$ic[$tupla->almacen]][$tupla->almacen] = $tupla->id;
-	$ic[$tupla->almacen]++;
+    if (substr($tupla->status, 0, 1) == "1")
+      $cadena = sprintf("%s <small>(R)</small>", $tupla->id);
+    else
+      $cadena = $tupla->id;
+    $ren[$ic[$tupla->almacen]][$tupla->almacen] = $cadena;
+    $ic[$tupla->almacen]++;
   }
 
   $max_ren = max($ic);
