@@ -1,6 +1,6 @@
-<?  /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*-
+<?php  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
         Factur Web. Módulo de inventarios de OsoPOS Web.
-        Copyright (C) 2000 Eduardo Israel Osorio Hernández
+        Copyright (C) 2000-2004 Eduardo Israel Osorio Hernández
 
         Este programa es un software libre; puede usted redistribuirlo y/o
 modificarlo de acuerdo con los términos de la Licencia Pública General GNU
@@ -20,7 +20,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 {
   include("include/general_config.inc");
-  include("invent_web.config");
   if (isset($salir)) {
     include("include/logout.inc");
   }
@@ -37,67 +36,43 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <HTML>
 
 <HEAD>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="Author" content="E. Israel Osorio Hernández">
   <TITLE>OsoPOS - Factur Web v. <? echo $factur_web_vers ?></TITLE>
+  <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
+  <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/numerico.css">
   <style type="text/css">
-    body { font-face: helvetica, arial;
-      background-image: url(imagenes/fondo.gif);
-      background-color: #FFFFFF }
     td.right_b {text-align: right}
     td.number {text-align: right}
   </style>
 
 </HEAD>
-<BODY <?
-  if ($action == "muestra") {
-    echo "onload=\"document.articulo.descripcion.focus()\"";
-  }
-  else if ($action == "agrega")
-    echo "onload=\"document.articulo.codigo.focus()\"";
-?>
->
+<BODY>
 
-<?
+<?php
 
   if (!isset($offset))
     $offset = 0;
   if (!isset($limit))
     $limit = 10;
-  if (!isset($order_by))
+  if (empty($order_by)) {
+    /*igm*/ echo "Ordenando por id<br>\n";
     $order_by = "id";
+  }
   if (!isset($order))
      $order = 1; /* Ascendente */
 
 
 
-  if ($action == "inserta") {
-
-    $query = "INSERT INTO articulos VALUES ('$codigo', ";
-    if (strlen($descripcion))
-      $query .= "'$descripcion', ";
-    else
-      $query .= "'', ";
-    $query.= sprintf("%f, %f, %d, %d, %d, ", $pu, $descuento, $ex, $ex_min, $ex_max);
-    $query.= sprintf("%d, %d, %f, %d)", $id_prov, $id_dept, $p_costo, $iva_porc);
-    if (!$result = pg_exec($conn, $query)) {
-      echo "Error al insertar articulos.<br>\n$query<br>\n";
-      exit();
-    }
-    else {
-      echo "<b><center>Art&iacute;culo <i>$codigo $descripcion</i> agregado.</center></b><br>\n";
-      $action = "agrega";
-      unset($codigo);
-    }
-  }
-  
   if ($action == "muestra"  ||  $action == "agrega") {
     if ($action == "muestra") {
       $query = "SELECT id,fecha,rfc,iva,subtotal FROM $table ";
       $query.= " WHERE id=$id";
-      if (!$result = pg_exec($conn, $query)) {
-        echo "Error al ejecutar $query<br>" . pg_errormessage($conn);
+      if (!$result = db_query($query, $conn)) {
+        echo "Error al ejecutar $query<br>" . db_errormsg($conn);
         exit();
       }
-      $reng = pg_fetch_object($result, 0);
+      $reng = db_fetch_object($result, 0);
       $val_id = "value=\"$id\"";
       $val_fecha = sprintf("value=\"%s\"", $reng->fecha);
       $val_rfc = "value=" . $reng->rfc;
@@ -149,7 +124,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     $query = "UPDATE facturas_ingresos SET rfc='$rfc', subtotal=$subtotal, iva=$iva,";
 	$query.= " fecha='$fecha' ";
     $query.= " WHERE id='$id'";
-    if (!$result = pg_exec($conn, $query)) {
+    if (!$result = db_query($query, $conn)) {
       echo "Error al actualizar factura.<br>\n$query<br>\n";
       exit();
     }
@@ -159,7 +134,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   }
   if ($action == "borrar") {
     $query = "DELETE FROM articulos WHERE codigo='$codigo'";
-    if (!$result = pg_exec($conn, $query)) {
+    if (!$result = db_query($query, $conn)) {
       echo "Error al actualizar articulos.<br>\n$query<br>\n";
       exit();
     }
@@ -175,53 +150,55 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   if (isset($id_dept) && isset($id_prov))
      $query .= " AND ";
      $query.= isset($id_prov) ? sprintf("id_prov=%d", $id_prov) : "";*/
-  if (!$result = pg_exec($conn, $query)) {
+  if (!$result = db_query($query, $conn)) {
     echo "Error al ejecutar $query<br>\n";
     exit();
   }
-  $total_rows = pg_numrows($result);
+  $total_rows = db_num_rows($result);
   
-  echo "<table border=0 width=\"100%\" name=\"superior\">\n";
+
+  echo "<div align=\"center\">\n";
+
+  echo "<table border=0>\n";
   echo "<tr>\n";
-  echo " <td>\n";
-  echo "  <form action=$PHP_SELF method=\"post\" name=selecciones>\n";
-  echo "  <input type=hidden name=table value=\"$table\">\n";
-  echo "  <input type=hidden name=order_by value=\"$order_by\">\n";
-  echo "  <input type=hidden name=order value=\"$order\">\n";
-  echo "  <input type=hidden name=offset value=0>\n";
-  echo "&nbsp;\n";
-
-  echo " <td>&nbsp;";
-?>
- <td>
-  &nbsp;
-  </form>
- <td align="rigth">
-
-<?
+  echo "  <td>\n";
   if ($offset > 0) {
     echo "<a href=\"$PHP_SELF?offset=" . sprintf("%d", $offset-$limit);
-    echo "&order_by=$order_by&order=$order$href_prov&table=$table\">&lt;-</a>";
+    echo "&order_by=$order_by&order=$order$href_prov&table=$table\">";
+    echo "<img src=\"imagenes/web/botones/anterior.png\" height=32 width=32 border=0></a>";
   }
   else
-    echo "&lt;- ";
-  if ($offset) {
-    echo " <font color=\"#e0e0e0\">";
-    echo " <a href=\"$PHP_SELF?offset=0&order_by=$order_by&order=$order$href_prov&table=$table\">";
-    echo "Inicio</a></font> ";
+    echo "&nbsp;";
+  echo "  </td>\n";
+
+  echo "  <td>\n";
+  echo "<form action=\"$PHP_SELF\" method=\"post\">\n";
+  echo "<select name=\"offset\" onchange=\"submit()\">\n";
+  for ($i=1; $i<=$total_rows; $i+=$limit) {
+    printf("<option value=%d", $i-1);
+    if ($offset == $i-1)
+      echo " selected";
+    printf(">%d\n", (int)$i/$limit + 1);
   }
-  else
-    echo "Inicio";
+  echo "</select>\n";
+  echo "<input type=\"hidden\" name=\"order_by\" value=\"$order_by\">\n";
+  echo "<input type=\"hidden\" name=\"order\" value=\"$order\">\n";
+  echo "</form>\n";
+  echo "  </td>\n";
+
+  echo "  <td>\n";
   if ($offset+$limit < $total_rows) {
     echo " <a href=\"$PHP_SELF?offset=" . sprintf("%d", $offset+$limit);
-    echo "&order_by=$order_by&table=$table&order=$order$href_prov\">-&gt;</a>";
+    echo "&order_by=$order_by&table=$table&order=$order$href_prov\">";
+    echo "<img src=\"imagenes/web/botones/siguiente.png\" height=32 width=32 border=0></a>";
   }
   else
-    echo "-&gt;";
-  echo "</font>\n";
-  echo "\n";
-  echo "</table>\n";
+    echo "&nsbp;";
+  echo "  </td>\n";
+  echo "</tr\n";
+  echo "</table\n";
 
+  echo "</div>\n";
 
   if ($table == "facturas_ingresos") {
     $query = "SELECT f.*, f.subtotal+f.iva AS total, c.nombre AS razon_soc ";
@@ -247,12 +224,12 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   $query.= " LIMIT $limit OFFSET $offset";
 
 
-  if (!$result = pg_exec($conn, $query)) {
+  if (!$result = db_query($query, $conn)) {
     echo "Error al ejecutar $query<br>\n";
     exit();
   }
 
-  if ($num_ren = pg_numrows($result)) {
+  if ($num_ren = db_num_rows($result)) {
     echo "<table border=0 width='100%'>\n";
     echo " <colgroup>\n";
     if ($table == "facturas_gastos") { ?>
@@ -302,7 +279,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 	echo " <tbody>\n";
 
     for ($i=0; $i<$num_ren; $i++) {
-      $reng = pg_fetch_object($result, $i);
+      $reng = db_fetch_object($result, $i);
       if (!($i%4) || $i==0)
         $td_fondo = " bgcolor='#dcffdb'";
       else if (!(($i+2)%2))
@@ -340,41 +317,18 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
  </tbody>
 </table>
 <br>
-<table border=0 width="100%">
-<?
-  for ($i=1,$j=1; $i<=$total_rows; $i+=$limit, $j++) {
-    if (($i-1)%($limit*10) == 0) {
-      if ($i>1)
-        echo " </tr>\n";
-      echo " <tr>\n";
-    }
-    echo "  <td align=\"center\"><font size=\"-2\">";
-    if ($i-1 != $offset) {
-      $block_end = $i+$limit!=$total_rows ? $i+$limit-1 : $total_rows;
-      printf("<a href=\"%s?offset=%d&order_by=%s&order=%d&action=%s%s%s\">%d</a>",
-             $PHP_SELF, $i-1, $order_by, $order, $action, $href_dept, $href_prov,
-             $j);
-    }
-    else {
-      printf("<font color=\"#e0e0e0\">%d</font>", $j);
-    }
-    echo "</font></td>\n";
-  }
-    if (($i-1)%($limit*10) != 0)
-      echo "  <td>&nbsp;</td>\n";
-  echo " </tr>\n";
-?>
-</table>
 <?
   }
   else {
     echo "<i><center>No hay facturas que coincidan en la base de datos</i></center>\n";
   }
 
-  pg_close($conn);
+  db_close($conn);
+  echo "<hr>\n";
+  include("bodies/menu/general.bdy");
 ?>
 
-  <hr>
+
   <div align="right">
   <a href="factur_web.php">Agregar factura</a> |
   <a href="<? echo $PHP_SELF ?>?salir=1">Salir del sistema</a>

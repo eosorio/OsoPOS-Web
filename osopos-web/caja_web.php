@@ -39,10 +39,13 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   if (!isset($osopos_carrito))
     $osopos_carrito = array();
 
+  $osopos_carrito = lee_carrito($conn);
+
   /* Se introdujo un código desde la caja */
   if (!empty($cod)) {
     if (busca_codigo($conn, $cod, $alm)>0) {
-    setcookie("osopos_carrito[$cod]", 1);
+      //    setcookie("osopos_carrito[$cod]", 1);
+      agrega_carrito_item($conn, $cod, 1);
     header("Location: $PHP_SELF");
     exit;
     }
@@ -280,6 +283,7 @@ onClick="muestra_articulo(forma_articulo.cod.value)"
 
   }
   else if ($bandera == 3) {
+
     if (count($osopos_carrito)) {
       $nm_ticket = tempnam($TMP_DIR, "cajaweb");
       include("bodies/caja_web_cobro.bdy");

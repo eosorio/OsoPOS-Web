@@ -1,7 +1,7 @@
 <?php  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
 
   passsword.php Módulo de contraseñas de OsoPOS Web
-        Copyright (C) 2002 Eduardo Israel Osorio Hernández
+        Copyright (C) 2002-2004 Eduardo Israel Osorio Hernández
         desarrollo@elpuntodeventa.com
 
         Este programa es un software libre; puede usted redistribuirlo y/o
@@ -34,18 +34,25 @@ include("include/pos.inc");
 <HEAD>
   <TITLE>OsoPOS Web - Contraseñas</TITLE>
   <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
+  <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/numerico.css">
 </HEAD>
 <BODY>
 
 <?php
 {
   if (isset($action) && $action=="listar") {
-    $query = "SELECT id, \"user\", level FROM users ORDER BY \"user\"";
+    $query = "SELECT * FROM users ORDER BY \"user\"";
 
 	$db_res = db_query($query, $conn);
 	if (!$db_res)
 	  return($DB_ERROR);
     $max_usr = db_num_rows($db_res);
+
+    $query = "SELECT max(id) FROM modulo ";
+	$db_res2 = db_query($query, $conn);
+	if (!$db_res2)
+	  return($DB_ERROR);
+    $max_idmodulo = db_result($db_res2, 0, 0);
 
     include("bodies/usuarios.bdy");
   }
@@ -62,9 +69,11 @@ include("include/pos.inc");
 
       if (isset($action) && $action=="agregar") {
 
-        $id = agrega_usuario($conn, $login, $new_passwd, $level);
-        if ($id>0)
+        $id = agrega_usuario($conn, $login, $new_passwd, $level, $name);
+        if ($id>0) {
           echo "<i>Usuario $id, $login agregado exitósamente</i><br>\n";
+          include("forms/usuarios_modulos.bdy");
+        }
         else if ($id==0)
           printf("<b>El usuario <i>%s</i> ya existe</b><br>\n", $login);
         else
@@ -82,7 +91,13 @@ include("include/pos.inc");
         else
           echo "<b>Error al cambiar usuario</b><br>\n";
       }
-      if (!isset($action) || $action!="listar")
+      else if (isset($action) && $action=="modulos_usuario") {
+        if (alta_modulos_usuario($conn, $login, $modulo))
+          echo "<i>Se otorgaron los permisos correspondientes al usuario $login</i><br>\n";
+        else
+          echo "<b>Error al dar acceso a módulos al usuario $login</b><br>\n";
+      }
+      if (!isset($action) || $action!="listar" && $action!='agregar')
         include("bodies/password.bdy");
       //    echo md5("mi_password") . "<br>\n";
     }
