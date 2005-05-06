@@ -1,8 +1,8 @@
 <?  /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*- 
  Caja Web 0.0.2-1. Módulo de caja de OsoPOS Web.
 
-        Copyright (C) 2000 Eduardo Israel Osorio Hernández
-        iosorio@punto-deventa,com
+        Copyright (C) 2000,2003 Eduardo Israel Osorio Hernández
+        desarrollo@elpuntodeventa,com
 
         Este programa es un software libre; puede usted redistribuirlo y/o
 modificarlo de acuerdo con los términos de la Licencia Pública General GNU
@@ -22,7 +22,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 {
 
   include("include/general_config.inc");
-  include("include/caja_web.inc");
+  include("include/caja_config.inc");
   include("include/pos-var.inc");
   include("include/pos.inc");
   if (isset($salir)) {

@@ -71,7 +71,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   if (!isset($offset))
     $offset = 0;
   if (!isset($limit))
-    $limit = 20;
+    $limit = 10;
 
 
     printf("<b>Almacén %d %s</b><br>\n", $almc, $alm_desc);
@@ -85,7 +85,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
       $query = "SELECT * FROM (SELECT codigo AS codigo, descripcion AS descripcion, ";
       $query.= "id_depto AS id_depto, id_prov1 AS id_prov1 FROM articulos EXCEPT ";
-      $query.= "(select al.codigo, ar.descripcion, ar.id_depto, ar.id_prov1 FROM ";
+      $query.= "(SELECT al.codigo, ar.descripcion, ar.id_depto, ar.id_prov1 FROM ";
       $query.= "almacen_1 al, articulos ar WHERE al.codigo=ar.codigo AND al.id_alm=$almc)) AS c ";
       if (!empty($busqueda))
         $query.= "WHERE descripcion~*'$busqueda' ";

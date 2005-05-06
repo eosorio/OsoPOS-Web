@@ -51,6 +51,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/numerico.css">
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/extras.css">
+   <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/invent_lista.css">
    <style type="text/css">
     td.bg1 { background: <? echo $bg_color1 ?> }
     td.bg1_center {text-align: center; background: <? echo $bg_color1 ?> }
@@ -94,7 +95,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       echo "onload=\"document.articulo.codigo.focus()\"";
   }
   echo ">\n";
-
 
   if (!isset($offset))
     $offset = 0;
@@ -340,7 +340,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
               printf("<b>Art&iacute;culo <i>%s %s</i> actualizado.</b><br>\n",
                      $code[$i], stripslashes($desc[$i]));
               $action = "";
-
             }
           }
         }
@@ -395,10 +394,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
         }
 
         if (empty($alq_prev) && $alquiler=="t") {
-          $query = "INSERT INTO articulos_rentas SELECT '$codigo' AS codigo, p0_1, p0_2, p0_3, p0_4, p0_5, ";
-          $query.= "p1_1, p1_2, p1_3, p1_4, p1_5, p2_1, p2_2, p2_3, p2_4, p2_5, p3_1, p3_2, p3_3, p3_4, p3_5, ";
-          $query.= "p4_1, p4_2, p4_3, p4_4, p4_5, p5_1, p5_2, p5_3, p5_4, p5_5, p6_1, p6_2, p6_3, p6_4, p6_5, ";
-          $query.= "tiempo0, tiempo1, tiempo2, tiempo3, tiempo4, tiempo5, tiempo6, unidad_t ";
+          $query = "INSERT INTO articulos_rentas SELECT '$codigo' AS codigo, dia, pu1, pu2, pu3, ";
+          $query.= "pu4, pu5, tiempo, unidad_t ";
           $query.= "FROM articulos_rentas WHERE codigo='DEFAULT' ";
           $act_rentas++;
         }
@@ -443,7 +440,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 /*igm*/ /*+++++++++++++++++++++++++++ OJO ++++++++++++++++++++++++*/
 /* Revisar si tendría utilidad en el script el código de la siguiente accion */
-  if ($action == "agrega_p_renta") {
+/*  if ($action == "agrega_p_renta") {
     $q1 = ""; $q2 = "";
     for ($dia=0; $dia < 7; $dia++) {
       for ($i=0; $i<5; $i++) {
@@ -460,8 +457,9 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
                      $q1, $codigo, $q2);
 
     $action == "muestra";
-  }
+  } */
 
+/* IGM    REVISAR AQUI CON NUEVA ESTRUCTURA DE TABLAS *************************** */
   if ($action == "cambia_p_renta") {
     $q1 = ""; $q2 = "";
     for ($dia=0; $dia < 7; $dia++) {
@@ -616,6 +614,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $col_w1 = 100;
     }
 
+  /* Formato para mandar el menú a una altura fija */
+  echo "<table border=0 cellspan=0 cellpadding=0 width=\"900px\" height=\"510px\">\n";
+  echo "<tr height=\"500px\">\n  <td valign=\"top\">\n";
+
     // IGM    if ($PROGRAMA == "web") {
     if ($PROGRAMA == "web")
       if (!isset($modulo))
@@ -712,7 +714,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       unset($id_prov1);
     if ($PROGRAMA == "web") {
       if ($alm>0)
-        $query = "SELECT ar.codigo FROM articulos ar, almacen_1 al WHERE al.codigo=ar.codigo AND al.id_alm=$alm";
+        $query = "SELECT ar.codigo FROM articulos ar, almacen_1 al WHERE al.codigo=ar.codigo AND al.id_alm=$alm ";
       else
         $query = "SELECT ar.codigo FROM articulos ar WHERE 0=0 ";
       $query.= isset($id_dept) ? sprintf("AND id_depto=%d ", $id_dept) : "";
@@ -746,6 +748,9 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $id_prov1 = count($nick_prov);
     }
 
+    /* Formato para mandar el menú a una altura fija */
+    echo "<table border=0 cellspan=0 cellpadding=0 width=\"900px\" height=\"510px\">\n";
+    echo "<tr height=\"500px\">\n  <td valign=\"top\">\n";
     
     if (isset($alm) && $alm>0)
       echo "<div class=\"head_almacen\">Almacen $alm</div>\n";
@@ -765,7 +770,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
         /**********  OJO, REVISAR EXISTENCIA MINIMA, DEBE SER DE ALMACEN ************/
         $query = "SELECT DISTINCT a.codigo, al.*, al.pu*d.tipo_cambio as unitario, a.descripcion, a.id_prov1, ";
         $query.= "a.id_depto, a.prov_clave, al.c_min, al.c_max, a.tangible, al.alquiler ";
-        $query.= "FROM almacen_1 al, divisas d, articulos a WHERE al.divisa=d.id AND al.codigo=a.codigo AND al.id_alm=$alm";
+        $query.= "FROM almacen_1 al, divisas d, articulos a WHERE al.divisa=d.id AND al.codigo=a.codigo AND al.id_alm=$alm ";
       }
       else {
         $query = "SELECT DISTINCT a.codigo, a.*, a.p_costo*d.tipo_cambio as pcosto ";
@@ -906,7 +911,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     echo "&order_by=$order_by&order=$order&mode=$mode&alm=$alm$href_dept$href_prov";
 	if (!empty($search))
       printf("&search=%s", htmlentities(str_replace(" ", "%20", $search)));
-	echo "\">&lt;-</a>";
+	echo "\"><img src=\"imagenes/web/botones/anterior_peq.png\" height=16 width=16 border=0></a>";
   }
   else
     echo "<font color=\"#e0e0e0\">&lt;- </font>";
@@ -932,7 +937,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     echo "&order_by=$order_by&order=$order&mode=$mode&alm=$alm$href_dept$href_prov";
     if (!empty($search))
       printf("&search=%s", htmlentities(str_replace(" ", "%20", $search)));
-	echo "\">-&gt;</a>";
+	echo "\"><img src=\"imagenes/web/botones/siguiente_peq.png\" height=16 width=16 border=0></a>";
   }
   else
     echo "<font color=\"#e0e0e0\">-&gt;</font>";
@@ -948,6 +953,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <?
     }
 
+    echo "  </td>\n</tr>\n</table>";
     if ($PROGRAMA=="web") {
       include("bodies/invent_footer.bdy");
     }

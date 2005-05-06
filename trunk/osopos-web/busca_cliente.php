@@ -2,7 +2,7 @@
 
  Busca cliente. Submódulo de facturación de OsoPOS Web.
 
-        Copyright (C) 2000-2003 Eduardo Israel Osorio Hernández
+        Copyright (C) 2000-2004 Eduardo Israel Osorio Hernández
         desarrollo@elpuntodeventa.com
 
         Este programa es un software libre; puede usted redistribuirlo y/o
@@ -43,6 +43,20 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
    <style type="text/css">
     td#nm_campo {font-face: helvetica,arial}
    </style>
+   <script>
+   function ponPrefijo(rfc,nombre,calle,exter,inter,col,ciudad,edo,cp){
+	opener.document.forma_cliente.rfc.value=rfc
+	opener.document.forma_cliente.razon_soc.value=nombre
+	opener.document.forma_cliente.dom_calle.value=calle
+	opener.document.forma_cliente.dom_ext.value=exter
+	opener.document.forma_cliente.dom_int.value=inter
+	opener.document.forma_cliente.dom_col.value=col
+	opener.document.forma_cliente.dom_cp.value=cp
+	opener.document.forma_cliente.dom_edo.value=edo
+	opener.document.forma_cliente.dom_ciudad.value=ciudad
+	window.close()
+   }
+   </script>
 </head>
 
 
@@ -60,18 +74,18 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
  </tr>
  <tr>
   <td id="nm_campo">Razón social:</td>
-  <td id="nm_campo"><input type=text name=razon_soc size=50></td>
-  <td id="nm_campo"><input type=submit value="Encontrar cliente"><input type=hidden name=fase value=1></td>
+  <td id="nm_campo"><input type="text" name="razon_soc" size=50></td>
+  <td id="nm_campo"><input type="submit" value="Encontrar cliente"><input type=hidden name=fase value=1></td>
  </tr>
  <tr>
-  <td id="nm_campo">R.F.C.<input type=hidden name=id_venta value="<? echo $id_venta ?>"></td>
-  <td id="nm_campo"><input type=text name=rfc size=13 maxlength=13></td>
-  <td id="nm_campo"><input type=hidden name=php_anterior value="<? echo $php_anterior ?>">&nbsp;</td>
+  <td id="nm_campo">R.F.C.<input type="hidden" name="id_venta" value="<?php echo $id_venta ?>"></td>
+  <td id="nm_campo"><input type="text" name="rfc" size=13 maxlength=13></td>
+  <td id="nm_campo"><input type="hidden" name="php_anterior" value="<?php echo $php_anterior ?>">&nbsp;</td>
  </tr>
  <tr>
   <td id="nm_campo">C.U.R.P.</td>
-  <td id="nm_campo"><input type=text value="<? echo $curp ?>" name=curp <? echo "size=\"$MAXCURP\" maxlength=\"$MAXCURP\"" ?>></td>
-  <td id="nm_campo"><input type=hidden name=id value="<? echo $id ?>">&nbsp<input type=hidden name=fase value=2></td>
+  <td id="nm_campo"><input type="text" value="<?php echo $curp ?>" name="curp" <?php echo "size=\"$MAXCURP\" maxlength=\"$MAXCURP\"" ?>></td>
+  <td id="nm_campo"><input type="hidden" name="id" value="<?php echo $id ?>">&nbsp<input type=hidden name=fase value=2></td>
  </tr>
 </tbody>
 </table>
@@ -80,10 +94,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <hr>
 <div align="right">
 <font face="helvetica,arial" size="+1">
-<a href="<? echo "$php_anterior?id_venta=$id_venta" ?>">Regresar</a>
+<a href="#" onclick="JavaScript: window.close();">Regresar</a>
 </div>
 
-<? /***********  fase dos **********/
+<?php /***********  fase dos **********/
 
 if ($fase == 2) {
   $query = "";
@@ -98,64 +112,54 @@ if ($fase == 2) {
 	if (strlen($query))
 	  $query .= " AND ";
     if ($SQL_TYPE == "postgres")
-      $query .= "rfc~*'$rfc'";
+      $query .= "cf.rfc~*'$rfc'";
     else
-      $query = "rfc LIKE '%$rfc%'";
+      $query = "cf.rfc LIKE '%$rfc%'";
   }
   if (strlen($curp)) {
 	if (strlen($query))
 	  $query .= " AND ";
     if ($SQL_TYPE == "postgres")
-      $query .= "curp~*'$curp'";
+      $query .= "cf.curp~*'$curp'";
     else
-      $query = "curp LIKE '%$curp%'";
+      $query = "cf.curp LIKE '%$curp%'";
   }
 
-  $query = "SELECT * FROM clientes_fiscales WHERE " . $query;
-  $result =  db_query($query, $conn);
+  $query2 = "SELECT cf.*, fi.dom_calle, fi.dom_numero, fi.dom_inter, fi.dom_col, fi.dom_ciudad, ";
+  $query2.= "fi.dom_edo, fi.dom_cp FROM clientes_fiscales cf, facturas_ingresos fi WHERE ";
+  $query2.= sprintf("%s AND cf.rfc=fi.rfc ORDER BY fi.id DESC LIMIT 1", $query);
+
+  $result =  db_query($query2, $conn);
   if (!$result) {
-	echo "Error al ejecutar $query<br>" . db_errormsg($conn) . "<br>\n";
-	exit();
+    die("Error al consultar datos de facturas de ingreso<br>" . db_errormsg($conn) . "<br>\n");
   }
 
 ?>
 
 Seleccione uno de los registros siguientes:<br>
-<form action="<? echo $php_anterior ?>" method=post>
 <table border=0 cellspaciing=0 cellpadding=0 width="100%">
- <th>&nbsp;
- <th>R.F.C.
- <th>Nombre
- <th>C.U.R.P.
+ <th>R.F.C.</th>
+ <th>Nombre</th>
+ <th>C.U.R.P.</th>
  <tbody>
 
 <?
   for ($i=0; $i<db_num_rows($result); $i++) {
 	$renglon = db_fetch_object($result, $renglon);
 	echo "<tr>\n";
-	echo "  <td><input type=radio name=rfc value=";
-	printf ("\"%s|%s|%s\"", $renglon->rfc, $renglon->nombre, $renglon->curp);
-	if (!$i)
-	  echo " checked";
-	echo "></td>\n";
-	echo "  <td>" . $renglon->rfc . "</td>\n";
-	echo "  <td>" . $renglon->nombre . "</td>\n";
-	echo "  <td>" . $renglon->curp . "</td>\n";
+	printf("  <td><a href=\"#\" onclick=\"ponPrefijo('%s','%s','%s','%s','%s','%s','%s','%s','%s')\">%s</a></td>\n",
+               $renglon->rfc, $renglon->nombre, $renglon->dom_calle, $renglon->dom_numero,
+               $renglon->dom_inter, $renglon->dom_col, $renglon->dom_ciudad, $renglon->dom_edo,
+               $renglon->dom_cp, $renglon->rfc);
+	printf("  <td>%s</td>\n", $renglon->nombre);
+	printf("  <td>%s</td>\n", $renglon->curp);
   }
-  echo " </tr>\n";
-  echo " <tr>\n"; 
-  echo "  <td colspan=4 align=center>\n";
-  echo "   <input type=hidden name=decodifica_rfc value=1>\n";
-  echo "   <input type=hidden name=id_venta value=\"$id_venta\">\n";
-  echo "   <input type=submit value=\"Continuar captura\">\n";
-  echo "   <input type=hidden name=\"REPEAT_FACT_DATA\" value=1>\n"; // Evita que se borre $rfc
-  echo "  </td>\n";
   echo " </tr>\n";
 ?>
 
 </tbody>
 </table>
-</form>
+
 
 <?
 	}

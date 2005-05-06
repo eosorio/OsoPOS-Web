@@ -1,7 +1,8 @@
-<?  /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*-
+<?  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
  Depto. Sub-Módulo de Inventarios de OsoPOS Web.
 
-        Copyright (C) 2000 Eduardo Israel Osorio Hernández
+        Copyright (C) 2000,2002 Eduardo Israel Osorio Hernández
+        desarrollo@elpuntodeventa.com
 
         Este programa es un software libre; puede usted redistribuirlo y/o
 modificarlo de acuerdo con los términos de la Licencia Pública General GNU
@@ -20,29 +21,39 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 */
   include("include/general_config.inc");
+  include("include/pos.inc");
   if (isset($salir)) {
     include("include/logout.inc");
   }
   else {
-  include("include/passwd.inc");
+    include("include/passwd.inc");
   }
+  if ($PROGRAMA == "web")
+    $PAGE_TITLE = "OsoPOS Web - Subm&oacute;dulo de departamentos";
+  else
+    $PAGE_TITLE = "VideoPOS - Subm&oacute;dulo de g&eacute;neros";
+
 ?>
 
-<HTML><HEAD><TITLE>OsoPOS Web - Subm&oacute;dulo de departamentos</TITLE></HEAD>
-<BODY BGCOLOR="white" BACKGROUND="imagenes/fondo.gif">
+<!doctype html public "-//w3c//dtd html 4.01 transitional//en">
+<html>
+<head>
+   <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
+
+<title><? echo $PAGE_TITLE ?></title>
+</head>
+<body>
 
 
 <?
-  if ($accion == "cambia") {
-    $peticion = sprintf("UPDATE departamento set nombre='%s' WHERE id=%d",
+  if ($accion == "cambia" && puede_hacer($conn, $user->user, "invent_depto_renombrar")) {
+    $query = sprintf("UPDATE departamento set nombre='%s' WHERE id=%d",
                         $nmdepto, $id);
-    echo $peticion;
-    //    if (!$result = pg_exec($conn, $peticion)) {
-    if (!$result = db_query($peticion, $query)) {
-      echo "<b>Error al ejecutar $peticion</b><br></body></html>\n";
+
+    if (!$result = db_query($query, $conn)) {
+      echo "<b>Error al ejecutar $query</b><br></body></html>\n";
       exit();
     }
-    //    if (pg_cmdtuples($result)) {
     if (db_affected_rows($result)) {
       printf("<center><i>Departamento %d, %s actualizado</i></center>\n",
       $id, stripslashes($nmdepto));
@@ -63,9 +74,9 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     echo "<table width=\"100%\">\n";
     echo " <form action=\"$PHP_SELF\" method=\"post\">\n";
     echo " <tr>\n";
-    echo "  <td>ID.<td>$id <input type=hidden name=id value=$id>\n";
-    echo "  <td><input type=text name=nmdepto maxlength=25 size=20 $val_nmdepto>\n";
-    echo "  <input type=hidden name=accion value=$acc>\n";
+    echo "  <td>ID.<td>$id <input type=\"hidden\" name=\"id\" value=\"$id\">\n";
+    echo "  <td><input type=\"text\" name=\"nmdepto\" maxlength=25 size=20 $val_nmdepto>\n";
+    echo "  <input type=\"hidden\" name=\"accion\" value=\"$acc\">\n";
     echo "</table>\n";
     echo "<hr>\n";
   }

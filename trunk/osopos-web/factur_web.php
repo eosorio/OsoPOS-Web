@@ -1,8 +1,8 @@
-<?  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
+<?php  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
 
  Facturación Web 0.4-1. Módulo de facturación de OsoPOS Web.
 
-        Copyright (C) 2000 Eduardo Israel Osorio Hernández
+        Copyright (C) 2000,2003,2004 Eduardo Israel Osorio Hernández
 
         Este programa es un software libre; puede usted redistribuirlo y/o
 modificarlo de acuerdo con los términos de la Licencia Pública General GNU
@@ -30,10 +30,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   }
   else {
     include("include/passwd.inc");
-    if (!$conn) {
-      echo "ERROR: Al conectarse a la base de datos $DB_NAME<br>\n</body></html>";
-      exit();
-    }
   }
 
 ?>
@@ -54,7 +50,13 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     td.right_red {text-align: right; font-face: helvetica, arial; color: red;}
     
    </style>
-
+   <script>
+   var miPopup
+   function abreVentana(){
+	miPopup = window.open("busca_cliente.php","miwin","width=600,height=400,scrollbars=yes")
+	miPopup.focus()
+	}
+   </script>
 </head>
 
 <body>
@@ -156,8 +158,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     if (isset($debug) && $debug>0)
       echo "<i>$peticion</i><br>\n";
     else if (!$resultado = db_query($peticion, $conn)) {
-      echo "Error al ejecutar $peticion<br>" . db_errormsg($conn) . "</body></html>\n";
-      exit();
+      $mens = "Error al agregar datos de factura<br>" . db_errormsg($conn);
+      die($mens);
     }
     else
       echo "<center><i>Factura $id, $rfc agregada</i></center><br>";
@@ -231,20 +233,18 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
     $observaciones = chop (str_replace("\n", " ", str_replace("\r", "", $observaciones)) );
 
-    //$nm_archivo = tempnam($TMP_DIR, "factweb");
     $nm_archivo = "";
 
     $imp_buff= Crea_Factura($cliente, $fecha, $art, count($desc), $subtotal, $iva, $subtotal+$iva,
                             $garantia, $observaciones, $id_venta, $nm_archivo, $tipoimp);
 
-    $linea = "$CMD_IMPRESION -P $COLA_FACTUR $nm_archivo";
-    /*IGM*/ echo "$linea<br>\n";
+    $linea = "$CMD_IMPRESION -P $COLA_FACTUR";
+
     $impresion = popen($linea, "w");
     if (!$impresion) {
-      echo "<b>Error al ejecutar <i>$CMD_IMPRESION $nm_archivo</i></b><br>\n";
+      echo "<div class=\"error_nf\">Error al ejecutar <i>$CMD_IMPRESION $nm_archivo</i></div><br>\n";
     }
     else {
-      /*igm */echo "<pre>$imp_buff</pre>";
       echo "<center><i>Factura impresa.</i></center>\n";
       fputs($impresion, $imp_buff);
       pclose($impresion);
@@ -305,7 +305,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
         echo "Error al ejecutar $peticion<br>No se pudo extraer último folio<br>" . db_errormsg($conn) . "<br>\n";
       }
       else {
-        $id = db_result($result, 0, "next_id");
+        $folio = db_result($result, 0, "next_id");
       }
     }
     
@@ -329,6 +329,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
         include("bodies/ingresos_lista.bdy");
   } 
 
+  include("bodies/menu/general.bdy");
+  include("bodies/menu/factur.bdy");
 }
 
 /*
