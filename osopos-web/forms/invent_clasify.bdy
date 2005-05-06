@@ -23,16 +23,17 @@ Baja ex. <input type="radio" name="mode" value="baja_ex"
 ?>
    <td>
     Depto.:
-    <select name="depto">
-<?
+    <select name="id_dept">
+<?php
   $d_selected =0;
-  for ($i=0; $i<count($nm_depto); $i++) {
-    echo "   <option";
+//  for ($i=0; $i<count($nm_depto); $i++) {
+  while (list($i, $nombre) = each($nm_depto)) {
+    printf("   <option value=%d", $i);
     if (!$d_selected && (isset($id_dept) && $nm_depto[$i] == $depto  ||  (isset($id_dept)  &&  $i == $id_dept)))
       echo " selected";
-    echo ">$nm_depto[$i]\n";
+    echo ">$nombre\n";
   }
-  echo "   <option";
+  printf("   <option value=%d", count($nm_depto));
   if (!$d_selected && ($depto == "Todos"  ||  (isset($id_dept) && $id_dept == count($nm_depto)))) {
     echo " selected";
     unset($id_dept);
@@ -79,40 +80,10 @@ else if ($PROGRAMA=="video") {
 ?>
    <td><input type="submit" value="Mostrar"></td>
 
- <td align="right"><font color="#e0e0e0">
-
-<?
-  if ($offset > 0) {
-    echo "<a href=\"$PHP_SELF?offset=" . sprintf("%d", $offset-$limit);
-    echo "&order_by=$order_by&order=$order&mode=$mode&alm=$alm$href_dept$href_prov";
-	if (!empty($search))
-      printf("&search=%s", htmlentities(str_replace(" ", "%20", $search)));
-	echo "\">&lt;-</a>";
-  }
-  else
-    echo "&lt;- ";
-  if ($offset) {
-    echo " <a href=\"$PHP_SELF?offset=0&order_by=$order_by&order=$order&mode=$mode&alm=$alm$href_dept$href_prov";
-    if (!empty($search))
-      printf("&search=%s", htmlentities(str_replace(" ", "%20", $search)));
-	echo "\">Inicio</a> ";
-  }
-  else
-    echo "Inicio";
-  if ($offset+$limit < $num_arts) {
-    echo " <a href=\"$PHP_SELF?offset=" . sprintf("%d", $offset+$limit);
-    echo "&order_by=$order_by&order=$order&mode=$mode&alm=$alm$href_dept$href_prov";
-    if (!empty($search))
-      printf("&search=%s", htmlentities(str_replace(" ", "%20", $search)));
-	echo "\">-&gt;</a>";
-  }
-  else
-    echo "-&gt;";
-?>
-  </font>
-   </td>
-  </tr>
-  </table>
+ <td align="right">
+ </td>
+ </tr>
+ </table>
   <? if ($debug)
 	 echo "<input type=\"hidden\" name=\"debug\" value=$debug>\n";
   ?>
