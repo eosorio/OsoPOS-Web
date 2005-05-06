@@ -114,8 +114,8 @@ function update_supp($conn, $num_arts)
 function actualiza_inv($db_con, $almacen, $codigo, $cant)
 {
 
-  $query = sprintf("SELECT cant,c_min FROM almacen_%d ", $almacen);;
-  $query.= sprintf("WHERE codigo='%s'", $codigo);
+  $query = sprintf("SELECT cant,c_min FROM almacen_1 ");
+  $query.= sprintf("WHERE codigo='%s' AND id_alm=%d", $codigo, $almacen);
 
   if (!$db_res = db_query($query, $db_con)) {
     echo "<b>Error al actualizar existencias</b><br>Abortando actualización.<br>\n";
@@ -131,8 +131,8 @@ function actualiza_inv($db_con, $almacen, $codigo, $cant)
   if ($qt_remain < $art->min)
       $low_supply++;
 
-  $query = sprintf("UPDATE almacen_%d SET cant=%d ", $almacen, $qt_remain);
-  $query.= sprintf("WHERE codigo='%s'", $codigo);
+  $query = sprintf("UPDATE almacen_1 SET cant=%d ", $qt_remain);
+  $query.= sprintf("WHERE codigo='%s' AND id_alm=%d", $codigo, $almacen);
 
   if (!$db_res = db_query($query, $db_con)) {
     printf("<b>Error al actualizar existencias de %s<br>\n",
@@ -504,15 +504,16 @@ function lista_proveedores($bandera_todos, $nm_campo, $item_0, $num_prov = -1) {
       $nick_prov[$i] = db_result($db_res, $i, 0);
   }
 
-  for ($i=0; $i<count($nick_prov); $i++) {
+  //  for ($i=0; $i<count($nick_prov); $i++) {
+  while (list($i, $nm_prov) = each($nick_prov)) {
     echo "   <option value=$i";
     if ($num_prov == $i)
       echo " selected";
-    else if (!$p_selected && (isset($id_prov1) && $nick_prov[$i] == $prov  ||  (isset($id_prov1) && $i==$id_prov1 && $prov!="Todos"))) {
+    else if (!$p_selected && (isset($id_prov1) && $nm_prov == $prov  ||  (isset($id_prov1) && $i==$id_prov1 && $prov!="Todos"))) {
       echo " selected";
 	  $p_selected = 1;
 	}
-    echo ">$nick_prov[$i]\n";
+    echo ">$nm_prov\n";
   }
 
   if ($bandera_todos) {
@@ -641,8 +642,17 @@ function inserta_det_movinv($db_con, $almacen, $id, $codigo, $cant, $pu, $p_cost
     if ($tipo_mov == 2) { /* Compra */
       actualiza_costo($db_con, $codigo, $p_costo);
     } else if ($tipo_mov == 6  && $alm_dest>0) { /* Transferencia salida */
+      $query = "SELECT factor FROM articulos_conversion_alm WHERE codigo='$codigo' AND ";
+      $query.= "alm_orig=$almacen AND alm_dest=$alm_dest";
+
+      $factor = 1;
+      if (!$db_res = db_query($query, $db_con)) {
+        echo "<div class=\"error_nf\">Error al consultar equivalencias entre almacenes.</div><br>\n";
+  }
+
+      $factor = db_result($db_res, 0, 0);
       $cant = -$cant;
-      actualiza_inv($db_con, $alm_dest, $codigo, $cant);
+      actualiza_inv($db_con, $alm_dest, $codigo, $cant*$factor);
       actualiza_costo($db_con, $codigo, $p_costo);
     }
   }
@@ -652,10 +662,10 @@ function inserta_det_movinv($db_con, $almacen, $id, $codigo, $cant, $pu, $p_cost
 function inserta_en_almacen($db_con, $almacen, $codigo) {
   global $debug;
 
-  $query = "INSERT INTO almacen_$almacen (codigo, pu, medida, c_min, c_max, divisa, codigo2, ";
-  $query.= "pu2, pu3, pu4, pu5, tax_0, tax_1, tax_2, tax_3, tax_4, tax_5) ";
-  $query.= "(SELECT codigo, pu, medida, min as c_min, max as c_max, divisa, codigo2, ";
-  $query.= "pu2, pu3, pu4, pu5, tax_0, tax_1, tax_2, tax_3, tax_4, tax_5 FROM articulos WHERE codigo='$codigo')";
+  $query = "INSERT INTO almacen_1 (codigo, divisa, ";
+  $query.= "tax_0, tax_1, tax_2, tax_3, tax_4, tax_5, id_alm) ";
+  $query.= "(SELECT codigo, divisa, tax_0, tax_1, tax_2, tax_3, tax_4, tax_5, ";
+  $query.= "$almacen AS id_alm FROM articulos WHERE codigo='$codigo')";
 
   if ($debug>0)
     echo "<i>$query</i><b>\n";
@@ -664,7 +674,7 @@ function inserta_en_almacen($db_con, $almacen, $codigo) {
     db_errormsg($db_res);
     return(-1);
   }
-  return(0);
+  return(1);
 }
 
 function puede_hacer($db_con, $usuario, $accion) {
@@ -694,12 +704,13 @@ function articulo_descripcion($db_con, $codigo) {
 
 function imprime_movimiento($db_con, $almacen, $id_mov, $codigo, $ct, $pu, $p_costo,
                             $alm_dest, $tipo_mov) {
-  global $CMD_IMPRESION, $COLA_DEFAULT;
+  global $CMD_IMPRESION, $COLA_DEFAULT, $user;
 
   $linea = sprintf("\n  REPORTE DE MOVIMIENTO AL INVENTARIO\n\n");
-  $linea.= sprintf("Movimiento No. %d\n", $id_mov);
+  $linea.= sprintf("Movimiento %d Fecha: %s\n", $id_mov, date("d/m/Y H:i:s"));
   $linea.= sprintf("Tipo de movimiento: %d (%s)\n", $tipo_mov, tipo_mov($db_con, $tipo_mov));
-  $linea.= sprintf("Almacen: %d\n\n", $almacen);
+  $linea.= sprintf("Almacen: %d\n", $almacen);
+  $linea.= sprintf("Usuario: %s\n\n", $user);
 
 
   for ($i=0; $i<count($codigo) && !empty($codigo[$i]); $i++) {
@@ -773,14 +784,14 @@ function lista_precio($db_con, $codigo, $tipo_precio, $almacen=1)
     break;
   case 1:
     $campo = "pu";
-    $tabla = sprintf("almacen_%d", $almacen);
+    $tabla = sprintf("almacen_1");
     break;
   case 2:
   case 3:
   case 4:
   case 5:
     $campo = sprintf("pu%d", $tipo_precio);
-    $tabla = sprintf("almacen_%d", $almacen);
+    $tabla = sprintf("almacen_1");
     break;
 
   }
@@ -862,7 +873,7 @@ function checa_descuento($db_con, $num_venta, $almacen)
 
   global $DB_ERROR;
 
-  $query = sprintf("SELECT d.id_venta AS id, d.codigo, d.pu AS venta, a.pu AS precio FROM ventas_detalle d, almacen_%d a WHERE d.id_venta=%d AND d.codigo=a.codigo AND d.pu!=a.pu", $almacen, $num_venta);
+  $query = sprintf("SELECT d.id_venta AS id, d.codigo, d.pu AS venta, a.pu AS precio FROM ventas_detalle d, almacen_1 a WHERE d.id_venta=%d AND d.codigo=a.codigo AND d.pu!=a.pu AND a.id_alm=%d", $num_venta, $almacen);
 
   if (!$db_res = db_query($query, $db_con)) {
     printf("Error al consultar ventas<br>\n");
@@ -894,10 +905,10 @@ function lista_divisas($db_con, $divisa_def)
 function busca_codigo($db_con, $codigo, $almacen)
 {
   if ($almacen>0)
-    $tabla = sprintf("almacen_%d", $almacen);
+    $query = sprintf("SELECT * FROM almacen_1 WHERE codigo='%s' AND id_alm=%d", $codigo, $almacen);
   else
-    $tabla = "articulos";
-  $query = sprintf("SELECT * FROM %s WHERE codigo='%s'", $tabla, $codigo);
+    $query = sprintf("SELECT * FROM articulos WHERE codigo='%s'", $codigo);
+
   if (!$db_res = db_query($query, $db_con))
     return($DB_ERROR);
 
@@ -939,4 +950,120 @@ function checklist_forma_pago($db_con, $nm_lista)
     $buf.= sprintf("value=\"%d\"> %s\n", $f_pago->id, $f_pago->descripcion);
   }
   return($buf);
+}
+
+function revisa_series($db_con, $id_mov) {
+
+  $query = "SELECT m.codigo, m.cant FROM mov_inv_detalle m, articulos a ";
+  $query.= sprintf("WHERE m.id=%d AND m.codigo=a.codigo AND a.serie='t' ", $id_mov);
+
+  if (!$db_res = db_query($query, $db_con)) {
+    printf("Error al consultar movimientos de inventario<br>\n");
+    printf("Error: %s<br>\n",db_errormsg($db_con));
+    return($DB_ERROR);
+  }
+  else {
+    $num_ren = db_num_rows($db_res);
+    $a = array();
+    for ($i=0; $i<$num_ren; $i++) {
+      $r = db_fetch_object($db_res, $i);
+      $a[$r->codigo] = $r->cant;
+    }
+    if ($num_ren > 0)
+      return($a);
+  }
+  return(0);
+}
+
+function datos_cliente($db_con, $id) {
+  global $DB_ERROR;
+
+  $query = "SELECT * FROM clientes WHERE id=$id ";
+
+  if (!$db_res = db_query($query, $db_con)) {
+    printf("Error al consultar datos del cliente<br>\n");
+    printf("Error: %s<br>\n",db_errormsg($db_con));
+    return($DB_ERROR);
+  }
+
+  return(db_fetch_object($db_res, 0));
+}
+
+function agrega_carrito_item($db_con, $codigo, $qt=1) {
+  global $DB_ERROR, $user, $debug;
+
+  $query = sprintf("SELECT cant FROM carro_virtual WHERE usuario='%s' AND codigo='%s' ",
+				   $user->user, $codigo);
+  if ($debug)
+	echo "<i>$query</i><br>\n";
+  if (!$db_res = @db_query($query, $db_con))
+    return($DB_ERROR);
+  if (db_num_rows($db_res)) {
+	$qt+= db_result($db_res, 0, 0);
+	$query = sprintf("UPDATE carro_virtual SET cant=%f WHERE usuario='%s' AND codigo='%s'",
+					 $qt, $user->user, $codigo);
+  }
+  else {
+	$query = "INSERT INTO carro_virtual (usuario, codigo, cant) ";
+	$query.= sprintf("VALUES ('%s', '%s', %f) ", $user->user, $codigo, $qt);
+  }
+  if ($debug)
+	echo "<i>$query</i><br>\n";
+  if (!$db_res = @db_query($query, $db_con))
+    return($DB_ERROR);
+  return(0);
+}
+
+function quita_carrito_item($db_con, $codigo) {
+  global $DB_ERROR, $user, $debug;
+
+  $query = sprintf("DELETE FROM carro_virtual WHERE usuario='%s' AND codigo='%s' ",
+				   $user->user, $codigo);
+  if ($debug)
+	echo "<i>$query</i><br>\n";
+  if (!$db_res = @db_query($query, $db_con))
+    return($DB_ERROR);
+  return(0);
+}
+
+function cambia_carrito($db_con, $items) {
+  global $DB_ERROR, $user, $debug;
+
+  $errores = array();
+
+  while (list ($codigo, $cant) = each($items)) {
+	$query = sprintf("UPDATE carro_virtual SET cant=%d WHERE usuario='%s' AND codigo='%s'",
+					 $cant, $user->user, $codigo);
+	if ($debug)
+	  echo "<i>$query</i><br>\n";
+	if (!$db_res = @db_query($query, $db_con))
+	  $errores[] = $codigo;
+  }
+  return($errores);
+}
+
+function vacia_carrito($db_con) {
+  global $DB_ERROR, $user;
+
+    $query = sprintf("DELETE FROM carro_virtual WHERE usuario='%s' ", $user->user);
+    if (!$db_res = db_query($query, $db_con))
+	  return($DB_ERROR);
+
+	return(0);
+}
+
+function lee_carrito($db_con) {
+  global $DB_ERROR,$user;
+
+  $query = sprintf("SELECT * FROM carro_virtual WHERE usuario='%s'", $user->user);
+  if (!$db_res = db_query($query, $db_con))
+    return($DB_ERROR);
+
+  $osopos_carrito = array();
+
+  for ($i=0; $i < db_num_rows($db_res); $i++) {
+    $ren = db_fetch_object($db_res, $i);
+    $osopos_carrito[ $ren->codigo ] = $ren->cant;
+  }
+  return($osopos_carrito);
 }
