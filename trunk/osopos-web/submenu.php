@@ -51,6 +51,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <body>
 <?php
+   if (isset($_GET['modulo'])) {
+     $modulo = &$_GET['modulo'];
+   }
+
    include("bodies/modulo_$modulo.bdy");
 ?>
 <br><br><hr>
