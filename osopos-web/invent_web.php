@@ -73,6 +73,46 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 </HEAD>
 <?php
+   /* Variables globales */
+   if (isset($_GET['accion']))
+     $accion = &$_GET['accion'];
+   if (isset($_GET['action']))
+     $action = &$_GET['action'];
+   if (isset($_GET['id']))
+     $id = &$_GET['id'];
+   if (isset($_GET['order_by']))
+     $order_by = &$_GET['order_by'];
+   if (isset($_GET['order']))
+     $order = &$_GET['order'];
+   if (isset($_GET['offset']))
+     $offset = &$_GET['offset'];
+   if (isset($_GET['codigo']))
+     $codigo = &$_GET['codigo'];
+   if (isset($_GET['id_dept']))
+     $id_dept = &$_GET['id_dept'];
+   if (isset($_GET['depto']))
+     $depto = &$_GET['depto'];
+   if (isset($_GET['prov']))
+     $prov = &$_GET['prov'];
+
+   if (isset($_POST['mode']))
+     $mode = &$_POST['mode'];
+   if (isset($_POST['order_by']))
+     $order_by = &$_POST['order_by'];
+   if (isset($_POST['order']))
+     $order = &$_POST['order'];
+   if (isset($_POST['offset']))
+     $offset = &$_POST['offset'];
+   if (isset($_POST['id_dept']))
+     $id_dept = &$_POST['id_dept'];
+   if (isset($_POST['prov1']))
+     $prov1 = &$_POST['prov1'];
+   if (isset($_POST['search']))
+     $search = &$_POST['search'];
+
+   if (isset($_COOKIE['alm']))
+     $alm = &$_COOKIE['alm'];
+
    if (!puede_hacer($conn, $user->user, "invent_general")) {
      echo "<body>\n";
      echo "<h4>Usted no tiene permisos para accesar este módulo</h4><br>\n";
@@ -907,8 +947,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <?php
   if ($offset > 0) {
-    echo "<a href=\"$PHP_SELF?offset=" . sprintf("%d", $offset-$limit);
-    echo "&order_by=$order_by&order=$order&mode=$mode&alm=$alm$href_dept$href_prov";
+    printf("<a href=\"%s?offset=%d", $_SERVER['PHP_SELF'], $offset-$limit);
+    echo "&order_by=$order_by&order=$order&mode=$mode" . "$href_dept$href_prov";
 	if (!empty($search))
       printf("&search=%s", htmlentities(str_replace(" ", "%20", $search)));
 	echo "\"><img src=\"imagenes/web/botones/anterior_peq.png\" height=16 width=16 border=0></a>";
@@ -918,7 +958,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
   echo "</td>\n      <td>";
 
-  echo "<form action=\"$PHP_SELF\" method=\"post\">\n";
+  echo "<form action=\"" . $_SERVER['PHP_SELF'] . "\" method=\"post\">\n";
   echo "<select name=\"offset\" onchange=\"submit()\">\n";
   for ($i=1; $i<=$total_renglones; $i+=$limit) {
     printf("<option value=%d", $i-1);
@@ -927,14 +967,16 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     printf(">%d\n", (int)$i/$limit + 1);
   }
   echo "</select>\n";
+  echo "<input type=\"hidden\" name=\"order\" value=\"$order\">\n";
+  echo "<input type=\"hidden\" name=\"order_by\" value=\"$order_by\">\n";
   echo "</form>\n";
 
 
   echo "</td>\n      <td>";
 
   if ($offset+$limit < $num_arts) {
-    echo " <a href=\"$PHP_SELF?offset=" . sprintf("%d", $offset+$limit);
-    echo "&order_by=$order_by&order=$order&mode=$mode&alm=$alm$href_dept$href_prov";
+    printf(" <a href=\"%s?offset=%d", $_SERVER['PHP_SELF'], $offset+$limit);
+    echo "&order_by=$order_by&order=$order&mode=$mode" . "$href_dept$href_prov";
     if (!empty($search))
       printf("&search=%s", htmlentities(str_replace(" ", "%20", $search)));
 	echo "\"><img src=\"imagenes/web/botones/siguiente_peq.png\" height=16 width=16 border=0></a>";
