@@ -1,5 +1,5 @@
 <?php  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- 
- OsoPOS Web 1.20. Sistema de punto de venta en Intranet
+ OsoPOS Web 1.21. Sistema de punto de venta en Intranet
         Copyright (C) 1999-2003 Eduardo Israel Osorio Hernández
         iosorio@elpuntodeventa.com
 
@@ -39,7 +39,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
    <meta name="Author" content="E. Israel Osorio Hernández">
-   <title>OsoPOS v. <? echo $osopos_web_vers ?></title>
+   <title>OsoPOS v. 1.21</title>
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
    <style type="text/css">
     div.notify {font-style: italic; color: red}
@@ -49,9 +49,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <body>
 <center>
-<h1>OsoPOS v. <? echo $osopos_web_vers ?></h1>
-<h3>Copyright (C) 1999-2003<br>
- E. Israel Osorio H.</h3>
+<h1>OsoPOS v. 1.21</h1>
+<h3>Copyright (C) 1999-2005<br>
+ E. Israel Osorio H.<br>
+elpuntodeventa.com</h3>
 </center>
 
 
@@ -62,7 +63,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <li><a href="submenu.php?modulo=caja">Caja</a><br>
 <li><a href="factur_web.php">Facturación</a><br>
 <li><a href="submenu.php?modulo=inventarios">Inventarios</a><br>
-<li><a href="submenu.php?modulo=clientes">Clientes</a><br>
+<li><a href="clientes.php">Clientes <small>(Versión de desarrollo)</small></a><br>
 <li><a href="submenu.php?modulo=estadisticas">Estadísticas y consultas</a><br>
 <li><a href="carro.php">Carrito de compras</a><br>
 <li><a href="submenu.php?modulo=mantto">Mantenimiento del sistema</a><br>
@@ -72,7 +73,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <br>
 <p><div style="font-size: 8pt">OsoPOS es gratuito y distribuido con la esperanza de que sea útil, pero
 SIN GARANTIA ALGUNA. Consulte la <a href="gpl.php">licencia de uso</a> para más información</div></p>
-
 
 </body>
 </html>

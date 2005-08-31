@@ -32,6 +32,26 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     include("include/passwd.inc");
   }
 
+  $accion = $_POST['accion'];
+  $dia = $_POST['dia'];
+  $mes_s = $_POST['mes_s'];
+  $anio = $_POST['anio'];
+  $fase = $_POST['fase'];
+  $id_venta = $_POST['id_venta'];
+  $id = $_POST['id'];
+  $id_cliente = $_POST['id_cliente'];
+  $razon_soc = $_POST['razon_soc'];
+  $rfc = $_POST['rfc'];
+  $curp = $_POST['curp'];
+  /* Pendiente: Convertir las variables dom_ en una clase */
+  $dom_calle = $_POST['dom_calle'];
+  $dom_ext = $_POST['dom_ext'];
+  $dom_int = $_POST['dom_int'];
+  $dom_col = $_POST['dom_col'];
+  $dom_cp = $_POST['dom_cp'];
+  $dom_ciudad = $_POST['dom_ciudad'];
+  $dom_edo = $_POST['dom_edo'];
+
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 
@@ -53,7 +73,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
    <script>
    var miPopup
    function abreVentana(){
-	miPopup = window.open("busca_cliente.php","miwin","width=600,height=400,scrollbars=yes")
+	miPopup = window.open("busca_clientes.php","miwin","width=700,height=400,scrollbars=yes")
 	miPopup.focus()
 	}
    </script>
@@ -63,18 +83,18 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <?
   include("include/encabezado.inc");
-  if (!isset($accion) || $accion!="lista") {
+  if (empty($accion) || $accion!="lista") {
 
-        if (!isset($dia))
+        if (empty($dia))
           $dia = date("j");
         if (!empty($mes_s)) {
           include "include/mes.inc";
           $mes_a = array_keys($meses, $mes_s);
           $mes = $mes_a[0]+1;
         }
-        if (!isset($mes))
+        if (empty($mes))
           $mes = date("n");
-        if (!isset($anio))
+        if (empty($anio))
           $anio = date("Y");
 
 
@@ -121,10 +141,13 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       include ("include/minegocio_factur_const.inc");
 
       /* Los datos de artículos provienen de una forma */
-      if (isset($desc) && count($desc)) {
-        $articulo = array(new articulosClass);
-        /* Se cuentan cuantos artículos se introdujeron */
-        for($num_arts = 0; strlen($desc[$num_arts]); $num_arts++);
+      if (isset($_POST['desc'])) {
+        $desc = $_POST['desc'];
+        if (is_array($desc)) {
+          $articulo = array(new articulosClass);
+          /* Se cuentan cuantos artículos se introdujeron */
+          for($num_arts = 0; strlen($_POST['desc'][$num_arts]); $num_arts++);
+        }
       }
 
       if (empty($mes)) {
@@ -132,6 +155,12 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
         $mes_a = array_keys($meses, $mes_s);
         $mes = $mes_a[0]+1;
       }
+
+      /* inicialización de variables */
+      $iva = 0.0; $subtotal = 0.0;
+      $impuesto = array();
+      for ($z=0; $z<$MAXTAX; $z++)
+        $impuesto[$z] = 0.0;
 
       include("bodies/factur_prevista.bdy");
 
@@ -141,9 +170,22 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
              /********************** fase tres ******************/
   if ( strlen(strstr($accion, "agregar")) ) {
-    if (!$conn) {
-      echo "ERROR: Al conectarse a la base de datos $DB_NAME<br>\n</body></html>";
-      exit();
+    if (!$conn)
+      die("<div class=\"error_f\">Al conectarse a la base de datos</div>\n");
+
+    if (isset($_POST['codigo']) && isset($_POST['cant']) && isset($_POST['desc'])&& isset($_POST['pu'])) {
+      $desc = $_POST['desc'];
+      $codigo = $_POST['codigo'];
+      $cant = $_POST['cant'];
+      $pu = $_POST['pu'];
+      $garantia = $_POST['garantia'];
+      $observaciones = $_POST['observaciones'];
+      $subtotal = $_POST['subtotal'];
+      $iva = $_POST['iva'];
+      $id_cliente = $_POST['id_cliente'];
+    }
+    else {
+      die("<div class=\"error_f\">Error al obtener datos de artículos</div>\n");
     }
 
     $peticion = "INSERT INTO facturas_ingresos VALUES (";
@@ -206,6 +248,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     /*igm*/ $obs = array();
 
     $cliente = new datosclienteClass;
+    $cliente->id = $id_cliente;
     $cliente->rfc = $rfc;
     $cliente->curp = $curp;
     $cliente->nombre = $razon_soc;
@@ -237,7 +280,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
     $imp_buff= Crea_Factura($cliente, $fecha, $art, count($desc), $subtotal, $iva, $subtotal+$iva,
                             $garantia, $observaciones, $id_venta, $nm_archivo, $tipoimp);
-
+    /*igm*/ echo "<pre>$imp_buff</pre>\n";
     $linea = "$CMD_IMPRESION -P $COLA_FACTUR";
 
     $impresion = popen($linea, "w");
@@ -253,10 +296,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 
 ?>
-<?
+<?php
         /*******************  fase uno *****************/
 
-  if (!isset($fase)  ||  $fase==0) {
+  if (empty($fase)  ||  $fase==0) {
     if (!$conn) {
       echo "ERROR: Al conectarse a la base de datos $DB_NAME<br>\n</body></html>";
       exit();
@@ -275,37 +318,37 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $dom_edo = "";
     }
 
-    if (isset($decodifica_rfc)) {
-      $codificado = explode("|", $rfc);
-      $rfc = $codificado[0];
-      $razon_soc = $codificado[1];
-      $curp = $codificado[2];
+//     if (isset($decodifica_rfc)) {
+//       $codificado = explode("|", $rfc);
+//       $rfc = $codificado[0];
+//       $razon_soc = $codificado[1];
+//       $curp = $codificado[2];
 
-      $peticion = "SELECT * FROM facturas_ingresos WHERE rfc='$rfc' ORDER BY fecha DESC";
-      if (!$resultado = db_query($peticion, $conn)) {
-        echo "Error al ejecutar $peticion<br>No se pudo encontrar los datos del cliente<br>" . db_errormesg($conn) . "<br>\n";
-      }
-      else {
-        if (db_num_rows($resultado)) {
-          $renglon = db_fetch_object($resultado, 0);
-          $dom_calle = $renglon->dom_calle;
-          $dom_ext = $renglon->dom_numero;
-          $dom_int = $renglon->dom_inter;
-          $dom_col = $renglon->dom_col;
-          $dom_cp = $renglon->dom_cp;
-          $dom_ciudad = $renglon->dom_ciudad;
-          $dom_edo = $renglon->dom_edo;
-        }
-      }
-    }
+//       $peticion = "SELECT * FROM facturas_ingresos WHERE rfc='$rfc' ORDER BY fecha DESC";
+//       if (!$resultado = db_query($peticion, $conn)) {
+//         echo "Error al ejecutar $peticion<br>No se pudo encontrar los datos del cliente<br>" . db_errormesg($conn) . "<br>\n";
+//       }
+//       else {
+//         if (db_num_rows($resultado)) {
+//           $renglon = db_fetch_object($resultado, 0);
+//           $dom_calle = $renglon->dom_calle;
+//           $dom_ext = $renglon->dom_numero;
+//           $dom_int = $renglon->dom_inter;
+//           $dom_col = $renglon->dom_col;
+//           $dom_cp = $renglon->dom_cp;
+//           $dom_ciudad = $renglon->dom_ciudad;
+//           $dom_edo = $renglon->dom_edo;
+//         }
+//       }
+//     }
 
-    if (!isset($id)) {
+    if (empty($id)) {
       $query = "SELECT max(id) AS next_id FROM facturas_ingresos";
       if (!$result = db_query($query, $conn)) {
         echo "Error al ejecutar $peticion<br>No se pudo extraer último folio<br>" . db_errormsg($conn) . "<br>\n";
       }
       else {
-        $folio = db_result($result, 0, "next_id");
+        $id = db_result($result, 0, "next_id");
       }
     }
     
