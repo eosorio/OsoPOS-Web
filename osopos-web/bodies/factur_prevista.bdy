@@ -45,7 +45,7 @@
 
 <?php
   for ($i=0; $i<$num_arts && $i<10; $i++) {
-	if (count($desc)) {
+	if (isset($desc) && count($desc)) {
       /* si los datos vienen de una forma */
 	  $articulo[$i]->iva_porc = $iva_porc[$i];
 	  $articulo[$i]->tax_0 = $tax_0_porc[$i];
@@ -124,6 +124,7 @@
   <td colspan=3>
     <table margin=0 width="100%">
     <tr>
+	  <td class="campo"><small><b>Garantía:</b></small></td>
 	  <td class="campo"><small><b>Observaciones:</b></small>
 	  <input type=hidden name=id value="<?php printf("%d", $id) ?>">
       <input type=hidden name=anio value="<?php printf("%d", $anio) ?>">
@@ -142,7 +143,10 @@
     </tr>
 
     <tr>
-     <td class="campo" colspan=3 rowspan=3>
+     <td class="campo">
+       <input type="text" name="garantia" size=10>
+     </td>
+     <td class="campo" colspan=2 rowspan=3>
       <textarea name="observaciones" cols=<? printf("%d", $OBS_MAXCOLS) ?>
       rows=<? printf("%d", $OBS_MAXRENS) ?>><? echo $OBS_DEFAULT ?></textarea>
      </td>
@@ -212,5 +216,5 @@
   <td align=right><input type=submit value="Registrar factura">
 </tbody>
 </table>
-
+<input type="hidden" name="id_cliente" value="<?php echo $id_cliente ?>">
 </form>
