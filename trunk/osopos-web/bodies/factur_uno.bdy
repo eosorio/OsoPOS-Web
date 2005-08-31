@@ -3,16 +3,16 @@
 Introduzca los datos del cliente. Cuando termine, apriete el bot&oacute;n de  continuar.
 
 
-<form action="<? echo $PHP_SELF ?>" name="forma_cliente" method="post">
+<form action="<?php echo $_SERVER['PHP_SELF'] ?>" name="forma_cliente" method="post">
 <table BORDER=0 WIDTH="100%" name="cliente">
 <tbody>
  <tr>
-  <td align="right" height=10>Folio
+  <td align="right" height=10>Folio</td>
   <td colspan=2 height=10>
-    <input type="text" value="<? printf("%d", $id+1) ?>" name="id" size=4>
-
-  <td align="right" height=10>Venta No.
-  <td><input type="text" name="id_venta" size=4 value="<? echo $id_venta ?>">
+    <input type="text" value="<?php printf("%d", $id+1) ?>" name="id" size=4>
+  </td>
+  <td align="right" height=10>Venta No.</td>
+  <td><input type="text" name="id_venta" size=4 value="<?php echo $id_venta ?>"></td>
   <td align="right" width="40%" height=10>Fecha
   <td colspan=3 width="40%" height=10>
       <input type="text" name="dia" size=2 maxlength=2
@@ -31,6 +31,13 @@ Introduzca los datos del cliente. Cuando termine, apriete el bot&oacute;n de  co
       <input type="text" size=4 maxlength=4 name="anio" value=<? echo $anio ?>>
       <input type="hidden" name="fase" value=1>
   </td>
+ </tr>
+ <tr>
+  <td align="left" colspan=8><small><b>Datos del cliente</b></small></td>
+ </tr>
+ <tr>
+  <td align="right">I.D.</td>
+  <td><input type="text" name="id_cliente" size=6> <a href="#"><img src="imagenes/lupa.png" onclick="abreVentana()" border=0></a>
  </tr>
  <tr>
   <td align="right">Raz&oacute;n social
@@ -107,8 +114,6 @@ Introduzca los datos del cliente. Cuando termine, apriete el bot&oacute;n de  co
  </tr>
  <tr>
   <td colspan=9 align=right><font size="+1">
-   <a href="busca_cliente.php?php_anterior=<? echo $PHP_SELF
-   ?>&id_venta=<? echo $id_venta ?>">Buscar cliente</a> |
    <a href="factur_web_muestra.php">Listado de facturas</a></font>
  </tr>
 
