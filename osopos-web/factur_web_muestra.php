@@ -164,11 +164,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   echo "  <td>\n";
   if ($offset > 0) {
     echo "<a href=\"$PHP_SELF?offset=" . sprintf("%d", $offset-$limit);
-    echo "&order_by=$order_by&order=$order$href_prov&table=$table\">";
-    echo "<img src=\"imagenes/web/botones/anterior.png\" height=32 width=32 border=0></a>";
+    echo "&order_by=$order_by&order=$order$href_prov&table=$table\">&lt;-</a>";
   }
   else
-    echo "&nbsp;";
+    echo "&lt;- ";
   echo "  </td>\n";
 
   echo "  <td>\n";
@@ -189,11 +188,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   echo "  <td>\n";
   if ($offset+$limit < $total_rows) {
     echo " <a href=\"$PHP_SELF?offset=" . sprintf("%d", $offset+$limit);
-    echo "&order_by=$order_by&table=$table&order=$order$href_prov\">";
-    echo "<img src=\"imagenes/web/botones/siguiente.png\" height=32 width=32 border=0></a>";
+    echo "&order_by=$order_by&table=$table&order=$order$href_prov\">-&gt;</a>";
   }
   else
-    echo "&nsbp;";
+    echo "-&gt;";
   echo "  </td>\n";
   echo "</tr\n";
   echo "</table\n";

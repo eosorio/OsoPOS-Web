@@ -1,7 +1,7 @@
 <?php  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
         Almacen Web. Sub-Módulo de inventarios de OsoPOS Web.
 
-        Copyright (C) 2000-2003 Eduardo Israel Osorio Hernández
+        Copyright (C) 2000-2005 Eduardo Israel Osorio Hernández
 
         Este programa es un software libre; puede usted redistribuirlo y/o
 modificarlo de acuerdo con los términos de la Licencia Pública General GNU
@@ -31,6 +31,14 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     include("include/pos.inc");
   }
 
+  if (isset($_POST['almc']))
+    $almc = $_POST['almc'];
+  else if (isset($_GET['almc']))
+    $almc = $_GET['almc'];
+  if (isset($_POST['action']))
+    $action = $_POST['action'];
+  else if (isset($_GET['action']))
+    $action = $_GET['action'];
 }
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
@@ -39,6 +47,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <HEAD>
  <TITLE>OSOPoS Web - Invent v. <? echo $INVENT_VERSION ?></TITLE>
+   <?php include("menu/menu_principal.inc"); ?>
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
    <style type="text/css">
     td.bg1 { background: <? echo $bg_color1 ?> }
@@ -57,8 +66,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 </HEAD>
 <body>
-<? 
+<?php 
 {
+  include("menu/menu_principal.bdy");
+  echo "<br>\n";
   if (!isset($almc) || $almc<1) {
     $query = "SELECT * FROM almacenes ";
     if (!$db_res = db_query($query, $conn)) {
@@ -128,10 +139,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       include("forms/prod_genericos.bdy");
     }
     else if($action=="insertar") {
-      for($i=0; $i<count($codigo); $i++) {
-        if (inserta_en_almacen($conn, $almc, $codigo[$i]) > 0)
+      for($i=0; $i<count($_POST['codigo']); $i++) {
+        if (inserta_en_almacen($conn, $almc, $_POST['codigo'][$i]) > 0)
           printf("<i>Producto <b>%s %s</b> incluido en almacen %d</i><br>\n",
-                 $codigo[$i], articulo_descripcion($conn, $codigo[$i]), $almc);
+                 $_POST['codigo'][$i], articulo_descripcion($conn, $_POST['codigo'][$i]), $almc);
       }
     }
     else if($action=="borrar") {
@@ -141,7 +152,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   }
   echo "<hr>\n";
   include("bodies/web/almacenes_pie.bdy");
-  include("bodies/menu/general.bdy");
+
 }
 ?>
 </body>
