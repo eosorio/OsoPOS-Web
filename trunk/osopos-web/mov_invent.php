@@ -1,7 +1,7 @@
 <?php  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
         Mov. Invent Web. Submódulo de movimientos al inventario de OsoPOS Web.
 
-        Copyright (C) 2000-2003 Eduardo Israel Osorio Hernández
+        Copyright (C) 2000-2005 Eduardo Israel Osorio Hernández
 
         Este programa es un software libre; puede usted redistribuirlo y/o
 modificarlo de acuerdo con los términos de la Licencia Pública General GNU
@@ -21,7 +21,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 
 {
-  $MOVINV_VERSION = 0.3;
+  $MOVINV_VERSION = 0.4;
   include("include/general_config.inc");
   include("include/pos-var.inc");
   include("include/pos.inc");
@@ -31,6 +31,17 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   else {
     include("include/passwd.inc");
   }
+  if (isset($_POST['accion']))
+    $accion = $_POST['accion'];
+  if (isset($_POST['tipo_mov']))
+    $tipo_mov = $_POST['tipo_mov'];
+  if (isset($_POST['id_prov1']))
+    $id_prov1 = $_POST['id_prov1'];
+  if (isset($_POST['almacen']))
+    $almacen = $_POST['almacen'];
+  else if (isset($_GET['almacen']))
+    $almacen = $_GET['almacen'];
+
 
   $osopos_carrito = lee_carrito($conn);
   if ($osopos_carrito != $DB_ERROR)
@@ -47,6 +58,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <HEAD>
  <TITLE>OSOPoS Web - Movimientos de inventario v. <? echo $MOVINV_VERSION ?></TITLE>
+   <?php include("menu/menu_principal.inc"); ?>
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/numerico.css">
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
    <style type="text/css">
@@ -69,13 +81,15 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 </HEAD>
 <body>
 
-<?
+<?php
 {
+   include("menu/menu_principal.bdy");
+   echo "<br>\n";
    if (!puede_hacer($conn, $user->user, "movinv_general")) {
-     echo "<body>\n";
      echo "<h4>Usted no tiene permisos para accesar este módulo</h4><br>\n";
      echo "<a href=\"index.php\">Regresar a menú principal</a>\n";
      echo "</body>\n";
+     echo "</html>\n";
      exit();
    }
 
@@ -147,7 +161,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
     /* Incluir el nombre del body en la base de datos */
     switch($tipo_mov[0]) {
-    case 1:
+    case $MOVINV_VENTA:
       include("bodies/mov_inv_venta.bdy");
       break;
     case $MOVINV_COMPRA:
@@ -156,13 +170,13 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       else
         echo "<h4>Usted no puede realizar este movimiento</h4>";
       break;
-    case 3:
+    case $MOVINV_DEVVENTA:
       include("bodies/mov_inv_devven.bdy");
       break;
-    case 4:
+    case $MOVINV_DEVCOMPRA:
       include("bodies/mov_inv_devcom.bdy");
       break;
-    case 5:
+    case $MOVINV_MERMA:
       include("bodies/mov_inv_merma.bdy");
       break;
     case 6:
@@ -174,16 +188,14 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   }
   else if ($accion  ==  "prever") {
     if (isset($imprimir)) {
+      $cola_ticket = lee_config($conn, "COLA_TICKET");    
       imprime_movimiento($conn, $almacen, $id_mov, $codigo, $ct,
-                         $pu, $p_costo, $alm_dest, $tipo_mov);
+                         $pu, $p_costo, $alm_dest, $tipo_mov, $cola_ticket);
     }
 
     switch($tipo_mov) {
     case $MOVINV_COMPRA:
       include("bodies/web/prever_movinv_compra.bdy");
-      if (is_array($a_series = revisa_series($conn, $id_mov))) {
-        include("bodies/mov_inv_compra_series.bdy");
-      }
       break;
     default:
       include("bodies/web/prever_movinv.bdy");
@@ -199,30 +211,17 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $query = "INSERT INTO articulos_series (id, codigo, almacen) VALUES ";
       $query.= sprintf("('%s', '%s', %d) ", $serial[$i], $codigo[$i], $almacen);
       if (!$db_res = db_query($query, $conn)) {
-        printf("<div class=\"error_nf\">Error al agregar número de serie \"%s\", código %s</div><br>\n",
-               $serial[$i], $codigo[$i]);
+        printf("Error al agregar número de serie \"%s\", código %s<br>\n", $serial[$i], $codigo[$i]);
         echo db_errormsg($conn);
         $error_serie = 1;
       }
-
-      $error_recup_costo = 0;
-      $query = "INSERT INTO articulos_recup_costo (serie, costo) VALUES ";
-      $query.= sprintf("('%s', %f) ", $serial[$i], $costo[$i]);
-      if (!$db_res = db_query($query, $conn)) {
-        printf("Error al registrar producto de serie \"%s\", código %s<br>\n", $serial[$i], $codigo[$i]);
-        echo db_errormsg($conn);
-        $error_recup_costo = 1;
-      }
-
     }
     if (!$error_serie)
       echo "<i>Series de productos agregadas</i><br>\n";
-
   }
   else {
 	include("bodies/movimientos_cab.bdy");
   }
-  include("bodies/menu/general.bdy");
 }
 ?>
 

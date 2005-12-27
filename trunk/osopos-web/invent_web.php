@@ -28,16 +28,83 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     include("include/videopos.inc");
   }
   include("include/pos.inc");
-  if (isset($salir)) {
-    include("include/logout.inc");
-  }
+  include("include/passwd.inc");
+
+
+
+  /* Variables globales */
+  if (isset($_POST["action"]))
+    $action = $_POST["action"];
+  else if (isset($_GET["action"]))
+    $action = $_GET["action"];
+
+  if (isset($_COOKIE["alm"]))
+    $alm = $_COOKIE["alm"];
+  else
+    $alm = lee_config($conn, "ALM_DEF");
+
+  if (isset($_POST['id_prov1']))
+    $id_prov1 = $_POST['id_prov1'];
+  else if (isset($_GET['id_prov1']))
+    $id_prov1 = $_GET['id_prov1'];
+  else
+    $id_prov1 = -1;
+
+  if (isset($_POST['id_dept']))
+    $id_dept = $_POST['id_dept'];
+  else if (isset($_GET['id_dept']))
+    $id_dept = $_GET['id_dept'];
+  else
+    $id_dept = -1;
+
+
+  if (isset($_POST["action"]))
+    $action = $_POST["action"];
+  else if (isset($_GET["action"]))
+    $action = $_GET["action"];
+
+  if (isset($_POST["offset"]))
+    $offset = $_POST["offset"];
+  else if (isset($_GET["offset"]))
+    $offset = $_GET["offset"];
+  else $offset = 0;
+
+  if (isset($_POST["limit"]))
+    $limit = $_POST["limit"];
+  else if (isset($_GET["limit"]))
+    $limit = $_GET["limit"];
+  else $limit = 10;
+
+  if (isset($_POST["order_by"]))
+    $order_by = $_POST["order_by"];
+  else if (isset($_GET["order_by"]))
+    $order_by = $_GET["order_by"];
   else {
-    include("include/passwd.inc");
+    if (!isset($PROGRAMA) || $PROGRAMA == "web")
+      $order_by = "descripcion";
+    else if ($PROGRAMA == "video")
+      $order_by = "titulo";
   }
+
+  if (isset($_POST["order"]))
+    $order = $_POST["order"];
+  else if (isset($_GET["order"]))
+    $order = $_GET["order"];
+  else $order = 1; /* Ascendente */
+
+  /* igm*/ /* QUITAR ESTA MARRANADA Y CONVERTIRLA EN CONSULTA A BD */
+  $tasa_util = array();
+  $tasa_util[0] = 40;
+  $tasa_util[1] = 35;
+  $tasa_util[2] = 30;
+  $tasa_util[3] = 20;
+  $tasa_util[4] = 10;
+  /* AQUI TERMINA MI MARRANADA DE INJERTO DE CÓDIGO */
+
+  /* Fin de variables globales */
 
   if ($action=="add2cart") {
     $item_agregado = agrega_carrito_item($conn, $codigo, $qt);
-    //    setcookie("osopos_carrito[$codigo]", $qt);
   }
 
 }
@@ -48,10 +115,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <HEAD>
    <TITLE>OSOPoS Web - Invent v. <? echo $INVENT_VERSION ?></TITLE>
+   <?php include("menu/menu_principal.inc"); ?>
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/numerico.css">
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/extras.css">
-   <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/invent_lista.css">
    <style type="text/css">
     td.bg1 { background: <? echo $bg_color1 ?> }
     td.bg1_center {text-align: center; background: <? echo $bg_color1 ?> }
@@ -73,82 +140,30 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 </HEAD>
 <?php
-   /* Variables globales */
-   if (isset($_GET['accion']))
-     $accion = &$_GET['accion'];
-   if (isset($_GET['action']))
-     $action = &$_GET['action'];
-   if (isset($_GET['id']))
-     $id = &$_GET['id'];
-   if (isset($_GET['order_by']))
-     $order_by = &$_GET['order_by'];
-   if (isset($_GET['order']))
-     $order = &$_GET['order'];
-   if (isset($_GET['offset']))
-     $offset = &$_GET['offset'];
-   if (isset($_GET['codigo']))
-     $codigo = &$_GET['codigo'];
-   if (isset($_GET['id_dept']))
-     $id_dept = &$_GET['id_dept'];
-   if (isset($_GET['depto']))
-     $depto = &$_GET['depto'];
-   if (isset($_GET['prov']))
-     $prov = &$_GET['prov'];
-
-   if (isset($_POST['mode']))
-     $mode = &$_POST['mode'];
-   if (isset($_POST['order_by']))
-     $order_by = &$_POST['order_by'];
-   if (isset($_POST['order']))
-     $order = &$_POST['order'];
-   if (isset($_POST['offset']))
-     $offset = &$_POST['offset'];
-   if (isset($_POST['id_dept']))
-     $id_dept = &$_POST['id_dept'];
-   if (isset($_POST['prov1']))
-     $prov1 = &$_POST['prov1'];
-   if (isset($_POST['search']))
-     $search = &$_POST['search'];
-
-   if (isset($_COOKIE['alm']))
-     $alm = &$_COOKIE['alm'];
-
    if (!puede_hacer($conn, $user->user, "invent_general")) {
      echo "<body>\n";
-     echo "<h4>Usted no tiene permisos para accesar este módulo</h4><br>\n";
+     include("menu/menu_principal.bdy");
+     echo "<br><h4>Usted no tiene permisos para accesar este módulo</h4><br>\n";
      echo "<a href=\"index.php\">Regresar a menú principal</a>\n";
-     include("bodies/menu/general.bdy");
      echo "</body>\n";
      exit();
    }
   echo "<body ";
-  if ($falta_pago)
-    echo "onload=\"alert('RECUERDE REALIZAR SU PAGO OPORTUNO')\" ";
-  else {
-    if ($action == "muestra") {
-      if (isset($alm) && $alm>0)
-        echo "onload=\"document.articulo.descripcion.focus()\"";
-      else
-        echo "onload=\"document.articulo.pu.focus()\"";
-    }
-    else if ($action == "agrega")
-      echo "onload=\"document.articulo.codigo.focus()\"";
+  if ($action == "muestra") {
+    if (isset($alm) && $alm>0)
+      echo "onload=\"document.articulo.descripcion.focus()\"";
+    else
+      echo "onload=\"document.articulo.pu.focus()\"";
   }
-  echo ">\n";
+  else if ($action == "agrega")
+    echo "onload=\"document.articulo.codigo.focus()\"";
 
-  if (!isset($offset))
-    $offset = 0;
-  if (!isset($limit))
-    $limit = 10;
-  if (!isset($order_by))
-    if ($PROGRAMA == "web")
-      $order_by = "descripcion";
-    else if ($PROGRAMA == "video")
-      $order_by = "titulo";
-  if (!isset($order))
-     $order = 1; /* Ascendente */
+  echo ">\n";
+  include("menu/menu_principal.bdy");
+  echo "<br>\n";
+
   if(isset($depto)) {
-    if ($depto!="Todos") {
+    if ($depto!="Todos" && $id_dept>=0) {
       if ($PROGRAMA == "web")
         $query = "SELECT id AS id_dept FROM departamento WHERE nombre='$depto'";
       else if($PROGRAMA == "video")
@@ -163,17 +178,12 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     else
       unset($id_dept);
   }
-  $href_dept = isset($id_dept) ? sprintf("&id_dept=%d", $id_dept) : "&depto=Todos";
-  $form_dept = isset($id_dept) ? sprintf("\"id_dept\" value=%d>\n", $id_dept) : "\"depto\" value=\"Todos\">\n";
+  $href_dept = isset($id_dept) && $id_dept>=0 ? sprintf("&id_dept=%d", $id_dept) : "&depto=Todos";
+  $form_dept = isset($id_dept) && $id_dept>=0 ? sprintf("\"id_dept\" value=%d>\n", $id_dept) : "\"depto\" value=\"Todos\">\n";
   $form_dept = "<input type=\"hidden\" name=" . $form_dept;
-  if (isset($prov1)) {
-    if ($prov1== "Todos")
-      unset($id_prov1);
-    else {
-      $id_prov1 = $prov1;
+  if (isset($prov1))
+    $id_prov1 = $prov1;
 
-    }
-  }
   if (isset($prov2)) {
     if ($prov2== "Todos")
       unset($id_prov2);
@@ -200,13 +210,13 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $id_prov3 = db_result($resultado, 0, "id");
     }
   }*/
-  $href_prov = isset($id_prov1) ? sprintf("&id_prov1=%d", $id_prov1) : "&prov=Todos";
-  $form_prov = isset($id_prov1) ? sprintf("\"id_prov1\" value=%d>\n", $id_prov1) : "\"prov\" value=\"Todos\">\n";
+  $href_prov = isset($id_prov1) && $id_prov1>=0 ? sprintf("&id_prov1=%d", $id_prov1) : "&prov=Todos";
+  $form_prov = isset($id_prov1) && $id_prov1>=0 ? sprintf("\"id_prov1\" value=%d>\n", $id_prov1) : "\"prov\" value=\"Todos\">\n";
   $form_prov = "<input type=\"hidden\" name=" . $form_prov;
   $query = "SELECT id,nick FROM proveedores ORDER BY id";
 
   if (!$resultado = db_query($query, $conn)) {
-    echo "Error al ejecutar $query<br>\n";
+    echo "<div class=\"error_f\">Error al consultar proveedores</div><br>\n";
     exit();
   }
   $num_ren_prov = db_num_rows($resultado);
@@ -291,8 +301,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     for ($j=0; $j<$MAXTAX; $j++)
       $query.= sprintf(", %f", $imp_porc[$j]);
     $query.= sprintf(", '%f', ", $u_empaque);
-    $query.= empty($incluye_serie) ? "'f', " : "'t', ";
-    $query.= empty($tangible) ? "'f' " : "'t' ";
+    $query.= empty($_POST['incluye_serie']) ? "'f', " : "'t', ";
+    $query.= empty($_POST['tangible']) ? "'f' " : "'t' ";
     $query.= ")";
     if ($debug>0)
       echo "<i>$query</i><br>\n";
@@ -402,7 +412,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
         }
         else {
 
-          $incluye_serie = empty($incluye_serie) ? "f" : "t";
+          $incluye_serie = empty($_POST['incluye_serie']) ? "f" : "t";
           $query = sprintf("UPDATE articulos SET descripcion='%s', ", str_replace("'", "\'", $descripcion));
           $query.= sprintf("id_prov1=%d, id_prov2=%d, id_depto=%d, ",
                            $id_prov1, $id_prov2, $id_depto);
@@ -434,8 +444,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
         }
 
         if (empty($alq_prev) && $alquiler=="t") {
-          $query = "INSERT INTO articulos_rentas SELECT '$codigo' AS codigo, dia, pu1, pu2, pu3, ";
-          $query.= "pu4, pu5, tiempo, unidad_t ";
+          $query = "INSERT INTO articulos_rentas SELECT '$codigo' AS codigo, p0_1, p0_2, p0_3, p0_4, p0_5, ";
+          $query.= "p1_1, p1_2, p1_3, p1_4, p1_5, p2_1, p2_2, p2_3, p2_4, p2_5, p3_1, p3_2, p3_3, p3_4, p3_5, ";
+          $query.= "p4_1, p4_2, p4_3, p4_4, p4_5, p5_1, p5_2, p5_3, p5_4, p5_5, p6_1, p6_2, p6_3, p6_4, p6_5, ";
+          $query.= "tiempo0, tiempo1, tiempo2, tiempo3, tiempo4, tiempo5, tiempo6, unidad_t ";
           $query.= "FROM articulos_rentas WHERE codigo='DEFAULT' ";
           $act_rentas++;
         }
@@ -480,7 +492,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 /*igm*/ /*+++++++++++++++++++++++++++ OJO ++++++++++++++++++++++++*/
 /* Revisar si tendría utilidad en el script el código de la siguiente accion */
-/*  if ($action == "agrega_p_renta") {
+  if ($action == "agrega_p_renta") {
     $q1 = ""; $q2 = "";
     for ($dia=0; $dia < 7; $dia++) {
       for ($i=0; $i<5; $i++) {
@@ -497,9 +509,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
                      $q1, $codigo, $q2);
 
     $action == "muestra";
-  } */
+  }
 
-/* IGM    REVISAR AQUI CON NUEVA ESTRUCTURA DE TABLAS *************************** */
   if ($action == "cambia_p_renta") {
     $q1 = ""; $q2 = "";
     for ($dia=0; $dia < 7; $dia++) {
@@ -650,20 +661,16 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $val_idioma = sprintf("<input type=\"text\" name=\"%s\" value=\"%s\">\n", "idioma", $ren->idioma);
       $val_subtit = sprintf("<input type=\"text\" name=\"%s\" value=\"%s\">\n", "subtit", $ren->subtit);
       $val_resenia = sprintf("<textarea name=\"%s\" cols=80 rows=8>%s</textarea>\n", "resenia", $ren->resenia);
-      $val_imagen = "Ubicaci&oacute;n de la imagen: <input type=\"file\" name=\"img_source\" size=60 value=\"$PWD_DIR/$IMG_DIR/$img_location\">\n";
+
+      $img_dir = lee_config($conn, "IMG_DIR");
+      $pwd_dir = lee_config($conn, "PWD_DIR");
+      $val_imagen = sprintf("Ubicaci&oacute;n de la imagen: <input type=\"file\" name=\"img_source\" size=60 value=\"%s/%s/$img_location\">\n", $pwd_dir, $img_dir);
       $col_w1 = 100;
     }
 
-  /* Formato para mandar el menú a una altura fija */
-  echo "<table border=0 cellspan=0 cellpadding=0 width=\"900px\" height=\"510px\">\n";
-  echo "<tr height=\"500px\">\n  <td valign=\"top\">\n";
-
-    // IGM    if ($PROGRAMA == "web") {
     if ($PROGRAMA == "web")
       if (!isset($modulo))
         include ("forms/web/invent_std_item.bdy");
-    /*     else if ($modulo == "test")
-        include ("bodies/web/invent_pventa.bdy"); */
     else if ($PROGRAMA == "video") {
       include ("forms/video/filme_datos.bdy");
     }
@@ -749,16 +756,16 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   }
 
   if (empty($action) || ($action!="agrega" && $action!="muestra" && $action!="ver" )) {
-    /* Marranada para forzar unset de $id_prov1 */
-    if ($prov1=="Todos")
-      unset($id_prov1);
+    /* Quito marranada para forzar unset de $id_prov1 */
+//     if ($prov1=="Todos")
+//       unset($id_prov1);
     if ($PROGRAMA == "web") {
       if ($alm>0)
         $query = "SELECT ar.codigo FROM articulos ar, almacen_1 al WHERE al.codigo=ar.codigo AND al.id_alm=$alm ";
       else
         $query = "SELECT ar.codigo FROM articulos ar WHERE 0=0 ";
-      $query.= isset($id_dept) ? sprintf("AND id_depto=%d ", $id_dept) : "";
-      $query.= isset($id_prov1) ? sprintf("AND id_prov1=%d ", $id_prov1) : "";
+      $query.= isset($id_dept) && $id_dept>=0 ? sprintf("AND id_depto=%d ", $id_dept) : "";
+      $query.= isset($id_prov1) && $id_prov1>=0? sprintf("AND id_prov1=%d ", $id_prov1) : "";
 
       if (isset($mode) && $mode=="baja_ex") {
         $query.= "AND al.cant<al.c_min ";
@@ -774,26 +781,22 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     }
 
     if (!$resultado = db_query($query, $conn)) {
-      echo "Error al ejecutar $query<br>\n";
-      exit();
+      die ("<div class=\"error_f\"Error al consultar datos de productos</div>\n");
     }
     $num_arts = db_num_rows($resultado);
 
+//     if (!isset($id_dept))
+//       $id_dept = count($nm_depto);
+    /* Antes, para representar todos los deptos, $id_prov1 tomaba el id del máximo departamento + 1 */
 
+//     if (!isset($id_prov1)) {
+//       $id_prov1 = count($nick_prov);
 
-    if (!isset($id_dept))
-      $id_dept = count($nm_depto);
+//    }
 
-    if (!isset($id_prov1)) {
-      $id_prov1 = count($nick_prov);
-    }
-
-    /* Formato para mandar el menú a una altura fija */
-    echo "<table border=0 cellspan=0 cellpadding=0 width=\"900px\" height=\"510px\">\n";
-    echo "<tr height=\"500px\">\n  <td valign=\"top\">\n";
     
     if (isset($alm) && $alm>0)
-      echo "<div class=\"head_almacen\">Almacen $alm</div>\n";
+      printf("<div class=\"head_almacen\">%s</div>\n", nombre_almacen($conn, $alm));
     else
       echo "<div class=\"head_almacen\">Catálogo de productos</div>\n";
 
@@ -807,7 +810,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
     if ($PROGRAMA == "web") {
       if (isset($alm) && $alm>0) {
-        /**********  OJO, REVISAR EXISTENCIA MINIMA, DEBE SER DE ALMACEN ************/
         $query = "SELECT DISTINCT a.codigo, al.*, al.pu*d.tipo_cambio as unitario, a.descripcion, a.id_prov1, ";
         $query.= "a.id_depto, a.prov_clave, al.c_min, al.c_max, a.tangible, al.alquiler ";
         $query.= "FROM almacen_1 al, divisas d, articulos a WHERE al.divisa=d.id AND al.codigo=a.codigo AND al.id_alm=$alm ";
@@ -819,15 +821,15 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
       if (!empty($search) && $id_prov1<count($nick_prov))
         $query .= " AND ";
-      $query.= isset($id_dept) ? "AND a.id_depto=$id_dept " : "";
+      $query.= isset($id_dept) && $id_dept>=0 ? "AND a.id_depto=$id_dept " : "";
 
-      $query.= isset($id_prov1) && $id_prov1<count($nick_prov) ? sprintf("AND a.id_prov1=%d ", $id_prov1) : "";
+      $query.= isset($id_prov1) && $id_prov1>=0 ? sprintf("AND a.id_prov1=%d ", $id_prov1) : "";
 
       if (isset($mode) && $mode=="baja_ex") {
         $query.= "AND al.cant<al.c_min ";
       }
 
-      if (!empty($search) && (isset($id_prov1) || isset($id_dept) || $mode=="baja_ex"))
+      if (!empty($search) && ((isset($id_prov1) && $id_prov1>=0) || (isset($id_dept) && $id_dept>=0) || $mode=="baja_ex"))
         $query.= " AND ";
       if ($SQL_TYPE=="postgres")
         $query.= !empty($search) ? sprintf("(a.codigo~*'%s' OR a.descripcion~*'%s')", $search, $search) : "";
@@ -857,10 +859,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     }
     else if($PROGRAMA == "video") {
       $query = "SELECT flm.* FROM filme flm ";
-       if (isset($id_dept) || (isset($id_prov1) && $id_prov1<count($nick_prov))
-          || (!empty($search) && $id_prov1<count($nick_prov)) || isset($mode))
+      if ((isset($id_dept) && $id_dept>=0) || (isset($id_prov1) && $id_prov1>=0)
+          || (!empty($search) && $id_prov>=0) || isset($mode))
         $query .= " AND ";
-      $query.= isset($id_dept) ? "flm.genero1=$id_dept " : "";
+      $query.= $id_dept>=0 ? "flm.genero1=$id_dept " : "";
 
       $query.= " ORDER BY ";
        switch ($order_by) {
@@ -926,7 +928,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <table border=0 width="100%">
 <colgroup>
-  <col width="50%" span=2>
+  <col width="50%">
 </colgroup>
 <tr>
   <td>
@@ -948,38 +950,40 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <?php
   if ($offset > 0) {
     printf("<a href=\"%s?offset=%d", $_SERVER['PHP_SELF'], $offset-$limit);
-    echo "&order_by=$order_by&order=$order&mode=$mode" . "$href_dept$href_prov";
+    echo "&order_by=$order_by&order=$order&mode=$mode&alm=$alm$href_dept$href_prov";
 	if (!empty($search))
       printf("&search=%s", htmlentities(str_replace(" ", "%20", $search)));
-	echo "\"><img src=\"imagenes/web/botones/anterior_peq.png\" height=16 width=16 border=0></a>";
+	echo "\"><img src=\"imagenes/web/botones/anterior.png\" alt=\"Anterior\" border=0></a>";
   }
   else
     echo "<font color=\"#e0e0e0\">&lt;- </font>";
 
   echo "</td>\n      <td>";
 
-  echo "<form action=\"" . $_SERVER['PHP_SELF'] . "\" method=\"post\">\n";
-  echo "<select name=\"offset\" onchange=\"submit()\">\n";
+  printf("<form action=\"%s\" method=\"post\">\n", $_SERVER['PHP_SELF']);
+  echo "  <select name=\"offset\" onchange=\"submit()\">\n";
   for ($i=1; $i<=$total_renglones; $i+=$limit) {
-    printf("<option value=%d", $i-1);
+    printf("    <option value=%d", $i-1);
     if ($offset == $i-1)
       echo " selected";
     printf(">%d\n", (int)$i/$limit + 1);
   }
-  echo "</select>\n";
-  echo "<input type=\"hidden\" name=\"order\" value=\"$order\">\n";
-  echo "<input type=\"hidden\" name=\"order_by\" value=\"$order_by\">\n";
+  echo "  </select>\n";
+  echo "  <input type=\"hidden\" name=\"mode\" value=\"$mode\">\n";
+  echo "  <input type=\"hidden\" name=\"id_dept\" value=\"$id_dept\">\n";
+  echo "  <input type=\"hidden\" name=\"prov1\" value=\"$prov1\">\n";
   echo "</form>\n";
 
 
   echo "</td>\n      <td>";
 
+
   if ($offset+$limit < $num_arts) {
     printf(" <a href=\"%s?offset=%d", $_SERVER['PHP_SELF'], $offset+$limit);
-    echo "&order_by=$order_by&order=$order&mode=$mode" . "$href_dept$href_prov";
+    echo "&order_by=$order_by&order=$order&mode=$mode&alm=$alm$href_dept$href_prov";
     if (!empty($search))
       printf("&search=%s", htmlentities(str_replace(" ", "%20", $search)));
-	echo "\"><img src=\"imagenes/web/botones/siguiente_peq.png\" height=16 width=16 border=0></a>";
+	echo "\"><img src=\"imagenes/web/botones/siguiente.png\" alt=\"Siguiente\" border=0></a>";
   }
   else
     echo "<font color=\"#e0e0e0\">-&gt;</font>";
@@ -995,7 +999,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <?
     }
 
-    echo "  </td>\n</tr>\n</table>";
     if ($PROGRAMA=="web") {
       include("bodies/invent_footer.bdy");
     }
@@ -1004,7 +1007,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       include("bodies/invent_video_footer.bdy");
     }
     db_close($conn);
-    include("bodies/menu/general.bdy");
 ?>
 
 
