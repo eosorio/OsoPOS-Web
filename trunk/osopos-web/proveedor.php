@@ -1,7 +1,7 @@
 <?php  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
         Proveedores. Sub-Módulo de inventarios de OsoPOS Web.
 
-        Copyright (C) 2000-2003 Eduardo Israel Osorio Hernández
+        Copyright (C) 2000-2003,2005 Eduardo Israel Osorio Hernández
 
         Este programa es un software libre; puede usted redistribuirlo y/o
 modificarlo de acuerdo con los términos de la Licencia Pública General GNU
@@ -22,12 +22,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 {
   include("include/general_config.inc");
   include("include/pos.inc");
-  if (isset($salir)) {
-    include("include/logout.inc");
-  }
-  else {
   include("include/passwd.inc");
-  }
+
 }
 
 ?>
@@ -37,62 +33,71 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <HEAD>
   <TITLE>OsoPOS Web - Subm&oacute;dulo de proveedores</TITLE>
+   <?php include("menu/menu_principal.inc"); ?>
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
 
 </HEAD>
 <BODY>
+<?php 
 
+   include("menu/menu_principal.bdy");
+   echo "<br>\n";
+   if (!puede_hacer($conn, $user->user, "invent_ver_prov")) {
+     echo "<body>\n";
+     echo "<h4>Usted no tiene permisos para accesar este módulo</h4><br>\n";
+     echo "</body>\n";
+     echo "</html>\n";
+     exit();
+   }
+  if (isset($_POST['accion']))
+    $accion = $_GET['accion'];
+  else if (isset($_POST['accion']))
+    $accion = $_POST['accion'];
+  else
+    $accion = "muestra";
 
-<?
   if ($accion == "cambia") {
-    $peticion = "UPDATE proveedores SET nick='$nick'";
+    $peticion = sprintf("UPDATE proveedores SET nick='%s'", $_POST['nick']);
     if ($razon_soc)
-      $peticion.= ", razon_soc='$razon_soc'";
+      $peticion.= sprintf(", razon_soc='%s'", $_POST['razon_soc']);
     if ($calle)
-      $peticion.= ", calle='$calle'";
+      $peticion.= sprintf(", calle='%s'", $_POST['calle']);
     if ($colonia)
-      $peticion.= ", colonia='$colonia'";
+      $peticion.= sprintf(", colonia='%s'", $_POST['colonia']);
     if ($ciudad)
-      $peticion.= ", ciudad='$ciudad'";
+      $peticion.= sprintf(", ciudad='%s'", $_POST['ciudad']);
     if ($estado)
-      $peticion.= ", estado='$estado'";
+      $peticion.= sprintf(", estado='%s'", $_POST['estado']);
     if ($contacto)
-      $peticion.= ", contacto='$contacto'";
+      $peticion.= sprintf(", contacto='%s'", $_POST['contacto']);
     if ($email)
-      $peticion.= ", email='$email'";
+      $peticion.= sprintf(", email='%s'", $_POST['email']);
     if ($url)
-      $peticion.= ", url='$url'";
-    $peticion.= " WHERE id=$id";
+      $peticion.= sprintf(", url='%s'", $_POST['url']);
+    $peticion.= sprintf(" WHERE id=%s", $_POST['id']);
 
-    //    if (!$resultado = pg_exec($conn, $peticion)) {
     if (!$resultado = db_query($peticion, $conn)) {
-      echo "Error al ejecutar $peticion<br>\n";
-      echo db_errormsg($conn) . "<br></body></html>\n";
-      exit();
+      die("<div class=\"error_f\">Error al actualizar proveedores</div>\n");
     }
 
     $peticion = "DELETE FROM telefonos_proveedor WHERE id_proveedor=$id";
-    //    if (!$resultado = pg_exec($conn, $peticion)) {
     if (!$resultado = db_query($peticion, $conn)) {
-      echo "Error al ejecutar $peticion<br>\n";
-      echo db_errormsg($conn) . "<br></body></html>\n";
-      exit();
+      die("<div class=\"error_f\">Error al actualizar telefonos de proveedor</div>\n");
     }
       /* Ahora que no hay registro, se insertan */
     for ($i=0; $i<3; $i++) {
-      if ($tel[$i]) {
+      if (!empty($_POST["tel[$i]"])) {
         $peticion = "INSERT INTO telefonos_proveedor VALUES (";
-        $peticion.= sprintf("%2d, %2d, %2d, %2d,", $id, $clave_ld[$i], $tel[$i], $ext[$i]);
-        if ($es_fax[$i])
+        $peticion.= sprintf("%2d, %2d, %2d, %2d,", $_POST['id'], $_POST["clave_ld[$i]"],
+                            $_POST["tel[$i]"], $_POST["ext[$i]"]);
+        if ($_POST["es_fax[$i]"])
           $peticion.= "'t'";
         else
           $peticion.= "'f'";
         $peticion.= ")";
         //        if (!$resultado = pg_exec($conn, $peticion)) {
          if (!$resultado = db_query($peticion, $conn)) {
-         echo "Error al ejecutar $peticion<br>\n";
-          echo db_errormsg($conn) . "<br></body></html>\n";
-          exit();
+           die("<div class=\"error_f>Error al actualizar telefonos de proveedor</div>\n");
         }
       }
     }
@@ -102,9 +107,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $peticion = "SELECT * FROM proveedores WHERE id=$id";
       //      if (!$resultado = pg_exec($conn, $peticion)) {
       if (!$resultado = db_query($peticion, $conn)) {
-        echo "Error al ejecutar $peticion<br>\n";
-        echo db_errormsg($conn) . "<br></body></html>\n";
-        exit();
+        die("<div class=\"error_f\">Error al consultar proveedores</div>");
       }
       $reng = db_fetch_object($resultado, 0);
 
@@ -120,11 +123,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $val_submit =  "value=\"Modificar datos\"";
 
       $peticion = "SELECT * FROM telefonos_proveedor WHERE id_proveedor=$id";
-      //      if (!$resultado = pg_exec($conn, $peticion)) {
       if (!$resultado = db_query($peticion, $conn)) {
-        echo "Error al ejecutar $peticion<br>\n";
-        echo db_errormsg($conn) . "<br></body></html>\n";
-        exit();
+        echo "<div class=\"error_nf\">Error al consultar telefonos de proveedores</div>";
       }
       if ($num_ren = db_num_rows($resultado)) {
         for ($i=0;  $i<4 && $i<$num_ren; $i++) {
@@ -144,8 +144,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $acc = "inserta";
 	  $peticion = "SELECT max(id) as id FROM proveedores";
 	  if (!$resultado = db_query($peticion, $conn)) {
-		echo "Error al ejecutar $peticion<br>\n";
-		exit();
+		die("div class=\"error_f\">Error al consultar proveedores</div>\n";
 	  }
 	  $renglon = db_fetch_object($resultado, 0);
 	  $id = $renglon->id + 1;
@@ -154,16 +153,15 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     echo "<hr>\n";
   }
   else if ($accion == "inserta") {
-    $peticion = "INSERT INTO proveedores (nick, razon_soc, calle, colonia, ciudad,";
-    $peticion.= "estado, contacto) VALUES ('$nick', '$razon_soc', '$calle', '$colonia', '$ciudad',";
-    $peticion.= "'$estado', '$contacto')";
-    //    if (!$resultado = pg_exec($conn, $peticion)) {
+    $peticion = "INSERT INTO proveedores (nick, razon_soc, calle, colonia, ciudad, ";
+    $peticion.= sprintf("estado, contacto) VALUES ('%s', ", $_POST['nick']);
+    $peticion.= sprintf("'%s', '%s', '%s', '%s',", $_POST['razon_soc'],
+                        $_POST['calle'], $_POST['colonia'], $_POST['ciudad']);
+    $peticion.= sprintf("'%s', '%s')", $_POST['estado'], $_POST['contacto']);
     if (!$resultado = db_query($peticion, $conn)) {
-      echo "Error al ejecutar $peticion<br>\n";
-      exit();
+      die("<div class=\"error_f\">Error al agregar proveedor</div>\n");
     }
     $peticion = "SELECT max(id) as max_id FROM proveedores";
-    //    if (!$resultado = pg_exec($conn, $peticion)) {
     if (!$resultado = db_query($peticion, $conn)) {
       echo "Error al ejecutar $peticion<br>\n";
       exit();
@@ -181,36 +179,34 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
         else
           $es_fax = 'f';
         $peticion = "INSERT INTO telefonos_proveedor (id_proveedor";
-        if ($clave_ld[$k])
+        if (!empty($_POST["clave_ld[$k]"]))
           $peticion.= ", clave_ld";
         $peticion .= ", numero";
-        if ($ext[$k])
+        if (!empty($_POST["ext[$k]"]))
           $peticion.= ", ext";
         $peticion.= ", fax";
-        $peticion.= ") VALUES ($id";
-        if ($clave_ld[$k])
-          $peticion.= ", " .$clave_ld[$k];
-        $peticion.= ", " . $tel[$k];
+        $peticion.= sprintf(") VALUES (%d", $_POST['id']);
+        if (!empty($_POST["clave_ld[$k]"]))
+          $peticion.= ", " .$_POST["clave_ld[$k]"];
+        $peticion.= ", " . $_POST["tel[$k]"];
         if ($ext[$k])
-          $peticion.= ", " . $ext[$k];
-        $peticion.= ", '$es_fax')";
+          $peticion.= ", " . $_POST["ext[$k]"];
+        $peticion.= sprintf(", '$es_fax') ");
 
         if (!$resultado = db_query($peticion, $conn)) {
-          echo "Error al ejecutar $peticion<br>\n";
+          die("<div class=\"error_f\">Error al agregar teléfonos de proveedor</div>\n");
           exit();
         }
       }
     }
 
-    echo "<i>Proveedor $nick agregado</i><br>";
+    printf("<i>Proveedor %s agregado</i><br>", $_POST['nick']);
   }
 
   $peticion = "SELECT id, nick, razon_soc, calle, colonia, ciudad, estado, contacto";
   $peticion.= " FROM proveedores ORDER BY id";
-//  if (!$resultado = pg_exec($conn, $peticion)) {
   if (!$resultado = db_query($peticion, $conn)) {
-    echo "Error al ejecutar $peticion<br>\n";
-    exit();
+    die("<div class=\"error_f\">Error al consultar proveedores</div>\n");
   }
   $num_ren_prov = db_num_rows($resultado);
 
@@ -232,7 +228,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     $peticion.= "telefonos_proveedor WHERE id_proveedor=$reng->id";
 
     if (!$resultado2 = db_query($peticion, $conn)) {
-      echo "<tr><td colspan=5><b>Error al ejecutar $peticion<br>\n";
+      echo "<tr><td colspan=5><div class=\"error_f\">Error al consultar telefonos de proveedor</div>\n";
       echo db_errormsg($conn) . "</b></td></tr></table></body></html>\n";
       exit();
     }
@@ -240,7 +236,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
     echo " <tr>\n";
     echo "  <td $td_fondo>";
-    $href = "$PHP_SELF?accion=muestra&id=$reng->id";
+    $href = sprintf("%s?accion=muestra&id=%d", $_SERVER['PHP_SELF'], $reng->id);
     echo "<a href=\"$href\">" . $reng->id . "</a></td>\n";
     echo "  <td $td_fondo>$reng->nick</td>\n";
     echo "  <td $td_fondo>";
@@ -300,13 +296,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     for ($j=0; $j<10-$i; $j++)
       echo "<br>\n";
   }
-  echo "<hr>\n";
-  echo "<div align=\"right\">\n";
-  echo "<a href=\"invent_web.php\">Productos</a> | \n";
-  echo "<a href=\"depto.php\">Departamentos</a> | \n";
-  echo "<a href=\"$PHP_SELF?accion=agrega\">Agregar proveedor</a> | ";
-  echo "<a href=\"$PHP_SELF?salir=1\">Salir del sistema</a>\n";
-  echo "</div>\n";
 
   db_close($conn);
 ?>

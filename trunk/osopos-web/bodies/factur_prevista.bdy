@@ -31,7 +31,7 @@
 </table>
 <hr>
 
-<form action="<?php echo $PHP_SELF ?>" method="post">
+<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
 <table width="100%" border=0>
 <thead>
  <tr>
@@ -44,9 +44,8 @@
 <tbody>
 
 <?php
-  for ($i=0; $i<$num_arts && $i<10; $i++) {
-	if (isset($desc) && count($desc)) {
-      /* si los datos vienen de una forma */
+  for ($i=0; $i<$num_arts; $i++) {
+	/*	if ($es_forma) {
 	  $articulo[$i]->iva_porc = $iva_porc[$i];
 	  $articulo[$i]->tax_0 = $tax_0_porc[$i];
 	  $articulo[$i]->tax_1 = $tax_1_porc[$i];
@@ -58,7 +57,7 @@
 	  $articulo[$i]->codigo = $codigo[$i];
 	  $articulo[$i]->cant = $cant[$i];
 	  $articulo[$i]->desc = $desc[$i];
-	}
+	  }*/
 
     if ($FACTUR_IVA_INCLUIDO) {
 	  $razon_impuesto = $articulo[$i]->iva_porc;
@@ -88,7 +87,8 @@
     if ($razon_impuesto) {
       $articulo[$i]->pu = $articulo[$i]->pu / (1+($razon_impuesto/100));
 	}
-	$iva += $articulo[$i]->pu * ($articulo[$i]->iva_porc/100) * $articulo[$i]->cant;
+	$iva_conc[$i] = $articulo[$i]->pu * ($articulo[$i]->iva_porc/100) * $articulo[$i]->cant;
+	$iva += $iva_conc[$i];
 	$impuesto[0] += $articulo[$i]->pu * ($articulo[$i]->tax_0/100) * $articulo[$i]->cant;
 	$impuesto[1] += $articulo[$i]->pu * ($articulo[$i]->tax_1/100) * $articulo[$i]->cant;
 	$impuesto[2] += $articulo[$i]->pu * ($articulo[$i]->tax_2/100) * $articulo[$i]->cant;
@@ -113,11 +113,14 @@
   <input type="hidden" name="desc[<? echo $i ?>]" value="<? echo htmlspecialchars(stripslashes($articulo[$i]->desc)) ?>"></td>
   <td <? echo $bgcolor ?> align="right"><? printf("%.2f",  $articulo[$i]->pu) ?>
   <input type="hidden" name="pu[<? echo $i ?>]" value="<? echo $articulo[$i]->pu ?>"></td>
-  <td <? echo $bgcolor ?> align="right"><? printf("%.2f",  $articulo[$i]->pu*$articulo[$i]->cant) ?></td>
+  <td <?php echo $bgcolor ?> align="right">
+	<?php printf("%.2f",  $articulo[$i]->pu*$articulo[$i]->cant) ?>
+	<?php printf("<input type=\"hidden\" name=\"iva_porc[%d]\" value=\"%f\">", $i, $articulo[$i]->iva_porc) ?>
+  </td>
  </tr>
 
 <?php
-	}  /* for */
+  }  /* for */
 ?>
 
  <tr>
@@ -188,6 +191,7 @@
 <? }
   }
   $total = $subtotal + $impuestos;
+  $importe_letra = sprintf("%s pesos %s/100 M.N.", str_cant($total, $centavos), $centavos);
 
  ?>
 
@@ -201,8 +205,7 @@
 </table>
 <br><br>
 <center>
-
-<h4><b><?php echo str_cant($total, $centavos); printf("pesos %s", $centavos); ?>/100 M.N.</b></h4>
+<h4><b><?php echo $importe_letra ?></b></h4>
 </center>
 
 <br>
@@ -217,4 +220,7 @@
 </tbody>
 </table>
 <input type="hidden" name="id_cliente" value="<?php echo $id_cliente ?>">
+<input type="hidden" name="importe_letra" value="<?php echo
+  $importe_letra ?>">
+<input type="hidden" name="FACTURA_TIPO" value="PDF">
 </form>

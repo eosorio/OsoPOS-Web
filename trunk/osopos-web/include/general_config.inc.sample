@@ -8,15 +8,19 @@
 
   // Seccion de bases de datos
   if ($SQL_TYPE=="postgres") {
-    $DB_OWNER    =  "scaja";
-    $DB_NAME     =  "osopos";
-    $DB_HOST     =  "localhost";
+    $DB_OWNER    =  "linucs";
+    //$DB_NAME     =  "linucs";
+    $DB_NAME = "elpunto_tapa";
+    //$DB_OWNER    =  "scaja";
+    //$DB_NAME     =  "osopos";
+    //$DB_HOST     =  "localhost";
   }
   else if ($SQL_TYPE == "mysql") {
+    //$DB_HOST     = "mysql.elpuntodeventa.com";
     $DB_HOST = "127.0.0.1";
     $DB_OWNER = "root";
     $DB_PASSWD = "";
-    $DB_NAME = "myhost";
+    $DB_NAME = "elpunto_tapa";
   }
 
   // Seccion de archivos y directorios

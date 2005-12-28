@@ -18,194 +18,150 @@ function Crea_Factura($cliente,    /*clase datoscliente */
   global $ESC, $FF;
 
   include("include/factur_config.inc");
-  include ("include/linucs_factur_const.inc");
+  include ("include/minegocio_factur_const.inc");
 
-  $ffact = fopen($nmfact,"w");
-
-  if (!$ffact) {
+  //  $ffact = fopen($nmfact,"w");
+  $ffact = "";
+  /*  if (!$ffact) {
     echo "<b>Error al abrir el archivo $nmfact</b><br></body></html>";
     exit();
-  }
+    }*/
 
-
-  $linea = sprintf("%c",18);
-  /* Cancela modo condensado */
-  fputs($ffact, $linea);
-
-  if ($tipoimp == "EPSON") {
-    $linea = sprintf("%c%c",$ESC,77);
-    fputs($ffact, $linea);
-  }
-  else {
-    $linea = sprintf("%c%c",$ESC,58);
-  /* 12cpi en modo Epson: ESC,77, en modo IBM: ESC,58 */
-    fputs($ffact, $linea);
-  }
-  $linea = sprintf("%cJ%c",$ESC,800);
-  /* 2/n-avos de pulgada */
-  fputs($ffact, $linea);
 
   for ($i=0; $i<$MARGEN_SUP; $i++)
-    fputs($ffact, "\n");
+    $ffact.= "\n";
 
   $linea = "Pedido: ";
   if ($pedido)
-    $linea.= sprintf("%d", $num_venta);
+    $l_pedido.= sprintf("%d", $num_venta);
   else
-    $linea.= "s/n";
+    $l_pedido.= "s/n";
 
-  Espacios($ffact, $MARGEN);
-  fputs($ffact, $linea);
-
-  Espacios($ffact, 50-strlen($linea));
-  $linea = sprintf("Fecha: %d / %d / %d\n\n",$fecha->dia,$fecha->mes,$fecha->anio);
-  fputs($ffact, $linea);
-  fputs($ffact, "  =========================================================================\n");
-  fputs($ffact, "Cliente:\n");
+  $ffact.= espacio($MARGEN);
+  $linea = sprintf("Fecha: %2d / %2d / %4d     Pedido: %s\n\n",
+                   $fecha->dia,$fecha->mes,$fecha->anio, $l_pedido);
+  $ffact.= $linea;
+  $ffact.= espacio($MARGEN);
+  $ffact.= "=======================================\n";
+  $ffact.= espacio($MARGEN);
+  $ffact.= "Cliente:\n";
   $linea = sprintf("%s\n",$cliente->nombre);
-  Espacios($ffact, $MARGEN);
-  fputs($ffact, $linea);
+  $ffact.= espacio($MARGEN);
+  $ffact.= $linea;
   $linea = sprintf("%s, %s",
                    $cliente->dom_calle, $cliente->dom_numero);
   if ( strlen($cliente->dom_inter) )
     $linea .= sprintf("-%s",  $cliente->dom_inter);
   $linea .= "\n";
-  Espacios($ffact, $MARGEN);
-  fputs($ffact, $linea);
+  $ffact.= espacio($MARGEN);
+  $ffact.= $linea;
   if (strlen($cliente->dom_col)) {
     $linea = sprintf("Col. %s ", $cliente->dom_col);
-    Espacios($ffact, $MARGEN);
-    fputs($ffact, $linea);
+    $ffact.= espacio($MARGEN);
+    $ffact.= $linea;
   }
   $linea = sprintf("\n");
-  fputs($ffact, $linea);
+  $ffact.= $linea;
 
   $linea = sprintf("%s, %s", $cliente->dom_ciudad, $cliente->dom_edo);
-  Espacios($ffact, $MARGEN);
-  fputs($ffact, $linea);
+  $ffact.= espacio($MARGEN);
+  $ffact.= $linea;
 
-  fputs($ffact, "\n");
-  $linea = sprintf("C.P. %5d", $cliente->cp);
-  Espacios($ffact, $MARGEN);
-  fputs($ffact, $linea);
+  $ffact.= "\n";
+  $linea = sprintf("C.P. %5d     R.F.C. %s\n", $cliente->cp, $cliente->rfc);
+  $ffact.= espacio($MARGEN);
+  $ffact.= $linea;
+  $ffact.= espacio($MARGEN);
+  $ffact.= "----------------------------------------\n";
 
-  $linea = sprintf( "\n");
-
-  fputs($ffact, $linea);
-/* 16 n-avos de pulgada de avance vert */
-  /*$linea = sprintf("%cJ%c",$ESC,16);
-    fputs($ffact, $linea);*/
-  $linea = sprintf("%s\n",$cliente->rfc);
-  Espacios($ffact, $MARGEN);
-  fputs($ffact, $linea);
-
-  $linea = sprintf("%cJ%c",$ESC,116);
-  fputs($ffact, $linea);
 
   for ($i=0; $i<$num_articulos; ++$i) {
     if (strlen($articulos[$i]->desc) > $DESC_MAXCOLS) {
       $reng = array();
-      $renglon_largo = str_replace("&quot;", "\"", $articulos[$i]->desc);
-      for ($j=0; $j<$DESC_MAXRENS; $j++) {
-        $semi_renglon = substr($renglon_largo, 0, $DESC_MAXCOLS);
-        $pos_fin_reng = strrpos($semi_renglon, " ") ? strrpos($semi_renglon, " ") : strlen($semi_renglon) ;
-        //        echo "pos_fin_reng: $pos_fin_reng<br>\n"; /*igm*/
-        $reng[$j] = substr($semi_renglon, 0, $pos_fin_reng);
-        //        printf("reng[%d]: %s<br>\n", $j, $reng[$j]); /*igm*/
-        if (!empty($j))
-          $reng[$j] .= "\n";
-        $renglon_largo = substr($renglon_largo, $pos_fin_reng+1, strlen($renglon_largo));
-        //        echo "renglon largo: $renglon_largo<br>\n"; /*igm*/
+      $renglon_largo = wordwrap(str_replace("&quot;", "\"", str_replace("\\\"", "\"", $articulos[$i]->desc)),
+                                $DESC_MAXCOLS);
+      $reng[0] = trim(strtok($renglon_largo, "\n"));
+      for ($j=1; $j<$DESC_MAXRENS && $j<=substr_count($renglon_largo, "\n"); $j++) {
+        $reng[$j] = trim(strtok("\n"));
       }
     }
     else {
       $j = 1;
       $reng[0] = stripslashes($articulos[$i]->desc);
     }
-    $linea = sprintf("%-15s", $articulos[$i]->codigo);
-    Espacios($ffact, $MARGEN);
-    fputs($ffact, $linea);
-    $linea = sprintf(" %5.0d",$articulos[$i]->cant);
-    fputs($ffact, $linea);
-    $linea = sprintf("  %-35s ",$reng[0]);
-    fputs($ffact, $linea);
-    $buff = strlen($reng);
-    $linea = sprintf("%10.2f %11.2f\n\r",$articulos[$i]->pu,$articulos[$i]->pu*$articulos[$i]->cant);
-    fputs($ffact, $linea);
+    $ffact.= espacio($MARGEN);
+    $linea = sprintf("%-10s", $articulos[$i]->codigo);
+    $linea.= sprintf(" %-30s\n",$reng[0]);
+    $ffact.= $linea;
+
     $num_ren_articulos++;
     for ($k=1; $k<$j; $k++) {
-      Espacios($ffact, $MARGEN);
-      Espacios($ffact, 23);
-      fputs($ffact, $reng[$k]);
+      $ffact.= espacio($MARGEN);
+      $ffact.= espacio(11);
+      $linea = sprintf("%s\n", $reng[$k]);
+      $ffact.= $linea;
       $num_ren_articulos++;
     }
+    $ffact.= espacio($MARGEN);
+    $linea = sprintf("%4.2f x ",$articulos[$i]->cant);
+    $linea.= sprintf("%9.2f = %10.2f\n", $articulos[$i]->pu,
+                     $articulos[$i]->pu*$articulos[$i]->cant);
+    $ffact.= $linea;
   }
 
-  //  for ($i=0; $i<(($ART_MAXRENS)-$num_ren_articulos); ++$i)
-  //    fputs($ffact,"\n"); /* imprime renglones no usados en articulos */
-  $linea = sprintf("%cf1%c", $ESC, $ART_MAXRENS-$num_ren_articulos);
-  fputs($ffact, $linea);
+  $ffact.= espacio($MARGEN);
+  $ffact.= "----------------------------------------\n";
+  $ffact.= espacio($MARGEN);
+  $ffact.= espacio(15);
+  $linea = sprintf("Subtotal: %10.2f\n",$subtotal);
+  $ffact.= $linea;
 
-  $linea = sprintf("El pago se hace en una sola exhibici%cn\n\n", 162);
+  $ffact.= espacio($MARGEN);
+  $ffact.=espacio(15);
+  $linea = sprintf("  I.V.A.: %10.2f\n",$iva);
+  $ffact.= $linea;
 
-  Espacios($ffact, $MARGEN);
-  Espacios($ffact, 23);
-  fputs($ffact, $linea);
-  $linea = sprintf("Hecho con OsoPOS Web.\n");
-  Espacios($ffact, $MARGEN);
-  Espacios($ffact, 23);
-  fputs($ffact, $linea);
-  $linea = "http://elpuntodeventa.com/software.html\n\n";
-  Espacios($ffact, $MARGEN);
-  Espacios($ffact, 23);
-  fputs($ffact, $linea);
+  $ffact.= espacio($MARGEN);
+  $ffact.= espacio(15);
+  $linea = sprintf("   Total: %10.2f\n", $total);
+  $ffact.= $linea;
 
   $importe_letra = substr(str_cant($total,$buff), 0, $MAXIMPORT);
-  Espacios($ffact, $MARGEN);
-  Espacios($ffact, 23);
+  $ffact.= espacio($MARGEN);
   $linea = sprintf("%s---",$importe_letra);
-  fputs($ffact, $linea);
+  $ffact.= $linea;
   $linea = sprintf( "\n");
-  fputs($ffact, "\n");
+  $ffact.= "\n";
 
-  Espacios($ffact, $MARGEN);
-  Espacios($ffact, 23);
+  $ffact.= espacio($MARGEN);
   if ($buff>9)
     $linea = sprintf("pesos %2d/100 M.N.\n",$buff);
   else
     $linea = sprintf("pesos 0%1d/100 M.N.\n",$buff);
-  fputs($ffact, $linea);
+  $ffact.= $linea;
 
 
-  $linea = sprintf("%cJ%c",$ESC,12);
+
   if (strlen($garantia) > 3) {
-    Espacios($ffact, 5);
+    $ffact.= espacio(5);
     $linea = sprintf("%s de garantia",$garantia);
   }
-  fputs($ffact,"\n\n");
-  Espacios($ffact, 80);
-  $linea = sprintf("%9.2f\n\n",$subtotal);
-  fputs($ffact, $linea);
-  $linea = sprintf("%cJ%c",$ESC,15);
-  fputs($ffact, $linea);
-  Espacios($ffact, 80);
-  $linea = sprintf("%9.2f\n\n",$iva);
-  fputs($ffact, $linea);
-  $linea = sprintf("%cJ%c",$ESC,15);
-  fputs($ffact, $linea);
-  Espacios($ffact,80);
-  $linea = sprintf("%c%c%9.2f%c%c\n\n", $ESC,71, $total, $ESC,72);
-  fputs($ffact, $linea);
+  $ffact.= "\n";
 
-  fputs($ffact, "\n\n\n\n");
-  $linea = sprintf("%cJ%c",$ESC,12);
-  fputs($ffact, $linea);
-  Espacios($ffact,15);
+  $linea = sprintf("El pago se hace en una sola exhibici%cn\n\n", 162);
+  $ffact.= espacio($MARGEN);
+  $ffact.= $linea;
+  $linea = sprintf("Hecho con OsoPOS Web.\n");
+  $ffact.= espacio($MARGEN);
+  $ffact.= $linea;
+  $linea = "http://elpuntodeventa.com/software.html\n\n";
+  $ffact.= espacio($MARGEN);
+  $ffact.= $linea;
 
   $linea = sprintf("%c",$FF);
-  fputs($ffact, $linea);
-
-  fclose($ffact);
+  $ffact.= $linea;
+  return($ffact);
+  //  fclose($ffact);
 }
 
 /* Tenemos de dos sopas: Se busca la venta en la base de datos, o se le
@@ -224,6 +180,7 @@ function Crea_Ticket ($nm_ticket,
                       )
 {
   global $TICKET_IVA_INCLUIDO;
+  $i=0;
 
   if ($lee_venta != 0)
     $art = lee_venta ($id_venta);
@@ -239,6 +196,7 @@ function Crea_Ticket ($nm_ticket,
       $art[$i]->disc = $art_disc[$i];
     }
   }
+
   $impr = fopen($nm_ticket, "w");
   if (!$impr) {
     echo "<b>Error al abrir el archivo $nm_ticket</b><br></body></html>";
@@ -249,17 +207,17 @@ function Crea_Ticket ($nm_ticket,
     fputs($impr, sprintf("%c", 7));
   for ($i=0; $i<count($art); $i++) {
     $sub_iva = ( $art[$i]->pu * ($art[$i]->iva_porc/100) );
-    $linea = sprintf(" -> %s\n",$art[$i]->desc);
+    $linea = sprintf(" -> %s\n",wordwrap($art[$i]->desc, 35));
     fputs($impr, $linea);
-    $linea = sprintf(" %5d x ", $art[$i]->cant);
+    $linea = sprintf(" %3.2f x ", $art[$i]->cant);
     fputs($impr, $linea);
     if ($TICKET_IVA_INCLUIDO) {
-      $linea = sprintf("%10.2f = %10.2f",
+      $linea = sprintf("%7.2f = %7.2f",
                        $art[$i]->pu + $sub_iva,
                        ($art[$i]->pu + $sub_iva) * $art[$i]->cant);
     }
     else {
-      $linea = sprintf("%10.2f = %10.2f",
+      $linea = sprintf("%7.2f = %7.2f",
                        $art[$i]->pu,
                        $art[$i]->pu * $art[$i]->cant);
     }
@@ -294,14 +252,16 @@ function Crea_Ticket ($nm_ticket,
 
 function imprime_ticket_razon()
 {
-  global $CMD_IMPRESION, $IMPRESORA_TIPO, $ESC;
+  global $CMD_IMPRESION, $IMPRESORA_TIPO, $ESC, $COLA_TICKET;
 
   $nm_ar = tempnam("/tmp", "tkct_h");
   if ( !($ar = fopen($nm_ar, "w")) )
     return(1);
   if ($IMPRESORA_TIPO == "EPSON") {
     /* Centrado y doble ancho */
-    fputs($ar, sprintf("%ca%c%c!%celpuntodeventa.com\n%c!%c",
+    fputs($ar, sprintf("%ca%c%c!%celpuntodeventa\n%c!%c",
+                       $ESC, 1, $ESC, 48, $ESC, 0));
+    fputs($ar, sprintf("%ca%c%c!%c.com\n%c!%c",
                        $ESC, 1, $ESC, 48, $ESC, 0));
   }
   else {
@@ -310,11 +270,12 @@ function imprime_ticket_razon()
                        $ESC,'P',14,    15, $ESC,'M'));
   }
 
-  fputs($ar, "Soluciones en control de inventarios\n");
-  fputs($ar, "y punto de venta\n");
+  fputs($ar, "   Soluciones en control de\n");
+  fputs($ar, "inventarios y punto de venta\n");
   fputs($ar, sprintf("Eduardo Israel Osorio Hern%cndez\n", 182));
   fclose($ar);
-  if ( !($impresion = @popen($CMD_IMPRESION . $nm_ar, "w")) )
+  $comando = sprintf("%s -P %s %s", $CMD_IMPRESION, $COLA_TICKET, $nm_ar);
+  if ( !($impresion = @popen($comando, "w")) )
     return(2);
   else {
     pclose($impresion);
@@ -325,16 +286,18 @@ function imprime_ticket_razon()
 
 function print_ticket_header()
 {
-  global $CMD_IMPRESION, $IMPRESORA_TIPO, $ESC;
+  global $CMD_IMPRESION, $IMPRESORA_TIPO, $COLA_TICKET, $ESC;
 
   $nm_ar = tempnam("/tmp", "tkct_h");
   if ( !($ar = fopen($nm_ar, "w")) )
     return(1);
   fputs($ar, "RFC: OOHE-740628-RNA\n");
-  fputs($ar, "Dom. fiscal: J. Ma. Gil 686. Zapopan, Jal\n");
-  fputs($ar, "-----------------------------------------\n");
+  fputs($ar, "Dom. fiscal: 2a. Calle Ote. No. 2.\n");
+  fputs($ar, "             Tapachula, Chiapas.n");
+  fputs($ar, "-------------------------------------\n");
   fclose($ar);
-  if ( !($impresion = @popen($CMD_IMPRESION . $nm_ar, "w")) )
+  $comando = sprintf("%s -P %s %s", $CMD_IMPRESION, $COLA_TICKET, $nm_ar);
+  if ( !($impresion = @popen($comando, "w")) )
     return(2);
   else {
     pclose($impresion);
