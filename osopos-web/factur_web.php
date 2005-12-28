@@ -2,7 +2,7 @@
 
  Facturación Web 0.4-1. Módulo de facturación de OsoPOS Web.
 
-        Copyright (C) 2000,2003,2004 Eduardo Israel Osorio Hernández
+        Copyright (C) 2000,2003-2005 Eduardo Israel Osorio Hernández
 
         Este programa es un software libre; puede usted redistribuirlo y/o
 modificarlo de acuerdo con los términos de la Licencia Pública General GNU
@@ -61,6 +61,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
    <meta name="Author" content="E. Israel Osorio Hernández">
    <title>OsoPOS - FacturWeb v. <? echo $factur_web_vers ?></title>
+   <?php include("menu/menu_principal.inc"); ?>
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/numerico.css">
    <style type="text/css">
@@ -81,7 +82,11 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <body>
 
-<?
+<?php
+  include("menu/menu_principal.bdy");
+  echo "<br>\n";
+
+  include("bodies/menu/factur.bdy");
   include("include/encabezado.inc");
   if (empty($accion) || $accion!="lista") {
 
@@ -105,14 +110,13 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
           if (!empty($id_venta)) {
 
                 if (!$conn) {
-                  echo "ERROR: Al conectarse a la base de datos $DB_NAME<br>\n</body></html>";
-                  exit();
+                  die("<div class=\"error_f\">ERROR: Al conectarse a la base de datos</div><br>\n");
                 }
 
                 if (!isset($existe_venta))
                   $existe_venta = 0;
                 if (!is_array($articulo = lee_venta($id_venta))) {
-                  echo "<b>Error al leer artículos de la venta $id_venta</b><br>\n";
+                  echo "<div class=\"error_nf\">Error al leer artículos de la venta $id_venta</div><br>\n";
                   $accion = "articulos";
                 }
                 else {
@@ -139,17 +143,61 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     else {
       $fase = 2;
       include ("include/minegocio_factur_const.inc");
+      $articulo = array(new articulosClass);
 
       /* Los datos de artículos provienen de una forma */
       if (isset($_POST['desc'])) {
-        $desc = $_POST['desc'];
-        if (is_array($desc)) {
-          $articulo = array(new articulosClass);
-          /* Se cuentan cuantos artículos se introdujeron */
-          for($num_arts = 0; strlen($_POST['desc'][$num_arts]); $num_arts++);
-        }
-      }
+        $es_forma = TRUE;
 
+        $f_desc = $_POST['desc'];
+        $f_pu = $_POST['pu'];
+        $f_cant = $_POST['cant'];
+        $num_arts = 0;
+
+        $i = 0;
+        /* Se cuentan cuantos artículos se introdujeron */
+        //        for( ; strlen($_POST['desc'][$num_arts]) && strlen ($_POST['pu'][$num_arts] && strlen($_POST['cant'][$num_arts]; $num_arts++)
+        while (list ($item, $valor) = each ($_POST['desc']))
+        {
+          if (strlen($valor) && strlen($_POST['iva_porc']) && strlen($_POST['pu'])
+              && strlen($_POST['cant'])) {
+
+            $articulo[$i]->iva_porc = $_POST['iva_porc'][$item];
+            $articulo[$i]->pu = $_POST['pu'][$item];
+            $articulo[$i]->codigo = $_POST['codigo'][$item];
+            $articulo[$i]->cant = $_POST['cant'][$item];
+            $articulo[$i]->desc = $valor;
+            $i++;
+          }
+
+        }
+        $num_arts = $i;
+        reset($articulo);
+      }
+      else /* Provienen de una venta registrada */
+      {
+        $es_forma = FALSE;
+        $query = "SELECT codigo, descrip, cantidad, pu, iva_porc, ";
+        $query.= "tax_0, tax_1, tax_2, tax_3, tax_4, tax_5 FROM ventas_detalle ";
+        $query.= sprintf("WHERE id_venta = %d ", $_POST['id_venta']);
+
+        if (!$db_res = db_query($query, $conn)) {
+          die("<div class=\"error_f\">Error al consultar ventas </div>");
+        }
+        $num_arts = db_num_rows($db_res);
+        if (db_num_rows($db_res) == 0)
+          echo "<div class=\"error_nf\">La venta no tiene registro de productos.</div>\n";
+        for ($i=0; $i < $num_arts; $i++) {
+          $art = db_fetch_object($db_res, $i);
+
+          $articulo[$i]->iva_porc = $art->iva_porc;
+          $articulo[$i]->pu = $art->pu;
+          $articulo[$i]->codigo = $art->codigo;
+          $articulo[$i]->cant = $art->cantidad;
+          $articulo[$i]->desc = $art->descrip;
+        }
+
+      }
       if (empty($mes)) {
         include "include/mes.inc";
         $mes_a = array_keys($meses, $mes_s);
@@ -159,8 +207,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       /* inicialización de variables */
       $iva = 0.0; $subtotal = 0.0;
       $impuesto = array();
-      for ($z=0; $z<$MAXTAX; $z++)
-        $impuesto[$z] = 0.0;
+      for ($z=0; $z<$MAXTAX; $z++, $impuesto[$z] = 0.0);
 
       include("bodies/factur_prevista.bdy");
 
@@ -220,10 +267,9 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
     if ($AGREGA_CLIENTES != 0) {
       $peticion = "SELECT rfc FROM clientes_fiscales WHERE rfc='$rfc'";
-      if (!$resultado = db_query($peticion, $conn)) {
-        echo "Error al ejecutar $peticion<br>" . db_errormsg($conn) . "</body></html>\n";
-        exit();
-      }
+      if (!$resultado = db_query($peticion, $conn))
+        die("<div class=\"error_f\">Error al consultar RFC</div>\n");
+
       if (db_num_rows($resultado) == 0) {
         $peticion = "INSERT INTO clientes_fiscales (\"rfc\", \"curp\", \"nombre\") ";
         $peticion.= " VALUES ('$rfc', '$curp', '$razon_soc')";
@@ -272,25 +318,37 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $art[$i]->desc = $desc[$i];
       $art[$i]->pu = $pu[$i];
       $art[$i]->cant = $cant[$i];
+      $art[$i]->iva_porc = $iva_porc[$i];
     }
 
     $observaciones = chop (str_replace("\n", " ", str_replace("\r", "", $observaciones)) );
 
     $nm_archivo = "";
 
-    $imp_buff= Crea_Factura($cliente, $fecha, $art, count($desc), $subtotal, $iva, $subtotal+$iva,
-                            $garantia, $observaciones, $id_venta, $nm_archivo, $tipoimp);
-    /*igm*/ echo "<pre>$imp_buff</pre>\n";
-    $linea = "$CMD_IMPRESION -P $COLA_FACTUR";
-
-    $impresion = popen($linea, "w");
-    if (!$impresion) {
-      echo "<div class=\"error_nf\">Error al ejecutar <i>$CMD_IMPRESION $nm_archivo</i></div><br>\n";
+    if ($FACTURA_TIPO == "PDF") {
+      $nm_tmpar = tempnam("/tmp", "factura");
+      include("fpdf/personalizado/factura_htech.php");
+      echo "<script>window.open(\"leepdf.php?ar=$nm_tmpar\", \"mipdf\", \"width=700,height=500,scrollbars=yes\");</script>";
+      //      unlink($nm_tmpar);
     }
     else {
-      echo "<center><i>Factura impresa.</i></center>\n";
-      fputs($impresion, $imp_buff);
-      pclose($impresion);
+      $cola_factur = lee_config($conn, "COLA_FACTUR");
+      $cmd_impresion = lee_config($conn, "CMD_IMPRESION");
+
+      $imp_buff= Crea_Factura($cliente, $fecha, $art, count($desc), $subtotal, $iva, $subtotal+$iva,
+                              $garantia, $observaciones, $id_venta, $nm_archivo, $tipoimp);
+      /*igm*/ echo "<pre>$imp_buff</pre>\n";
+      $linea = "$cmd_impresion -P $cola_factur";
+
+      $impresion = popen($linea, "w");
+      if (!$impresion) {
+        echo "<div class=\"error_nf\">Error al ejecutar <i>$cmd_impresion $nm_archivo</i></div><br>\n";
+      }
+      else {
+        echo "<center><i>Factura impresa.</i></center>\n";
+        fputs($impresion, $imp_buff);
+        pclose($impresion);
+      }
     }
   } /* (fin) if ($accion=="imprimir"  ||  $accion=="agregarimprimir") */
 
@@ -371,9 +429,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
         }
         include("bodies/ingresos_lista.bdy");
   } 
-
-  include("bodies/menu/general.bdy");
-  include("bodies/menu/factur.bdy");
 }
 
 /*

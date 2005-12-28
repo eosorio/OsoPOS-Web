@@ -18,7 +18,10 @@ if (!isset($ART_MAXRENS))
   $ART_MAXRENS = 22;
 
 if (!isset($MARGEN))
-  $MARGEN = 4;
+  $MARGEN = 0;
+
+if (!isset($MARGEN))
+  $MARGEN_SUP = 2;
 
 if (!isset($tipoimp))
   $tipoimp = "EPSON";
@@ -27,5 +30,5 @@ if (!isset($DESC_MAXRENS))
   $DESC_MAXRENS = 3;
 
 if (!isset($DESC_MAXCOLS))
-  $DESC_MAXCOLS = 35;
+  $DESC_MAXCOLS = 29;
 ?>

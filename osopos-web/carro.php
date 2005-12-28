@@ -31,18 +31,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     include("include/passwd.inc");
   }
 
-  /*  if (isset($osopos_carrito))
-    if ($accion=="borrar") {
-            while (list ($nombre, $valor) = each ($osopos_carrito))
-        setcookie(sprintf("osopos_carrito[%s]", $nombre), "", time() - 3600);
-    }
-    else if ($accion=="borra_item")
-        setcookie(sprintf("osopos_carrito[%s]", $item), "", time() - 3600);
-    else if ($accion=="escribir") {
-            while (list ($nombre, $valor) = each ($osopos_carrito))
-        setcookie(sprintf("osopos_carrito[%s]", $nombre), $item[$nombre]);
-      reset($osopos_carrito); 
-    }*/
+  if (isset($_POST['accion']))
+    $accion = $_POST['accion'];
 }
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
@@ -50,6 +40,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <HEAD>
  <TITLE>OsoPOS Web - Carrito de compras v. 0.02</TITLE>
+   <?php include("menu/menu_principal.inc"); ?>
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/numerico.css">
    <style type="text/css">
@@ -63,6 +54,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <?php
 {
+  include("menu/menu_principal.bdy");
+  echo "<br>\n";
   /*igm*/ $debug=0;
   if ($accion=="borrar") {
     if (vacia_carrito($conn) == $DB_ERROR)
@@ -104,6 +97,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     }
     else {
       if ($accion=="escribir") {
+        $item = $_POST['item'];
         $errores = cambia_carrito($conn, $item);
         if (count($errores)) {
           echo "<div class=\"error_nf\">No pude actualizar los siguientes productos del carrito de compras:</div>\n";

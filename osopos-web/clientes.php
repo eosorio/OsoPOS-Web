@@ -81,6 +81,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <HEAD>
    <TITLE>OSOPoS Web - Clientes</TITLE>
+   <?php include("menu/menu_principal.inc"); ?>
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/numerico.css">
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/extras.css">
@@ -104,6 +105,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <body>
 <?php
 {
+  include("menu/menu_principal.bdy");
+  echo "<br>\n";
 
   if (isset($_GET['accion']))
     $accion = $_GET['accion'];
@@ -112,9 +115,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   else
     $accion = "ver";
 
-  include("bodies/menu/general.bdy");
-  include("bodies/menu/clientes.bdy");
-  echo "<hr>\n";
   if ($accion=="agregar") {
 
     $nombres = $_POST['nombres'];
@@ -198,8 +198,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 
     if (!$db_res = db_query($query, $conn)) {
-      echo "<div class=\"error_f\">Error al consultar clientes</div><br>\n";
-      exit();
+      die("<div class=\"error_f\">Error al consultar clientes</div><br>\n");
     }
 
     $num_r = db_num_rows($db_res);
@@ -208,7 +207,21 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   else if($accion == "nuevo") {
     include("forms/clientes_alta.bdy");
   }
-  $db_close($conn);
+  else if($accion == "consulta") {
+    $query = sprintf("SELECT * FROM clientes WHERE id=%d", $_POST['id']);
+    if (!$db_res = db_query($query, $conn)) {
+      die("<div class=\"error_f\">Error al consultar clientes</div><br>\n");
+    }
+    $r = db_fetch_object($db_res, 0);
+    $query = sprintf("SELECT * FROM domicilios WHERE id=%d ", $r->dom_principal);
+    if (!$db_res = db_query($query, $conn)) {
+      echo("<div class=\"error_nf\">Error al consultar domicilios</div><br>\n");
+    }
+    else
+     $dom = db_fetch_object($db_res, 0);
+    include("bodies/clientes_consulta.bdy");
+  }
+  db_close($conn);
 }
 ?>
 </body>

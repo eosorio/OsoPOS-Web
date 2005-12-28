@@ -33,6 +33,7 @@ include("include/pos.inc");
 <HTML>
 <HEAD>
   <TITLE>OsoPOS Web - Contraseñas</TITLE>
+  <?php include("menu/menu_principal.inc"); ?>
   <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
   <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/numerico.css">
 </HEAD>
@@ -40,6 +41,9 @@ include("include/pos.inc");
 
 <?php
 {
+  include("menu/menu_principal.bdy");
+  echo "<br>\n";
+
   if (isset($action) && $action=="listar") {
     $query = "SELECT * FROM users ORDER BY \"user\"";
 
@@ -103,7 +107,7 @@ include("include/pos.inc");
     }
   }
   db_close($conn);
-  include("bodies/menu/general.bdy");
+
 }
 ?>
 

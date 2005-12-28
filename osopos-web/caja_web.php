@@ -285,7 +285,7 @@ onClick="muestra_articulo(forma_articulo.cod.value)"
   else if ($bandera == 3) {
 
     if (count($osopos_carrito)) {
-      $nm_ticket = tempnam($TMP_DIR, "cajaweb");
+      $nm_ticket = tempnam(lee_config($conn, "TMP_DIR"), "cajaweb");
       include("bodies/caja_web_cobro.bdy");
     }
     else {
