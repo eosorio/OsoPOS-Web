@@ -1,7 +1,7 @@
-<?  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
+<?php /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
  Depto. Sub-Módulo de Inventarios de OsoPOS Web.
 
-        Copyright (C) 2000,2002 Eduardo Israel Osorio Hernández
+        Copyright (C) 2000,2002,2005 Eduardo Israel Osorio Hernández
         desarrollo@elpuntodeventa.com
 
         Este programa es un software libre; puede usted redistribuirlo y/o
@@ -22,12 +22,24 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 */
   include("include/general_config.inc");
   include("include/pos.inc");
-  if (isset($salir)) {
-    include("include/logout.inc");
-  }
-  else {
-    include("include/passwd.inc");
-  }
+  include("include/passwd.inc");
+
+  if (isset($_POST['accion']))
+    $accion = $_POST['accion'];
+  else if (isset($_GET['accion']))
+    $accion = $_GET['accion'];
+
+  if (isset($_POST['id']))
+    $id = $_POST['id'];
+  else if (isset($_GET['id']))
+    $id = $_GET['id'];
+
+  if (isset($_POST['nmdepto']))
+    $nmdepto = $_POST['nmdepto'];
+  else if (isset($_GET['nmdepto']))
+    $nmdepto = $_GET['nmdepto'];
+
+
   if ($PROGRAMA == "web")
     $PAGE_TITLE = "OsoPOS Web - Subm&oacute;dulo de departamentos";
   else
@@ -38,6 +50,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <!doctype html public "-//w3c//dtd html 4.01 transitional//en">
 <html>
 <head>
+   <?php include("menu/menu_principal.inc"); ?>
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
 
 <title><? echo $PAGE_TITLE ?></title>
@@ -46,6 +59,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 
 <?
+  include("menu/menu_principal.bdy");
+  echo "<br>\n";
   if ($accion == "cambia" && puede_hacer($conn, $user->user, "invent_depto_renombrar")) {
     $query = sprintf("UPDATE departamento set nombre='%s' WHERE id=%d",
                         $nmdepto, $id);
@@ -63,7 +78,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   }
   else if ($accion == "muestra"  ||  $accion == "agrega") {
     if ($accion == "muestra") {
-      $val_nmdepto = sprintf("value=\"$s\"", stripslashes($nmdepto));
+      $val_nmdepto = sprintf("value=\"%s\"", stripslashes($nmdepto));
       $val_submit =  "value=\"Modificar nombre\"";
       $acc = "cambia";
     }
@@ -72,18 +87,18 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $acc = "inserta";
     }
     echo "<table width=\"100%\">\n";
-    echo " <form action=\"$PHP_SELF\" method=\"post\">\n";
+    printf(" <form action=\"%s\" method=\"post\">\n", $_SERVER['PHP_SELF']);
     echo " <tr>\n";
-    echo "  <td>ID.<td>$id <input type=\"hidden\" name=\"id\" value=\"$id\">\n";
-    echo "  <td><input type=\"text\" name=\"nmdepto\" maxlength=25 size=20 $val_nmdepto>\n";
-    echo "  <input type=\"hidden\" name=\"accion\" value=\"$acc\">\n";
+    echo "  <td>ID.<td>$id <input type=\"hidden\" name=\"id\" value=\"$id\"></td>\n";
+    echo "  <td><input type=\"text\" name=\"nmdepto\" maxlength=25 size=20 $val_nmdepto></td>\n";
+    echo "  <input type=\"hidden\" name=\"accion\" value=\"$acc\"></td>\n";
+    echo " </tr>\n";
     echo "</table>\n";
     echo "<hr>\n";
   }
   else if ($accion == "inserta") {
     $peticion = sprintf("INSERT INTO departamento (nombre) VALUES ('%s')",
                         addslashes($nmdepto));
-    //    if (!$resultado = pg_exec($conn, $peticion)) {
     if (!$resultado = db_query($peticion, $conn)) {
       echo "<b>Error al ejecutar $peticion</b><br></body></html>\n";
       exit();
@@ -114,8 +129,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
     echo " <tr>\n";
     echo "  <td align=\"center\"$td_fondo>";
-    $href = "$PHP_SELF?accion=muestra&id=$reng->id&nmdepto=$reng->nombre";
-    $href = str_replace(" ", "%20", htmlentities($href));
+    $href = sprintf("%s?accion=muestra&id=%d&nmdepto=%s", $_SERVER['PHP_SELF'], $reng->id, htmlentities($reng->nombre));
     echo "<a href=\"$href\">" . $reng->id . "</a>\n";
     echo "  <td $td_fondo>";
     if ($reng->nombre)
@@ -131,10 +145,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   }
   echo "<hr>\n";
   echo "<div align=\"right\">\n";
-  echo "<a href=\"invent_web.php\">Productos</a> | \n";
-  echo "<a href=\"$PHP_SELF?accion=agrega\">Agregar departamento</a> | ";
-  echo "<a href=\"proveedor.php\">Proveedores</a> | ";
-  echo "<a href=\"$PHP_SELF?salir=1\">Salir del sistema</a>\n";
+  printf("<a href=\"%s?accion=agrega\">Agregar departamento</a> | ", $_SERVER['PHP_SELF']);
   echo "</div>\n";
 
   db_close($conn);

@@ -53,8 +53,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     $accion = $_GET['accion'];
   else if (isset($_POST['accion']))
     $accion = $_POST['accion'];
-  else
-    $accion = "muestra";
+/*  else
+ $accion = "muestra"; */
 
   if ($accion == "cambia") {
     $peticion = sprintf("UPDATE proveedores SET nick='%s'", $_POST['nick']);
@@ -107,6 +107,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $peticion = "SELECT * FROM proveedores WHERE id=$id";
       //      if (!$resultado = pg_exec($conn, $peticion)) {
       if (!$resultado = db_query($peticion, $conn)) {
+        /*igm*/ echo "$peticion<br>\n";
         die("<div class=\"error_f\">Error al consultar proveedores</div>");
       }
       $reng = db_fetch_object($resultado, 0);
@@ -144,7 +145,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $acc = "inserta";
 	  $peticion = "SELECT max(id) as id FROM proveedores";
 	  if (!$resultado = db_query($peticion, $conn)) {
-		die("div class=\"error_f\">Error al consultar proveedores</div>\n";
+		die("div class=\"error_f\">Error al consultar proveedores</div>\n");
 	  }
 	  $renglon = db_fetch_object($resultado, 0);
 	  $id = $renglon->id + 1;
