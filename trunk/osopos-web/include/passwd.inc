@@ -20,7 +20,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 */
 {
-
+  $error_pwd = 0;
   if(!isset($_SERVER['PHP_AUTH_USER'])) {
     @Header("WWW-Authenticate: Basic realm=\"OsoPOS Web\"");
     @Header("HTTP/1.0 401 Unauthorized");
@@ -30,8 +30,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
     if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
       $passwd = md5($_SERVER['PHP_AUTH_PW']);
-
-      $con_pwd = db_connect($DB_HOST, $HTTP_USER, $HTTP_PASSWD, $DB_NAME);
+      $con_pwd = db_connect($DB_HOST, $HTTP_USER, $HTTP_PASSWD, $DB_NAME, "", $DB_PORT);
       if ($con_pwd == 0  &&  $SQL_TYPE == "postgres") {
         echo "ERROR: Al conectarse a la base de datos $DB_NAME<br>\n";
         echo db_errormsg($con_pwd);
@@ -40,6 +39,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       }
       else if ($con_pwd==-1  &&  $SQL_TYPE == "mysql") {
         echo "Error al seleccionar la base de datos $DB_NAME<br>\n";
+        /*igm*/ echo "#" . mysql_error() . "#";
         echo db_errormsg($con_pwd);
         echo "<br>\n";
       }
@@ -66,9 +66,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
         if ($user->passwd != $passwd)
           $error_pwd = 1;
+
       }
       db_close($con_pwd);
-      $conn = db_connect($DB_HOST, $DB_USER, $DB_PASSWD, $DB_NAME);
+      $conn = db_connect($DB_HOST, $DB_USER, $DB_PASSWD, $DB_NAME, "", $DB_PORT);
     }
     else {
       echo "<HTML><HEAD><TITLE>OsoPOS Web v. 0.3</TITLE></HEAD>\n";
@@ -76,7 +77,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       echo "<b>Es necesario que se registre para usar OsoPOS</b><br>\n";
     }
   }
-  if ($error_pwd) {
+  if ($error_pwd>0) {
     include("include/logout.inc");
   }
 }

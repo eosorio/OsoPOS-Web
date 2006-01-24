@@ -1,3 +1,5 @@
+SET client_encoding TO 'iso-8859-1';
+
 CREATE TABLE articulos (
   codigo        varchar(20) PRIMARY KEY NOT NULL,
   descripcion   varchar(50) NOT NULL,
