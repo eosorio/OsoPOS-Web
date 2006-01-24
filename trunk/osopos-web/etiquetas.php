@@ -31,6 +31,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     include("include/passwd.inc");
   }
 
+  if (isset($_POST["accion"]))
+    $accion = $_POST["accion"];
+
+
   if (isset($osopos_carrito))
     if ($accion=="escribir") {
       while (list ($nombre, $valor) = each ($osopos_carrito))
@@ -68,7 +72,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   if (isset($osopos_carrito) && is_array($osopos_carrito)) {
     $descripcion = lista_campo($conn, array_keys($osopos_carrito), "descripcion", "articulos");
     if (isset($accion) && $accion=="cambiar") {
-      echo "<form action=\"$PHP_SELF\" method=\"post\">\n";
+      printf("<form action=\"%s\" method=\"post\">\n", $_SERVER['PHP_SELF']);
       echo "<table border=0 width=650>\n";
       while (list ($nombre, $valor) = each ($osopos_carrito)) {
         echo "<tr>\n";
@@ -109,10 +113,13 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $imp_buf.= sprintf("P%d\n", $osopos_carrito[$item]);
       $imp_buf.= sprintf("\n");
 
-      $linea = "$CMD_IMPRESION -P $COLA_ETIQUETAS";
+      $cola_etiquetas =  lee_config($conn, "COLA_ETIQUETAS");
+      $cmd_impresion =  lee_config($conn, "CMD_IMPRESION");
+
+      $linea = "$cmd_impresion -P $cola_etiquetas";
       $impresion = popen($linea, "w");
       if (!$impresion) {
-        echo "<b>Error al ejecutar <i>$CMD_IMPRESION $nm_archivo</i></b><br>\n";
+        echo "<b>Error al ejecutar <i>$cmd_impresion $nm_archivo</i></b><br>\n";
       }
       else {
         /*igm */ //echo "<pre>$imp_buff</pre>";
@@ -131,7 +138,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       else
         $lista = $osopos_carrito;
       echo "Contenido del carrito:<br>\n<br>\n";
-      echo "<form action=\"$PHP_SELF\" method=\"post\">\n";
+      printf("<form action=\"%s\" method=\"post\">\n", $_SERVER['PHP_SELF'];
       echo "<table border=0 width=600>\n";
       while (list ($nombre, $valor) = each ($lista)) {
         echo "<tr>\n";
