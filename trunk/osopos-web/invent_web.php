@@ -178,7 +178,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     else
       unset($id_dept);
   }
-  $href_dept = isset($id_dept) && $id_dept>=0 ? sprintf("&id_dept=%d", $id_dept) : "&depto=Todos";
+  $href_dept = isset($id_dept) && $id_dept>=0 ? sprintf("&id_dept=%d", $id_dept) : "";
   $form_dept = isset($id_dept) && $id_dept>=0 ? sprintf("\"id_dept\" value=%d>\n", $id_dept) : "\"depto\" value=\"Todos\">\n";
   $form_dept = "<input type=\"hidden\" name=" . $form_dept;
   if (isset($prov1))
@@ -932,8 +932,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 </colgroup>
 <tr>
   <td>
-    <form action=<? echo $_SERVER['PHP_SELF'] ?> method=post>
-    B&uacute;squeda rápida: <input type="text" size=40 name="search">
+    <form action=<?php echo $_SERVER['PHP_SELF'] ?> method="post">    B&uacute;squeda rápida: <input type="text" size=40 name="search">
     <input type="hidden" name="mode" value="<? echo $mode ?>">
     <?php if (isset($alm) && $alm>0) printf("<input type=\"hidden\" name=\"alm\" value=%d>", $alm); ?>
     </form>
