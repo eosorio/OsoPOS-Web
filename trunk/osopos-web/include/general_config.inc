@@ -9,7 +9,7 @@
 
   // Seccion de bases de datos
   if ($SQL_TYPE=="postgres") {
-    include("/etc/osopos/.config");
+     include("/etc/osopos/.config");
   }
   else if ($SQL_TYPE == "mysql") {
     $DB_HOST = "127.0.0.1";
@@ -19,15 +19,17 @@
   }
 
   // Seccion de archivos y directorios
+  /* Deshechadas. Ver catálogo de configuración en bd
   $TMP_DIR     =  "/tmp";
   $IMG_DIR     =  "imagenes/articulos";
   $PWD_DIR     =  "/var/www/html/osopos-web";
-
+  */
   // Variables
   $IVA_PORCENTAJE = 10;
   $IEPS_PORCENTAJE = 5;
 
   // Varios
+  /* Deshechadas. Ver catálogo de configuración en bd
   $COLA_TICKET   = "ticket";
   $COLA_NOTA     = "ticket";
   $COLA_FACTUR   = "star";
@@ -35,7 +37,7 @@
   if (!isset($CMD_IMPRESION)) {
     $CMD_IMPRESION = "lpr -b ";
   }
-
+  */
 
   $IMPRESORA_TIPO = "STAR";
   //  $IMPRESORA_TIPO = "EPSON";
@@ -70,5 +72,8 @@
 
   // Estadísticas
   $MAX_IMG_BARRAS = 5;
+
+  $FACTURA_TIPO = "TXT";
+  //$FACTURA_TIPO = "PDF";
 }
 ?>
