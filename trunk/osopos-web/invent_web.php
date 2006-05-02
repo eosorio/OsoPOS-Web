@@ -1,7 +1,7 @@
 <?php  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
         Invent Web. Módulo de inventarios de OsoPOS Web.
 
-        Copyright (C) 2000-2004 Eduardo Israel Osorio Hernández
+        Copyright (C) 2000-2006 Eduardo Israel Osorio Hernández
 
         Este programa es un software libre; puede usted redistribuirlo y/o
 modificarlo de acuerdo con los términos de la Licencia Pública General GNU
@@ -134,9 +134,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     div.notify {font-style: italic; color: red}
     div.head_almacen { text-align: center; font-size: big; font-weight: bold }
    </style>
-<?php
-   /*   <meta http-equiv="Refresh" content="60; url=<?php echo $PHP_SELF ?>">*/
-?>
 
 </HEAD>
 <?php
@@ -191,8 +188,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $query = "SELECT id FROM proveedores WHERE nick='$prov2'";
 
       if (!$resultado = db_query($query, $conn)) {
-        echo "Error al ejecutar $query<br>\n";
-        exit();
+        die ("Error al consultar proveedores<br>\n");
       }
       $id_prov2 = db_result($resultado, 0, "id");
     }
@@ -290,7 +286,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     $query = "INSERT INTO articulos (codigo, descripcion, ";
     $query.= "id_prov1, id_prov2, id_depto, p_costo, prov_clave, iva_porc, divisa, ";
     $query.= "codigo2, tax_0, tax_1, tax_2, tax_3, tax_4, tax_5, ";
-    $query.= "empaque, serie,tangible) ";
+    $query.= "empaque, serie, granel, tangible) ";
     $query.= sprintf("VALUES ('%s', ", addslashes($codigo));
     if (strlen($descripcion))
       $query .= sprintf("'%s', ", str_replace("&quot;", "\"", $descripcion));
@@ -302,6 +298,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $query.= sprintf(", %f", $imp_porc[$j]);
     $query.= sprintf(", '%f', ", $u_empaque);
     $query.= empty($_POST['incluye_serie']) ? "'f', " : "'t', ";
+    $query.= empty($_POST['granel']) ? "'f', " : "'t', ";
     $query.= empty($_POST['tangible']) ? "'f' " : "'t' ";
     $query.= ")";
     if ($debug>0)
@@ -543,20 +540,19 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       if ($PROGRAMA == "web") {
         if (isset($alm) && $alm>0) {
           $query = "SELECT alm.*, art.descripcion, art.prov_clave, art.id_prov1, art.id_prov2, art.id_depto, ";
-          $query.= "art.iva_porc, art.p_costo, art.serie, art.tangible, alm.alquiler ";
-          $query.= "FROM almacen_1 alm, articulos art ";
+          $query.= "art.iva_porc, art.p_costo, art.serie, art.tangible, alm.alquiler, ";
+          $query.= "art.granel FROM almacen_1 alm, articulos art ";
           $query.= sprintf("WHERE alm.codigo='$codigo' AND art.codigo='$codigo' AND alm.id_alm=%d", $alm);
         }
         else {
           $query = "SELECT descripcion, prov_clave, id_prov1, id_prov2, id_depto, iva_porc, ";
-          $query.= "divisa, empaque, codigo2, p_costo, serie, tangible ";
+          $query.= "divisa, empaque, codigo2, p_costo, serie, tangible, granel ";
           $query.= "FROM articulos ";
           $query.= "WHERE codigo='$codigo' ";
         }
 
         if (!$resultado = db_query($query, $conn)) {
-          echo "Error al ejecutar $query<br>" . db_errormsg($conn);
-          exit();
+          die("<div class=\"error_f\"Error al consultar datos de producto <pre>$codigo</pre></div>\n");
         }
         if (isset($debug) && $debug>0)
           echo "<i>$query</i><br>\n";
@@ -588,6 +584,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
         $val_imp_porc[5] = sprintf("value=\"%.2f\"", $reng->tax_5);
         $val_serie = $reng->serie=='t' ? "checked" : "";
         $val_tangible = $reng->tangible=='t' ? "checked" : "";
+        $val_granel = $reng->granel=='t' ? "checked" : "";
         $val_alquiler = $reng->alquiler=='t' ? "checked" : "";
         $val_submit = "value=\"Cambiar datos\"";
 
@@ -811,7 +808,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     if ($PROGRAMA == "web") {
       if (isset($alm) && $alm>0) {
         $query = "SELECT DISTINCT a.codigo, al.*, al.pu*d.tipo_cambio as unitario, a.descripcion, a.id_prov1, ";
-        $query.= "a.id_depto, a.prov_clave, al.c_min, al.c_max, a.tangible, al.alquiler ";
+        $query.= "a.id_depto, a.prov_clave, al.c_min, al.c_max, a.tangible, a.granel, al.alquiler ";
         $query.= "FROM almacen_1 al, divisas d, articulos a WHERE al.divisa=d.id AND al.codigo=a.codigo AND al.id_alm=$alm ";
       }
       else {
