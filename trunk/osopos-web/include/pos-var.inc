@@ -14,11 +14,18 @@ $MOVINV_DEVCOMPRA   = 4;
 $MOVINV_MERMA       = 5;
 $MOVINV_TSALIDA     = 6;
 $MOVINV_TENTRADA    = 7;
+$MOVINV_FISICO      = 8;
 
 /* Constantes de tipos de comprobantes */
 $TCOMP_NOTA   = 1;
 $TCOMP_FACTUR = 3;
 $TCOMP_TICKET = 5;
+
+/* Constantes de formas de pago */
+$FPAGO_TARJETA  =  1;
+$FPAGO_CREDITO  =  2;
+$FPAGO_EFECT    = 20;
+$FPAGO_CHEQUE    = 21;
 
 if (!isset($MAXLEN_COD))
   $MAXCOD    = 20;
@@ -36,6 +43,7 @@ if (!isset($MAXTAX))
   $MAXTAX = 6;
 
 class datosclienteClass {
+  var      $id;
   var      $rfc;
   var      $curp;
   var      $nombre;
@@ -72,6 +80,13 @@ class articulosClass {
 
 class fechaClass {
   var      $dia,$mes,$anio;
-}
+};
+
+/* Propiedades de formato de hoja en impresiones de texto plano */
+class hojaClass {
+  var     $max_ren;
+  var     $max_col;
+  var     $max_col_cond;
+};
 
 ?>
