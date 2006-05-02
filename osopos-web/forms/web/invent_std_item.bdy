@@ -1,5 +1,6 @@
-<? /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- */ ?>
+<?php /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- */ ?>
 <!-- forms/invent_std_item.bdy -->
+<?php $orden_lista_prov = 1; /* Ordenar por apodo */ ?>
 <script type="text/javascript">
 var j_ex;
 var j_pu1;
@@ -74,7 +75,14 @@ function deshacer(item, modificador) {
 
 </script>
 
-<form action="<? echo $PHP_SELF ?>" name="articulo" method="POST" enctype="multipart/form-data">
+<?php
+if (isset($alm) && $alm>0)
+  echo "<h4>Almacén $alm</h4>\n";
+else
+  echo "<h4>Catálogo</h4>\n";
+?>
+
+<form action="<?php echo $_SERVER['PHP_SELF'] ?>" name="articulo" method="POST" enctype="multipart/form-data">
 <table width="100%" border=1>
 <colgroup>
 <col width="30%">
@@ -86,7 +94,7 @@ function deshacer(item, modificador) {
    <td colspan=4>
    <table width="100%">
      <tr>
-      <td>C&oacute;digo</td>
+      <td class="tit_campo">C&oacute;digo</td>
 <?
     if (isset($codigo)) {
       echo "<td>$codigo <input type=\"hidden\" name=\"codigo\" $val_cod></td>\n";
@@ -95,7 +103,7 @@ function deshacer(item, modificador) {
       echo "  <td><input type=\"text\" name=\"codigo\" maxlength=$MAXCOD></td>\n";
     }
 ?>
-     <td>Descripci&oacute;n</td>
+     <td class="tit_campo">Descripci&oacute;n</td>
      <td colspan=3><?
      if (isset($alm) && $alm>0)
        printf("%s\n", str_replace("\"", "", str_replace("value=", "", $val_desc)));
@@ -104,14 +112,14 @@ function deshacer(item, modificador) {
      ?></td>
     </tr>
     <tr>
-     <td>Cód. alt.</td>
+     <td class="tit_campo">Cód. alt.</td>
      <td><?
        printf("<input type=\"text\" name=\"codigo2\" maxlength=%d %s>", $MAXCOD, $val_cod2) ?>
        <input type="hidden" name="search" value="<? echo $search ?>">
      </td>
 <?
      if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
-       echo "     <td>\n";
+       echo "     <td class=\"tit_campo\">\n";
        echo "        C&oacute;d. prov.\n";
        echo "     </td>\n";
        echo "     <td>\n";
@@ -133,38 +141,38 @@ function deshacer(item, modificador) {
    <table border=0 width="100%">
      <?php if ($alm>0) { ?>
    <tr>
-     <td>P. público</td>
+     <td class="tit_campo">P. público</td>
      <td><input type="text" name="pu" size=10 <? echo $val_pu ?>></td>
-     <td>+<input tpye="text" name="mod_pu1" size=2>%</td>
+     <td>+<input tpye="text" name="mod_pu1" size=2 value="<?php printf("%f", $tasa_util[0]) ?>">%</td>
     </tr>
     <tr>
-     <td>Precio 2</td>
+     <td class="tit_campo">Precio 2</td>
      <td><input type="text" name="precio2" size=10 <? echo $val_pu2 ?>></td>
-     <td>+<input tpye="text" name="mod_pu2" size=2>%</td>
+     <td>+<input tpye="text" name="mod_pu2" size=2 value="<?php printf("%f", $tasa_util[1]) ?>">%</td>
     </tr>
     <tr>
-     <td>Precio 3</td>
+     <td class="tit_campo">Precio 3</td>
      <td><input type="text" name="precio3" size=10 <? echo $val_pu3 ?>></td>
-     <td>+<input tpye="text" name="mod_pu3" size=2>%</td>
+     <td>+<input tpye="text" name="mod_pu3" size=2 value="<?php printf("%f", $tasa_util[2]) ?>">%</td>
     </tr>
     <tr>
-     <td>Precio 4</td>
+     <td class="tit_campo">Precio 4</td>
      <td><input type="text" name="precio4" size=10 <? echo $val_pu4 ?>></td>
-     <td>+<input tpye="text" name="mod_pu4" size=2>%</td>
+     <td>+<input tpye="text" name="mod_pu4" size=2 value="<?php printf("%f", $tasa_util[3]) ?>">%</td>
     </tr>
     <tr>
-     <td>Precio 5</td>
+     <td class="tit_campo">Precio 5</td>
      <td><input type="text" name="precio5" size=10 <? echo $val_pu5 ?>></td>
-     <td>+<input tpye="text" name="mod_pu5" size=2>%</td>
+     <td>+<input tpye="text" name="mod_pu5" size=2 value="<?php printf("%f", $tasa_util[4]) ?>">%</td>
     </tr>
 <?
-  }
+     }
   if (puede_hacer($conn, $user->user, "invent_ver_pcosto")) {
     if (!isset($pc)) $pc = sprintf("%.2f", str_replace("value=", "", $val_p_costo));
  ?>
 
     <tr>
-     <td>P. Costo</td>
+     <td class="tit_campo">P. Costo</td>
      <td><?
      if (isset($alm) && $alm>0)
      //       printf("%.2f\n", str_replace("value=", "", $val_p_costo));
@@ -200,29 +208,30 @@ if ($alm>0) { ?>
   <td valign="top">
    <table width=200>
     <tr>
-     <td>Divisa</td>
+     <td class="tit_campo">Divisa</td>
     <td colspan=3><select name="divisa">
-<?php /* <input type="text" name="divisa" size=3 <? echo $val_divisa ?>> */ echo lista_divisas($conn, $val_divisa)?>
+<?php  echo lista_divisas($conn, $val_divisa)?>
     </select></td>
     </tr>
+<?php /*
     <tr>
-     <td>Descuento</td>
+     <td class="tit_campo">Descuento</td>
      <td><input type="text" name="descuento" size=5
         <? echo $val_disc ?>>%</td>
     </tr>
+      */
+?>
     <tr>
-     <td>I.V.A.</td>
-     <td><input type="text" name="iva_porc" size=5 <? echo
-     $val_iva_porc ?>>%</td>
+     <td class="tit_campo">I.V.A.</td>
+     <td><input type="text" name="iva_porc" size=5 <? echo $val_iva_porc ?>>%</td>
     </tr>
     <tr>
-     <td>Imp. suntuario</td>
-     <td><input type="text" name="imp_porc[0]" size=5 <? echo
-     $val_imp_porc[0] ?>>%</td>
+     <td class="tit_campo">Imp. suntuario</td>
+     <td><input type="text" name="imp_porc[0]" size=5 <? echo $val_imp_porc[0] ?>>%</td>
     </tr>
-    <? /*   for ($j=1; $j<$MAXTAX; $j++) { ?>
+    <?php /*   for ($j=1; $j<$MAXTAX; $j++) { ?>
     <tr>
-     <td>Impuesto <? echo $j ?></td>
+     <td class="tit_campo">Impuesto <? echo $j ?></td>
      <td><input type="text" name="imp_porc[<? echo $j ?>]" size=5 <? echo
      $val_imp_porc[$j] ?>>%</td>
     </tr>
@@ -230,65 +239,110 @@ if ($alm>0) { ?>
     </table>
    </td>
    <td valign="top">
-    <table>
+    <table style="border-bottom: ridge" width="100%">
 	<tr>
-	  <td>Unidad de medida</td>
-	  <td><input type="text" name="u_medida" size=4 <? echo $val_u_medida ?>></td>
+	  <td class="tit_campo">Unidad de medida</td>
+	  <td><input type="text" name="u_medida" size=4 <?php echo $val_u_medida ?>></td>
 	</tr>
 	<tr>
-	  <td>Unidad de empaque</td>
-	  <td><input type="text" name="u_empaque" size=4 <? echo $val_u_empaque ?>></td>
+	  <td class="tit_campo">Unidad de empaque</td>
+	  <td><input type="text" name="u_empaque" size=4 <?php echo $val_u_empaque ?>></td>
 	</tr>
-	<? if (isset($alm) && $alm>0) {
+    </table>
+	<?php if ($action=="agrega" || ($alm>0 && $val_tangible=="checked"))
+     echo "<table style=\"border-bottom: ridge\" width=\"100%\">\n";
+    if ($action=="agrega") { ?>
+    <tr>
+      <td class="tit_campo">¿Controlar existencias?</td>
+      <td><input type="checkbox" name="tangible" checked></td>
+    </tr>
+    <?php } ?>     
+
+	<?php if ($alm>0 && $val_tangible=="checked") {
 	  if ($action!="agrega") { ?>
     <tr>
-     <td>Existencia actual</td>
+     <td class="tit_campo">Existencia actual</td>
      <td>
-     <input type="hidden" name="ex" <? echo $val_ex ?>>
-     <? printf("%.2f", str_replace("value=", "", $val_ex)) ?>
+     <input type="hidden" name="ex" <?php echo $val_ex ?>>
+     <?php printf("%.2f", str_replace("value=", "", $val_ex)) ?>
      </td>
     </tr>
-     <? } ?>
+     <?php } ?>
     <tr>
-     <td>Existencia min.</td>
+     <td class="tit_campo">Existencia min.</td>
      <td><input type="text" size=4 name="ex_min" <? echo $val_min ?>></td>
     </tr>
     <tr>
-     <td>Existencia max.</td>
+     <td class="tit_campo">Existencia max.</td>
      <td><input type="text" size=4 name="ex_max" <? echo $val_max ?>></td>
     </tr>
-<?
-}
- ?>
-
-    </table>
+	<?php if ($action=="agrega" || ($alm>0 && $val_tangible=="checked"))
+      echo "    </table>\n";
+    }
+    else {
+      echo "    <table width=\"100%\">\n";
+      echo "    <tr>\n";
+      echo "       <td class=\"tit_campo\">Control de series</td>\n";
+      printf("     <td><input type=\"checkbox\" name=\"incluye_serie\" value=\"t\" %s></td>\n", $val_serie);
+      echo "    </tr>\n";
+      echo "    <tr>\n";
+      echo "       <td class=\"tit_campo\">Código por báscula</td>\n";
+      printf("     <td><input type=\"checkbox\" name=\"granel\" value=\"f\" %s></td>\n", $val_granel);
+      echo "    </tr>\n";
+      echo "    </table>\n";
+   }
+    if ($alm>0) {
+      echo "    <table width=\"100%\">\n";
+      echo "    <tr>\n";
+      printf("     <td class=\"tit_campo\">Producto de alquiler<input type=\"hidden\" name=\"alq_prev\" value=\"%s\"></td>\n",
+             $val_alquiler);
+      printf("     <td><input type=\"checkbox\" name=\"alquiler\" value=\"t\" %s></td>\n", $val_alquiler);
+      echo "    </tr>\n";
+      echo "    </table>\n";
+    }
+?>
    </td>
    <td valign="top">
     <table>
-<?
+<?php
      if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
 ?>
      <tr>
-      <td>Proveedor princ.</td>
-      <td><? lista_proveedores(FALSE, "id_prov1", "Sin clasificar", $reng->id_prov1) ?></td>
+      <td class="tit_campo">Proveedor princ.</td>
+      <td><?php
+     if ($alm==0) {
+       lista_proveedores(FALSE, "id_prov1", "Sin clasificar", $orden_lista_prov, $reng->id_prov1);
+     }
+     else {
+       printf("<input type=\"hidden\" name=\"id_prov1\" value=\"%d\">%s",
+              $reng->id_prov1, $nick_prov[$reng->id_prov1]);
+     }
+?></td>
      </tr>
      <tr>
-      <td>Proveedor sec.</td>
-      <td><? lista_proveedores(FALSE, "id_prov2", "Sin clasificar", $reng->id_prov2) ?></td>
+      <td class="tit_campo">Proveedor sec.</td>
+      <td><?php
+      unset($nick_prov); /* IGM */ /*Marranada total */
+      if ($alm==0) {
+        lista_proveedores(FALSE, "id_prov2", "Sin clasificar", $orden_lista_prov, $reng->id_prov2);
+      }
+      else {
+        printf("<input type=\"hidden\" name=\"id_prov1\" value=\"%d\">%s",
+               $reng->id_prov2, $nick_prov[$reng->id_prov2]);
+      } ?></td>
      </tr>
 <? } ?>
      <tr>
-      <td>Depto./Línea</td>
-      <td>
-  <?
+      <td class="tit_campo">Depto./Línea</td>
+      <td><?php
     if (!isset($alm) || $alm==0) {
-      echo "          <select name=\"depto\">\n";
+      echo "          <select name=\"id_depto\">\n";
       for ($i=0; $i<$num_ren_depto; $i++) {
         if (strlen($nm_depto[$i])) {
           echo "   <option";
           if ($i == ($reng->id_depto))
-          echo " selected";
-          echo ">$nm_depto[$i]\n";
+            echo " selected";
+          printf(" value=\"%d\">%s\n", $i, $nm_depto[$i]);
         }
       }
       echo "        </select>\n";
@@ -300,17 +354,15 @@ if ($alm>0) { ?>
   </tr>
   <?php if ($action == "agrega") { ?>
   <tr>
-    <td colspan=2>Incluir en almacen:</td>
+    <td colspan=2 class="tit_campo">Incluir en almacen:</td>
   </tr>
   <tr>
     <td><?php checklist_almacen($conn) ?></td>
   </tr>
- <?php }
-else if ($action == "muestra") { ?>
+  <?php }
+  else if ($action == "muestra") { ?>
   <tr>
-    <td colspan=2>Cambiar costos de almacen:</td>
-  </tr>
-  <tr>
+    <td class="tit_campo">Posteriormente cambiar:</td>
     <td><?php echo lista_almacen($conn, "muestra_alm", "Ninguno") ?></td>
   </tr>
  <?php
@@ -337,8 +389,10 @@ else if ($action == "muestra") { ?>
   <textarea name="long_desc" cols=80 rows=8><? echo $long_desc ?></textarea>
   </td>
   <td>
-<? if ($action!="agrega" && !empty($img_location))
-     printf("   <img src=\"%s/%s\">\n", $IMG_DIR, $img_location);
+  <?php if ($action!="agrega" && !empty($img_location)) {
+      $img_dir = lee_config($conn, "IMG_DIR");
+     printf("   <img src=\"%s/%s\">\n", $img_dir, $img_location);
+    }
    else
 	 echo "&nbsp;\n";
 ?>
@@ -351,7 +405,7 @@ else if ($action == "muestra") { ?>
   if (isset($debug) && $debug>0)
     echo "  <input type=\"hidden\" name=\"debug\" value=\"$debug\">\n"; 
   if (isset($alm) && $alm>0)
-    echo "  <input type=\"hidden\" name=\"alm\" value=\"$alm\">\n";
+    echo "  <input type=\"hidden\" name=\"alm_item\" value=\"$alm\">\n";
 ?>
   </td>
 </tr>
@@ -360,13 +414,13 @@ else if ($action == "muestra") { ?>
 <input type="hidden" name="offset" value="<? echo $offset ?>">
 <input type="hidden" name="order" value="<? echo $order ?>">
 <input type="hidden" name="mode" value="<? echo $mode ?>">
-<?
-{
+<?php
+  
 if ($action=="agrega")
   echo "<input type=\"hidden\" name=\"action\" value=\"inserta\">\n";
 else if ($action=="muestra")
   echo "<input type=\"hidden\" name=\"action\" value=\"cambia\">\n";
-}
+
 ?>
 
 </form>

@@ -1,14 +1,14 @@
 <?php /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- */ ?>
 <!-- forms/invent_clasify.bdy -->
 
-  <form action=<? echo "\"$PHP_SELF\"" ?> method="post" name="selecciones">
+  <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post" name="selecciones">
   <table border=0 width="100%" id="superior">
   <tr>
    <td>
-    <input type="hidden" name="order_by" value="<? echo $order_by ?>">
-    <input type="hidden" name="order" value="<? echo $order ?>">
+    <input type="hidden" name="order_by" value="<?php echo $order_by ?>">
+    <input type="hidden" name="order" value="<?php echo $order ?>">
     <input type="hidden" name="offset" value=0>
-<? if (isset($alm)) printf("<input type=\"hidden\" name=\"alm\" value=%d>", $alm); ?>
+<?php if (isset($alm)) printf("<input type=\"hidden\" name=\"alm\" value=%d>", $alm); ?>
     <small>
 Normal <input type="radio" name="mode" value="normal"
 <? if (empty($mode) || $mode=="normal") echo "checked" ?>>&nbsp;
@@ -18,32 +18,30 @@ Baja ex. <input type="radio" name="mode" value="baja_ex"
 <? if ($mode=="baja_ex") echo "checked" ?>>
 </small>
    </td>
-<?
+<?php
   if ($PROGRAMA="web") {
 ?>
    <td>
     Depto.:
     <select name="id_dept">
 <?php
-  $d_selected =0;
-//  for ($i=0; $i<count($nm_depto); $i++) {
+
+  printf("   <option value=\"-1\"");
+  if ($id_dept == -1)
+    echo " selected";
+  echo ">Todos\n";
+
   while (list($i, $nombre) = each($nm_depto)) {
     printf("   <option value=%d", $i);
-    if (!$d_selected && (isset($id_dept) && $nm_depto[$i] == $depto  ||  (isset($id_dept)  &&  $i == $id_dept)))
+    if ($id_dept == $i)
       echo " selected";
     echo ">$nombre\n";
   }
-  printf("   <option value=%d", count($nm_depto));
-  if (!$d_selected && ($depto == "Todos"  ||  (isset($id_dept) && $id_dept == count($nm_depto)))) {
-    echo " selected";
-    unset($id_dept);
-  }
 ?>
-  >Todos
    </select>
   </td>
 
-<?
+<?php
   }
 else if ($PROGRAMA=="video") {
 ?>
@@ -58,10 +56,10 @@ else if ($PROGRAMA=="video") {
       echo " selected";
     echo ">$nm_depto[$i]\n";
   }
-  echo "   <option";
+  echo "   <option value=\"-1\"";
   if (!$d_selected && ($depto == "Todos"  ||  (isset($id_dept) && $id_dept == count($nm_depto)))) {
     echo " selected";
-    unset($id_dept);
+    //    unset($id_dept);
   }
 ?>
   >Todos
@@ -72,7 +70,7 @@ else if ($PROGRAMA=="video") {
 
   if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
    echo "  <td>Proveedor: ";
-    lista_proveedores(TRUE, "prov1", "Todos");
+   lista_proveedores(FALSE, "id_prov1", "Todos", 1, $id_prov1);
    echo "  </td>\n";
   }
   else

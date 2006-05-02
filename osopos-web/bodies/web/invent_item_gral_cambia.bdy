@@ -1,5 +1,5 @@
 <h4>Modificación de precio de costo</h4>
-<form action="<?php echo $PHP_SELF ?>" method="post">
+<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
 <table border=1>
 <colgroup>
   <col width="200"><col width="100"><col width="50"><col width="95">
@@ -10,7 +10,7 @@
   <th>Clave prov.</th><th>Costo envío</th><th>Div. envio</th><th>Estatus</th>
 </tr>
 <tr>
-  <td><?php lista_proveedores(FALSE, "id_prov", "Seleccione proveedor", $id_prov) ?></td>
+  <td><?php lista_proveedores(FALSE, "id_prov", "Seleccione proveedor", $ord_prov, $id_prov) ?></td>
   <td><input type="text" size="10" name="costo1" value="<?php printf("%.2f", $costo1) ?>">
       <input type="hidden" name="codigo" value="<?php echo $codigo ?>"></td>
   <td><select name="divisa"><?php echo lista_divisas($conn, $divisa) ?></select></td>
