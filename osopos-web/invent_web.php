@@ -75,6 +75,9 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     $limit = $_GET["limit"];
   else $limit = 10;
 
+  if (isset($_POST["search"]))
+    $search = $_POST["search"];
+
   if (isset($_POST["order_by"]))
     $order_by = $_POST["order_by"];
   else if (isset($_GET["order_by"]))
@@ -92,6 +95,11 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     $order = $_GET["order"];
   else $order = 1; /* Ascendente */
 
+  if (isset($_POST["codigo"]))
+    $codigo = $_POST["codigo"];
+  else if (isset($_GET["codigo"]))
+    $codigo = $_GET["codigo"];
+
   /* igm*/ /* QUITAR ESTA MARRANADA Y CONVERTIRLA EN CONSULTA A BD */
   $tasa_util = array();
   $tasa_util[0] = 40;
@@ -107,14 +115,17 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     $item_agregado = agrega_carrito_item($conn, $codigo, $qt);
   }
 
+  if (!isset($_POST['modulo']) && !isset($_GET['modulo']) && !isset($_POST['boton']))
+    $invent_footer = TRUE;
+
 }
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 
-<HTML>
+<html>
 
-<HEAD>
-   <TITLE>OSOPoS Web - Invent v. <? echo $INVENT_VERSION ?></TITLE>
+<head>
+   <title>OSOPoS Web - Invent v. <?php echo $INVENT_VERSION ?></title>
    <?php include("menu/menu_principal.inc"); ?>
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/numerico.css">
@@ -135,12 +146,12 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     div.head_almacen { text-align: center; font-size: big; font-weight: bold }
    </style>
 
-</HEAD>
+</head>
 <?php
    if (!puede_hacer($conn, $user->user, "invent_general")) {
      echo "<body>\n";
      include("menu/menu_principal.bdy");
-     echo "<br><h4>Usted no tiene permisos para accesar este módulo</h4><br>\n";
+     echo "<br/><h4>Usted no tiene permisos para accesar este módulo</h4><br/>\n";
      echo "<a href=\"index.php\">Regresar a menú principal</a>\n";
      echo "</body>\n";
      exit();
@@ -154,12 +165,14 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   }
   else if ($action == "agrega")
     echo "onload=\"document.articulo.codigo.focus()\"";
+  else if ($invent_footer)
+    echo "onload=\"document.f_busqueda.search.focus()\"";
 
   echo ">\n";
   include("menu/menu_principal.bdy");
-  echo "<br>\n";
+  echo "<br/>\n";
 
-  if(isset($depto)) {
+  if(!empty($depto)) {
     if ($depto!="Todos" && $id_dept>=0) {
       if ($PROGRAMA == "web")
         $query = "SELECT id AS id_dept FROM departamento WHERE nombre='$depto'";
@@ -176,7 +189,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       unset($id_dept);
   }
   $href_dept = isset($id_dept) && $id_dept>=0 ? sprintf("&id_dept=%d", $id_dept) : "";
-  $form_dept = isset($id_dept) && $id_dept>=0 ? sprintf("\"id_dept\" value=%d>\n", $id_dept) : "\"depto\" value=\"Todos\">\n";
+  $form_dept = isset($id_dept) && $id_dept>=0 ? sprintf("\"id_dept\" value=\"%d\">\n", $id_dept) : "\"depto\" value=\"Todos\">\n";
   $form_dept = "<input type=\"hidden\" name=" . $form_dept;
   if (isset($prov1))
     $id_prov1 = $prov1;
@@ -188,7 +201,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $query = "SELECT id FROM proveedores WHERE nick='$prov2'";
 
       if (!$resultado = db_query($query, $conn)) {
-        die ("Error al consultar proveedores<br>\n");
+        die ("Error al consultar proveedores<br/>\n");
       }
       $id_prov2 = db_result($resultado, 0, "id");
     }
@@ -200,19 +213,19 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $query = "SELECT id FROM proveedores WHERE nick='$prov3'";
 
       if (!$resultado = db_query($query, $conn)) {
-        echo "Error al ejecutar $query<br>\n";
+        echo "Error al ejecutar $query<br/>\n";
         exit();
       }
       $id_prov3 = db_result($resultado, 0, "id");
     }
   }*/
   $href_prov = isset($id_prov1) && $id_prov1>=0 ? sprintf("&id_prov1=%d", $id_prov1) : "&prov=Todos";
-  $form_prov = isset($id_prov1) && $id_prov1>=0 ? sprintf("\"id_prov1\" value=%d>\n", $id_prov1) : "\"prov\" value=\"Todos\">\n";
+  $form_prov = isset($id_prov1) && $id_prov1>=0 ? sprintf("\"id_prov1\" value=\"%d\">\n", $id_prov1) : "\"prov\" value=\"Todos\">\n";
   $form_prov = "<input type=\"hidden\" name=" . $form_prov;
   $query = "SELECT id,nick FROM proveedores ORDER BY id";
 
   if (!$resultado = db_query($query, $conn)) {
-    echo "<div class=\"error_f\">Error al consultar proveedores</div><br>\n";
+    echo "<div class=\"error_f\">Error al consultar proveedores</div><br/>\n";
     exit();
   }
   $num_ren_prov = db_num_rows($resultado);
@@ -233,7 +246,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     $query = "SELECT id,nombre FROM genero ORDER BY id";
 
   if (!$resultado = db_query($query, $conn)) {
-    echo "Error al ejecutar $query<br>\n";
+    echo "Error al ejecutar $query<br/>\n";
     exit();
   }
 
@@ -249,94 +262,90 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   reset($nm_depto);
 
   if ($action == "inserta") {
-    /*    $query = "SELECT id FROM departamento WHERE nombre='$depto'";
-
-    if ($debug>0)
-      echo "<i>$query</i><br>\n";
-    if (!$resultado = db_query($query, $conn)) {
-      echo "Error al buscar departamento.<br>\n$query<br>\n";
-      exit();
-    }
-    if (db_num_rows($resultado))
-      $id_dept = db_result($resultado, 0, id);
-    else
-      $id_dept = 0;
-    */
-
-    /*    if (empty($id_prov1)) {
-      if (!empty($prov1)) {
-        $query = "<i>SELECT id FROM proveedores WHERE nick='$prov1'</i><br>\n";
-
-        if ($debug>0)
-          echo "<i>$query</i>\n";
-        if (!$resultado = db_query($query, $conn)) {
-          echo "Error al consultar proveedores.<br>\n$query<br>\n";
-          exit();
-        }
-        if (db_num_rows($resultado))
-          $id_prov1 = db_result($resultado, 0, "id");
-        else
-          $id_prov1 = 0;
-      }
-    }
-    else
-      $id_prov1 = 0;
-    */
-
-    $query = "INSERT INTO articulos (codigo, descripcion, ";
-    $query.= "id_prov1, id_prov2, id_depto, p_costo, prov_clave, iva_porc, divisa, ";
-    $query.= "codigo2, tax_0, tax_1, tax_2, tax_3, tax_4, tax_5, ";
-    $query.= "empaque, serie, granel, tangible) ";
-    $query.= sprintf("VALUES ('%s', ", addslashes($codigo));
-    if (strlen($descripcion))
-      $query .= sprintf("'%s', ", str_replace("&quot;", "\"", $descripcion));
-    else
-      $query .= "'', ";
-    $query.= sprintf("%d, %d, %d, %f, '%s', %d, ", $id_prov1, $id_prov2, $id_depto, $p_costo, $prov_clave, $iva_porc);
-    $query.= sprintf("'%3s', '%s' ", $divisa, $codigo2);
-    for ($j=0; $j<$MAXTAX; $j++)
-      $query.= sprintf(", %f", $imp_porc[$j]);
-    $query.= sprintf(", '%f', ", $u_empaque);
-    $query.= empty($_POST['incluye_serie']) ? "'f', " : "'t', ";
-    $query.= empty($_POST['granel']) ? "'f', " : "'t', ";
-    $query.= empty($_POST['tangible']) ? "'f' " : "'t' ";
-    $query.= ")";
-    if ($debug>0)
-      echo "<i>$query</i><br>\n";
-    $resultado1 = db_query($query, $conn);
-    if (!$resultado1) {
-      $db_msg1 = db_errormsg($conn);
-    }
-
-    $query2 = "INSERT INTO article_desc (code, descripcion, long_desc, img_location) VALUES ";
-    $query2.= sprintf("('%s', '%s', '%s', '%s')", $codigo, $descripcion,
-                      str_replace("'", "\'", strip_tags($long_desc)), $img_source_name);
-    $resultado2 = db_query($query2, $conn);
-    if (!$resultado2) {
-      $db_msg2 = db_errormsg($conn);
-    }
-
-    if (!$resultado1) {
-      echo "<b>Error al insertar articulos.</b><br>\n$query<br>\n";
-      printf("<i>%s</i><br>\n", $db_msg1);
-      exit();
-    }
-    if (!$resultado2) {
-      echo "<b>Error al insertar descripción expandida del artículo</b><br>\n$query2<br>\n";
-      printf("<i>%s</i><br>\n", $db_msg2);
-    }
-
-    for ($i=0; $i<count($almac); $i++)
-      if (inserta_en_almacen($conn, $almac[$i], $codigo) == 0)
-        printf("<div class=\"men_res\">Articulo %s %s anexado en almacen %d</div>",
-               $codigo, stripslashes($descripcion), $almac[$i]);
-
-    if ($resultado1){
-      printf("<b><center>Art&iacute;culo <i>%s %s</i> agregado.</center></b><br>\n",
-             $codigo, stripslashes($descripcion));
+    $existe_codigo = 0;
+    $query = sprintf("SELECT (codigo) FROM articulos WHERE codigo='%s'", addslashes($codigo));
+    $r = db_query($query, $conn);
+    if (db_num_rows($r)) {
+      echo "<div class=\"error_nf\">El código $codigo ya existe en catálogo</div>\n";
+      $existe_codigo = TRUE;
+      $descripcion = $_POST['descripcion'];
+      $val_cod = "value=\"$codigo\"";
+      $val_cod2 = sprintf("value=\"%s\"", $_POST['codigo2']);
+      $val_desc = sprintf("value=\"%s\"", htmlspecialchars($_POST['descripcion']));
+      $val_p_costo = sprintf("value=%.2f", $_POST['p_costo']);
+      $val_disc = sprintf("value=\"%.2f\"", $_POST['descuento']);
+      $val_u_empaque = sprintf("value=\"%f\"", $_POST['u_empaque']);
+      $val_iva_porc =  sprintf("value=\"%.2f\"", $_POST['iva_porc']);
+      $val_prov_clave = sprintf("value=\"%s\"", $_POST['prov_clave']);
+      $val_divisa = $_POST['divisa'];
+      $val_serie = !empty($_POST['incluye_serie']) ? "checked" : "";
+      $val_tangible = !empty($_POST['granel']) ? "checked" : "";
+      $val_granel = !empty($_POST['granel']) ? "checked" : "";
+      $val_submit = "value=\"Cambiar datos\"";
+      $alm = 0;
+      $almacenes = array();
+      foreach ($_POST['almac'] as $b_a)
+        if (!empty($b_a))
+          $almacenes[] = $b_a;
       $action = "muestra";
-      $alm = $almac[0];
     }
+    else {
+      $query = "INSERT INTO articulos (codigo, descripcion, ";
+      $query.= "id_prov1, id_prov2, id_depto, p_costo, prov_clave, iva_porc, divisa, ";
+      $query.= "codigo2, tax_0, tax_1, tax_2, tax_3, tax_4, tax_5, ";
+      $query.= "empaque, serie, granel, tangible) ";
+      $query.= sprintf("VALUES ('%s', ", addslashes($_POST['codigo']));
+      if (strlen($_POST['descripcion']))
+        $query .= sprintf("'%s', ", str_replace("&quot;", "\"", $_POST['descripcion']));
+      else
+        $query .= "'', ";
+      $query.= sprintf("%d, %d, %d, %f, '%s', %d, ", $_POST['id_prov1'], $_POST['id_prov2'],
+                       $_POST['id_depto'], $_POST['p_costo'], $_POST['prov_clave'],
+                       $_POST['iva_porc']);
+      $query.= sprintf("'%3s', '%s' ", $_POST['divisa'], $_POST['codigo2']);
+      for ($j=0; $j<$MAXTAX; $j++)
+        $query.= sprintf(", %f", $_POST["imp_porc[$j]"]);
+      $query.= sprintf(", '%f', ", $_POST['u_empaque']);
+      $query.= empty($_POST['incluye_serie']) ? "'f', " : "'t', ";
+      $query.= empty($_POST['granel']) ? "'f', " : "'t', ";
+      $query.= empty($_POST['tangible']) ? "'f' " : "'t' ";
+      $query.= ")";
+      if ($debug>0)
+        echo "<i>$query</i><br/>\n";
+      $resultado1 = db_query($query, $conn);
+      if (!$resultado1) {
+        $db_msg1 = db_errormsg($conn);
+      }
+
+      $query2 = "INSERT INTO article_desc (code, descripcion, long_desc, img_location) VALUES ";
+      $query2.= sprintf("('%s', '%s', '%s', '%s')", $codigo, $_POST['descripcion'],
+                        str_replace("'", "\'", strip_tags($long_desc)), $_POST['img_source']);
+      $resultado2 = db_query($query2, $conn);
+      if (!$resultado2) {
+        $db_msg2 = db_errormsg($conn);
+      }
+
+      if (!$resultado1) {
+        $msg = sprintf("Error al insertar articulo %s %s",
+                       htmlentities($codigo), htmlentities($_POST['descripcion']));
+        die("<div class=\"error_f\">$msg</div><br/>\n");
+      }
+      if (!$resultado2) {
+        echo "<div class=\"error_nf\">Error al insertar descripción expandida del artículo</div><br/>\n";
+      }
+
+      for ($i=0; $i<count($almac); $i++)
+        if (inserta_en_almacen($conn, $almac[$i], $codigo) == 0)
+          printf("<div class=\"men_res\">Articulo %s %s anexado en almacen %d</div>",
+                 $codigo, stripslashes($_POST['descripcion']), $almac[$i]);
+
+      if ($resultado1){
+        printf("<div class=\"men_res\">Art&iacute;culo <i>%s %s</i> agregado.</div><br/>\n",
+               $codigo, stripslashes($_POST['descripcion']));
+        $action = "muestra";
+        $alm = $almac[0];
+      }
+    } /* else de codigo de producto duplicado */
   }
 
   if ($action == "cambia") {
@@ -349,7 +358,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       else if ($PROGRAMA == "video")
         $query = "SELECT id FROM genero WHERE nombre='$depto'";
       if (!$resultado = db_query($query, $conn)) {
-        echo "Error al consultar departamentos.<br>\n$query<br>\n";
+        echo "Error al consultar departamentos.<br/>\n$query<br/>\n";
         exit();
       }
       if (db_num_rows($resultado))
@@ -380,11 +389,11 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
             }
 
             if ($debug>0)
-              echo "<i>$query</i><br>\n";
+              echo "<i>$query</i><br/>\n";
             if (!$resultado = db_query($query, $conn)) 
-              printf("Error al actualizar articulo %s, $s<br>\n", $code[$i], $desc[$i]);
+              printf("Error al actualizar articulo %s, $s<br/>\n", $code[$i], $desc[$i]);
             else {
-              printf("<b>Art&iacute;culo <i>%s %s</i> actualizado.</b><br>\n",
+              printf("<b>Art&iacute;culo <i>%s %s</i> actualizado.</b><br/>\n",
                      $code[$i], stripslashes($desc[$i]));
               $action = "";
             }
@@ -421,23 +430,23 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
           $query.= sprintf("WHERE codigo='%s'", $codigo);
         }
         if (isset($debug) && $debug>0)
-          echo "<i>$query</i><br>\n";
+          echo "<i>$query</i><br/>\n";
         if (!$resultado = db_query($query, $conn)) {
           $updt_res += 1;
-          echo "<div class=\"error_nf\">Error: No puedo actualizar precios</div><br>\n";
+          echo "<div class=\"error_nf\">Error: No puedo actualizar precios</div><br/>\n";
         }
 
         $query2 = sprintf("UPDATE article_desc SET long_desc='%s' ",
                           addslashes(strip_tags($long_desc)));
-        if (!empty($img_source_name))
-          $query2.= sprintf(", img_location='%s' ", $img_source_name);
+        if (!empty($_POST['img_source']))
+          $query2.= sprintf(", img_location='%s' ", $_POST['img_source']);
         $query2.= sprintf("WHERE code='%s'", $codigo);
 
         if (isset($debug) && $debug>0)
-          echo "<i>$query2</i><br>\n";
+          echo "<i>$query2</i><br/>\n";
         if (!$resultado2 = db_query($query2, $conn)) {
           $updt_res += 2;
-          echo "<div class=\"error_nf\">Error: No puedo actualizar detalles del producto</div><br>\n";
+          echo "<div class=\"error_nf\">Error: No puedo actualizar detalles del producto</div><br/>\n";
         }
 
         if (empty($alq_prev) && $alquiler=="t") {
@@ -455,22 +464,22 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
         if ($act_rentas) {
           if (!$db_res = db_query($query, $conn)) {
-            echo "<div_class=\"error_nf\">Error: No puedo actualizar costos de rentas</div><br>\n";
+            echo "<div_class=\"error_nf\">Error: No puedo actualizar costos de rentas</div><br/>\n";
             $updt_res += 4;
           }
           if ($debug>0)
-            echo "<i>$query</i><br>\n";
+            echo "<i>$query</i><br/>\n";
         }
         //        if ($resultado && $resultado2 && $resultado3) {
         if ($updt_res == 0) {
 
-          printf("<b>Art&iacute;culo <i>%s %s</i> actualizado.</b><br>\n",
+          printf("<b>Art&iacute;culo <i>%s %s</i> actualizado.</b><br/>\n",
                  $codigo, stripslashes($descripcion));
           if ($act_rentas) {
             if ($alquiler=="t")
-              echo "<b>Se ingresó el artículo al catálogo de rentas</b><br>\n";
+              echo "<b>Se ingresó el artículo al catálogo de rentas</b><br/>\n";
             else
-              echo "<b>Se eliminó el artículo del catálogo de rentas</b><br>\n";
+              echo "<b>Se eliminó el artículo del catálogo de rentas</b><br/>\n";
           }
           $action = "";
         }
@@ -529,14 +538,14 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       die($mens);
     }
     else
-      echo "<i>Costos de rentas y tiempos de entrega actualizados</i><br>\n";
+      echo "<i>Costos de rentas y tiempos de entrega actualizados</i><br/>\n";
 
     $action == "muestra";
   }
 
   if (($action == "muestra"  ||  $action == "agrega")) {
 
-    if ($action == "muestra") {
+    if ($action == "muestra" && (empty($existe_codigo) || $existe_codigo==0)) {
       if ($PROGRAMA == "web") {
         if (isset($alm) && $alm>0) {
           $query = "SELECT alm.*, art.descripcion, art.prov_clave, art.id_prov1, art.id_prov2, art.id_depto, ";
@@ -555,24 +564,24 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
           die("<div class=\"error_f\"Error al consultar datos de producto <pre>$codigo</pre></div>\n");
         }
         if (isset($debug) && $debug>0)
-          echo "<i>$query</i><br>\n";
+          echo "<i>$query</i><br/>\n";
 
         $reng = db_fetch_object($resultado, 0);
         $val_cod = "value=\"$codigo\"";
         $val_cod2 = sprintf("value=\"%s\"", $reng->codigo2);
         $val_desc = sprintf("value=\"%s\"", htmlspecialchars($reng->descripcion));
-        $val_pu = "value=" . $reng->pu;
-        $val_pu2 = "value=" . $reng->pu2;
-        $val_pu3 = "value=" . $reng->pu3;
-        $val_pu4 = "value=" . $reng->pu4;
-        $val_pu5 = "value=" . $reng->pu5;
-        $val_p_costo = sprintf("value=%.2f", $reng->p_costo);
-        $val_disc = "value=" . $reng->descuento;
+        $val_pu  = sprintf("value=\"%.2f\"", $reng->pu);
+        $val_pu2 = sprintf("value=\"%.2f\"",  $reng->pu2);
+        $val_pu3 = sprintf("value=\"%.2f\"",  $reng->pu3);
+        $val_pu4 = sprintf("value=\"%.2f\"",  $reng->pu4);
+        $val_pu5 = sprintf("value=\"%.2f\"",  $reng->pu5);
+        $val_p_costo = sprintf("value=\"%.2f\"", $reng->p_costo);
+        $val_disc = sprintf("value=\"%.2f\"", $reng->descuento);
         $val_u_empaque = sprintf("value=\"%f\"", $reng->empaque);
         $val_u_medida = sprintf("value=\"%s\"", $reng->medida);
-        $val_ex = "value=" . $reng->cant;
-        $val_min = "value=" . $reng->c_min;
-        $val_max = "value=" . $reng->c_max;
+        $val_ex = "value=\"" . $reng->cant . "\"";
+        $val_min = "value=\"" . $reng->c_min . "\"";
+        $val_max = "value=\"" . $reng->c_max . "\"";
         $val_iva_porc =  sprintf("value=\"%.2f\"", $reng->iva_porc);
         $val_prov_clave = sprintf("value=\"%s\"", $reng->prov_clave);
         $val_divisa = $reng->divisa;
@@ -590,12 +599,13 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
         $query = "SELECT img_location,long_desc FROM article_desc WHERE code='$codigo'";
         if (!$resultado = db_query($query, $conn)) {
-          echo "Error al leer descripción ampliada del producto<br>" . db_error($conn);
-          exit();
+          die("<div class=\"error_f\">Error al leer descripción ampliada del producto</div>");
         }
+
         $reng2 = db_fetch_object($resultado, 0);
         $long_desc = $reng2->long_desc;
         $img_location = $reng2->img_location;
+
       }
       else if ($PROGRAMA == "video") {
         if (isset($alm) && $alm>0) {
@@ -608,9 +618,9 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
         }
 
         if (isset($debug) && $debug>0)
-          echo "<i>$query</i><br>\n";
+          echo "<i>$query</i><br/>\n";
         if (!$db_res = db_query($query, $conn)) {
-          echo "Error al ejecutar $query<br>" . db_errormsg($conn);
+          echo "Error al ejecutar $query<br/>" . db_errormsg($conn);
           exit();
         }
         $ren = db_fetch_object($db_res, 0);
@@ -638,7 +648,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $alm = 0;
       $val_submit = "value=\"Agregar producto\"";
       $val_divisa = $DIVISA_OMISION;
-      $val_tit_orig = sprintf("<input type=\"text\" name=\"%s\" value=\"%s\" size=60>\n",
+      $val_tit_orig = sprintf("<input type=\"text\" name=\"%s\" value=\"%s\" size=\"60\">\n",
                               "tit_orig", $ren->tit_orig);
       $val_product = sprintf("<input type=\"text\" name=\"%s\" value=\"%s\">\n", "product", $ren->product);
       $val_anio = sprintf("<input type=\"text\" name=\"%s\" value=\"%s\">\n", "anio", $ren->anio);
@@ -649,19 +659,19 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $val_genero2 = sprintf("<input type=\"text\" name=\"%s\" value=\"%s\">\n", "genero2", $ren->genero2);
       $val_clasif = sprintf("<input type=\"text\" name=\"%s\" value=\"%s\">\n", "clasif", $ren->clasif);
       $val_duracion = sprintf("<input type=\"text\" name=\"%s\" value=\"%s\">\n", "duracion", $ren->duracion);
-      $val_pais = sprintf("<input type=\"text\" name=\"%s\" value=\"%s\" size=10>\n",
+      $val_pais = sprintf("<input type=\"text\" name=\"%s\" value=\"%s\" size=\"10\">\n",
                           "pais", $ren->pais);
-      $val_dvd_region1 = sprintf("<input type=\"text\" name=\"%s\" value=\"%s\" size=1>\n",
+      $val_dvd_region1 = sprintf("<input type=\"text\" name=\"%s\" value=\"%s\" size=\"1\">\n",
                                  "dvd_region1", $ren->dvd_region1);
-      $val_dvd_region2 = sprintf("<input type=\"text\" name=\"%s\" value=\"%s\" size=1>\n",
+      $val_dvd_region2 = sprintf("<input type=\"text\" name=\"%s\" value=\"%s\" size=\"1\">\n",
                                  "dvd_region2", $ren->dvd_region2);
       $val_idioma = sprintf("<input type=\"text\" name=\"%s\" value=\"%s\">\n", "idioma", $ren->idioma);
       $val_subtit = sprintf("<input type=\"text\" name=\"%s\" value=\"%s\">\n", "subtit", $ren->subtit);
-      $val_resenia = sprintf("<textarea name=\"%s\" cols=80 rows=8>%s</textarea>\n", "resenia", $ren->resenia);
+      $val_resenia = sprintf("<textarea name=\"%s\" cols=\"80\" rows=\"8\">%s</textarea>\n", "resenia", $ren->resenia);
 
       $img_dir = lee_config($conn, "IMG_DIR");
       $pwd_dir = lee_config($conn, "PWD_DIR");
-      $val_imagen = sprintf("Ubicaci&oacute;n de la imagen: <input type=\"file\" name=\"img_source\" size=60 value=\"%s/%s/$img_location\">\n", $pwd_dir, $img_dir);
+      $val_imagen = sprintf("Ubicaci&oacute;n de la imagen: <input type=\"file\" name=\"img_source\" size=\"60\" value=\"%s/%s/$img_location\">\n", $pwd_dir, $img_dir);
       $col_w1 = 100;
     }
 
@@ -672,7 +682,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       include ("forms/video/filme_datos.bdy");
     }
     
-    echo "<hr>\n";
+    echo "<hr/>\n";
   }
 
   if ($action == "borrar") {
@@ -684,7 +694,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $resultado = db_query($query, $conn);
       if ((!$resultado) || (!$max_alm = db_result($resultado, 0, 0))) {
           echo "<div class=\"error_ft\">Inconsistencia en catálogo de almacenes. ";
-          echo "Consulte con su administrador del sistema</div><br>\n";
+          echo "Consulte con su administrador del sistema</div><br/>\n";
           echo "</body>\n";
           exit();
       }
@@ -692,31 +702,31 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       if (isset($alm) && $alm>0) {
         $query = "DELETE FROM almacen_1 WHERE codigo='$codigo' AND id_alm=$alm";
         if (!$resultado = db_query($query, $conn))
-          echo "<div class=\"error_nf\">Error al eliminar producto del almacen $alm.</div><br>\n";
+          echo "<div class=\"error_nf\">Error al eliminar producto del almacen $alm.</div><br/>\n";
         else
-          echo "Producto eliminado del almacen $alm.<br>\n";
+          echo "Producto eliminado del almacen $alm.<br/>\n";
       }
       else {
         $existe_alm = 0;
         for ($i=1; $i<=$max_alm && !$existe_alm; $i++) {
           $existe_alm = busca_codigo($conn, $codigo, $i);
           if ($existe_alm > 0)
-            echo "<div class=\"advt\">El producto existe en almacen $i, se cancela su eliminación</div><br>\n";
+            echo "<div class=\"advt\">El producto existe en almacen $i, se cancela su eliminación</div><br/>\n";
           else if ($existe_alm < 0)
-            echo "<div class=\"error_ft\">Error al consultar producto en almacen $i. Consulte con su administrador del sistema</div><br>\n";
+            echo "<div class=\"error_ft\">Error al consultar producto en almacen $i. Consulte con su administrador del sistema</div><br/>\n";
         }
         if (!$existe_alm) {
           $query = "DELETE FROM article_desc WHERE code='$codigo'";
           if (!$resultado = db_query($query, $conn))
-            echo "<div class=\"error_nf\">Error al eliminar descripción ampliada del producto.</div><br>\n";
+            echo "<div class=\"error_nf\">Error al eliminar descripción ampliada del producto.</div><br/>\n";
 
           $query = "DELETE FROM articulos WHERE codigo='$codigo'";
           if (!$resultado = db_query($query, $conn)) {
-            echo "<div class=\"error_nf\">Error al eliminar articulo del catálogo general.</div><br>\n";
+            echo "<div class=\"error_nf\">Error al eliminar articulo del catálogo general.</div><br/>\n";
             exit();
           }
           else
-            echo "<b>Art&iacute;culo <i>$codigo</i> eliminado.</b><br>\n";
+            echo "<b>Art&iacute;culo <i>$codigo</i> eliminado.</b><br/>\n";
         }
       }
 
@@ -740,7 +750,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
       $query = "SELECT * FROM articulos_rentas WHERE codigo='$codigo' ";
       if (!@$db_res = db_query($query, $conn)) {
-        $mens = "<div class=\"error_f\">Error al consultar catálogo de costos de renta</div><br>";
+        $mens = "<div class=\"error_f\">Error al consultar catálogo de costos de renta</div><br/>";
         $mens.= db_errormsg($conn);
         die($mens);
       } 
@@ -800,9 +810,9 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     include("forms/invent_clasify.bdy");
     if ($action=="add2cart") {
       if ($item_agregado!=$DB_ERROR)
-        echo "<i>Artículo agregado al carrito</i><br>\n";
+        echo "<i>Artículo agregado al carrito</i><br/>\n";
       else
-        echo "<div class=\"error_nf\">Error al intentar agregar el producto al carrito</div><br>\n";
+        echo "<div class=\"error_nf\">Error al intentar agregar el producto al carrito</div><br/>\n";
     }
 
     if ($PROGRAMA == "web") {
@@ -880,7 +890,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
    }
     
     if (!$resultado = db_query($query, $conn)) {
-      die("<div class=\"error_f\">No puedo consultar datos de artículos</div><br>\n");
+      die("<div class=\"error_f\">No puedo consultar datos de artículos</div><br/>\n");
    }
     $total_renglones = db_num_rows($resultado);
 
@@ -890,12 +900,12 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $query.= " LIMIT $limit OFFSET $offset";
 
     if (!$resultado = db_query($query, $conn)) {
-      echo "Error al ejecutar $query<br>\n";
+      echo "Error al ejecutar $query<br/>\n";
       exit();
     }
 
     if (isset($debug) && $debug>0) {
-      echo "<i>$query</i><br>\n";
+      echo "<i>$query</i><br/>\n";
     }
 
     if ($num_ren = db_num_rows($resultado)) {
@@ -912,7 +922,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
         }
       }
 
-      echo "<br>";
+      echo "<br/>";
     }
     else {
       echo "<i><center>No hay art&iacute;culos que coincidan en la base de datos</i></center>\n";
@@ -925,13 +935,13 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <table border=0 width="100%">
 <colgroup>
-  <col width="50%">
+  <col width="50%"></col>
 </colgroup>
 <tr>
   <td>
-    <form action=<?php echo $_SERVER['PHP_SELF'] ?> method="post">    B&uacute;squeda rápida: <input type="text" size=40 name="search">
-    <input type="hidden" name="mode" value="<? echo $mode ?>">
-    <?php if (isset($alm) && $alm>0) printf("<input type=\"hidden\" name=\"alm\" value=%d>", $alm); ?>
+    <form action="<?php echo $_SERVER['PHP_SELF'] ?>" id="f_busqueda" method="post">    B&uacute;squeda rápida: <input type="text" size="40" name="search">
+    <input type="hidden" name="mode" value="<?php echo $mode ?>">
+    <?php if (isset($alm) && $alm>0) printf("<input type=\"hidden\" name=\"alm\" value=\"%d\">", $alm); ?>
     </form>
   </td>
 
@@ -956,18 +966,18 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
   echo "</td>\n      <td>";
 
-  printf("<form action=\"%s\" method=\"post\">\n", $_SERVER['PHP_SELF']);
+  printf("<form ID=\"pagina\" action=\"%s\" method=\"post\">\n", $_SERVER['PHP_SELF']);
   echo "  <select name=\"offset\" onchange=\"submit()\">\n";
   for ($i=1; $i<=$total_renglones; $i+=$limit) {
-    printf("    <option value=%d", $i-1);
+    printf("    <option value=\"%d\"", $i-1);
     if ($offset == $i-1)
       echo " selected";
-    printf(">%d\n", (int)$i/$limit + 1);
+    printf(">%d</option>\n", (int)$i/$limit + 1);
   }
   echo "  </select>\n";
   echo "  <input type=\"hidden\" name=\"mode\" value=\"$mode\">\n";
   echo "  <input type=\"hidden\" name=\"id_dept\" value=\"$id_dept\">\n";
-  echo "  <input type=\"hidden\" name=\"prov1\" value=\"$prov1\">\n";
+  echo "  <input type=\"hidden\" name=\"id_prov1\" value=\"$id_prov1\">\n";
   echo "</form>\n";
 
 
@@ -991,7 +1001,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 </tr>
 </table>
 
-<hr>
+<hr/>
 <?
     }
 
@@ -1007,5 +1017,5 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 
 
-</BODY>
-</HTML>
+</body>
+</html>
