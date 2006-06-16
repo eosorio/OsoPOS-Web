@@ -1,7 +1,7 @@
-<?  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
+<?php  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
 
   auth.inc Módulo de contraseñas de OsoPOS Web
-        Copyright (C) 2002 Eduardo Israel Osorio Hernández
+        Copyright (C) 2002,2006 Eduardo Israel Osorio Hernández
         desarrollo@elpuntodeventa.com
 
         Este programa es un software libre; puede usted redistribuirlo y/o
@@ -22,26 +22,26 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 function existe_usuario($db_conn, $nombre, $password, $nivel) {
   $query = "SELECT id FROM users where \"user\"='$nombre'  ";
-  $query.= sprintf("AND passwd='%s' AND level=%d ", md5($password), $nivel);
+  $query.= sprintf("AND level=%d ", $nivel);
 
   $db_res = db_query($query, $db_conn);
-  if (!$db_res)
+  if (!$db_res) {
 	return($DB_ERROR);
-
+  }
   return (@db_result($db_res, 0, 0));
 }
 
-function agrega_usuario($db_conn, $nombre, $password, $nivel) {
-  if (!existe_usuario($db_conn, $nombre, $password, $nivel)) {
-	$query = "INSERT INTO users (\"user\", passwd, level) VALUES ";
-	$query.= sprintf("('%s', '%s', %d)",
-					 $nombre, md5($password), $nivel);
+function agrega_usuario($db_conn, $login, $password, $nivel, $nombre) {
+  if (!existe_usuario($db_conn, $login, $password, $nivel)) {
+	$query = "INSERT INTO users (\"user\", passwd, level, name) VALUES ";
+	$query.= sprintf("('%s', '%s', %d, '%s')",
+					 $login, crypt($password), $nivel, addslashes($nombre));
 
 	$db_res = db_query($query, $db_conn);
 	if (!$db_res)
 	  return($DB_ERROR);
 
-	return (existe_usuario($db_conn, $nombre, $password, $nivel));
+	return (existe_usuario($db_conn, $login, $password, $nivel));
   }
   return(0);
 }
@@ -75,4 +75,17 @@ function cambia_usuario($db_conn, $nombre, $ant_passwd, $nivel, $nvo_passwd) {
   }
   else
 	return(0);
+}
+
+function alta_modulos_usuario($db_conn, $login, $modulo) {
+  global $DB_ERROR;
+  
+  for ($i=0; $i<count($modulo); $i++) {
+    $query = sprintf("INSERT INTO modulo_usuarios (id, usuario) VALUES (%d, '%s') ",
+                     $modulo[$i], addslashes($login));
+	$db_res = db_query($query, $db_conn);
+	if (!$db_res)
+      return($DB_ERROR);
+  }
+  return($i);
 }
