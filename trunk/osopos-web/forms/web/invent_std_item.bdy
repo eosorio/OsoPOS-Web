@@ -82,25 +82,25 @@ else
   echo "<h4>Catálogo</h4>\n";
 ?>
 
-<form action="<?php echo $_SERVER['PHP_SELF'] ?>" name="articulo" method="POST" enctype="multipart/form-data">
+<form action="<?php echo $_SERVER['PHP_SELF'] ?>" name="articulo" method="POST">
 <table width="100%" border=1>
 <colgroup>
-<col width="30%">
-<col width="10%">
-<col width="20%">
-<col width="40%">
+<col width="30%"></col>
+<col width="10%"></col>
+<col width="20%"></col>
+<col width="40%"></col>
 </colgroup>
  <tr>
-   <td colspan=4>
+   <td colspan="4">
    <table width="100%">
      <tr>
       <td class="tit_campo">C&oacute;digo</td>
-<?
-    if (isset($codigo)) {
+<?php
+    if (isset($alm) && $alm>0) {
       echo "<td>$codigo <input type=\"hidden\" name=\"codigo\" $val_cod></td>\n";
     }
     else {
-      echo "  <td><input type=\"text\" name=\"codigo\" maxlength=$MAXCOD></td>\n";
+      echo "  <td><input type=\"text\" name=\"codigo\" maxlength=$MAXCOD $val_cod></td>\n";
     }
 ?>
      <td class="tit_campo">Descripci&oacute;n</td>
@@ -352,12 +352,12 @@ if ($alm>0) { ?>
   ?>
   </td>
   </tr>
-  <?php if ($action == "agrega") { ?>
+  <?php if ($action == "agrega" || $existe_codigo) { ?>
   <tr>
-    <td colspan=2 class="tit_campo">Incluir en almacen:</td>
+    <td colspan="2" class="tit_campo">Incluir en almacen:</td>
   </tr>
   <tr>
-    <td><?php checklist_almacen($conn) ?></td>
+        <td><?php checklist_almacen($conn, $almacenes) ?></td>
   </tr>
   <?php }
   else if ($action == "muestra") { ?>
@@ -391,7 +391,7 @@ if ($alm>0) { ?>
   <td>
   <?php if ($action!="agrega" && !empty($img_location)) {
       $img_dir = lee_config($conn, "IMG_DIR");
-     printf("   <img src=\"%s/%s\">\n", $img_dir, $img_location);
+     printf("   <img src=\"%s/%s\"/>\n", $img_dir, $img_location);
     }
    else
 	 echo "&nbsp;\n";
@@ -400,12 +400,38 @@ if ($alm>0) { ?>
 </tr>
 <tr>
   <td colspan=2>Ubicación de la imagen:
-  <input type="file" name="img_source" size=60>
-<?
+<?php
+
+  $arch = array();
+  $dir = dir(lee_config($conn, "IMG_DIR"));
+  while($token = $dir->read()) {
+    $ext = strtolower(substr($token, -4));
+                    
+    if ($ext==".jpg" || $ext==".png" || $ext==".gif" || strtolower(substr($token, -5))==".jpeg") {
+      $arch[] = $token;
+    }
+  }
+  $dir->close();
+
+  sort($arch);
+
+  echo "<select name=\"img_source\">\n";
+  echo "  <option>Seleccione una imagen</option>\n";
+  foreach($arch as $a_img) {
+    printf( "  <option value=\"%s\" ", $a_img);
+    if ($_POST['img_source']==$a_img || $img_location==$a_img)
+      echo "selected ";
+    printf( ">%s</option>\n", $a_img);
+  }
+  echo "</select>\n";
+    /*
+  echo "  <input type=\"file\" name=\"img_source\" size=60>\n";
+    */
   if (isset($debug) && $debug>0)
     echo "  <input type=\"hidden\" name=\"debug\" value=\"$debug\">\n"; 
   if (isset($alm) && $alm>0)
     echo "  <input type=\"hidden\" name=\"alm_item\" value=\"$alm\">\n";
+    
 ?>
   </td>
 </tr>
