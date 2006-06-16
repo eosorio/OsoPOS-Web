@@ -1,7 +1,7 @@
 <?php  /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*- 
  pos.inc 0.3-1. include file for osopos_web
 
-        Copyright (C) 2000-2003 Eduardo Israel Osorio Hernández
+        Copyright (C) 2000-2006 Eduardo Israel Osorio Hernández
         desarrollo@elpuntodeventa.com
 
         Este programa es un software libre; puede usted redistribuirlo y/o
@@ -26,8 +26,13 @@ function lee_config($db_con, $variable) {
   if (!$resultado = db_query($query, $db_con)) {
     return(NULL);
   }
-  else
+  else {
+    if (db_num_rows($resultado) == 0) {
+      echo "<div class=\"error_f\">Error en argumento de configuración $variable</div>\n";
+      return(NULL);
+    }
     return(db_result($resultado, 0, 0));
+  }
 }
 
 function registra_venta($id_vend, $art_cant, $art_descr, $art_pu, 
@@ -47,8 +52,7 @@ function registra_venta($id_vend, $art_cant, $art_descr, $art_pu,
                    $total, $tipo_pago, $tipo_comprobante, $utilidad, $id_vend,
 					  $user->id, $fecha, $hora, $iva);
   if (!$resultado = db_query($query, $conn)) {
-	echo "Error al ejecutar $query<br>\n";
-	exit();
+    die("<div class=\"error_f\">Error al registrar venta</div>\n");
   }
 
 
@@ -57,8 +61,7 @@ function registra_venta($id_vend, $art_cant, $art_descr, $art_pu,
   $query = sprintf("SELECT numero FROM ventas WHERE id_vendedor=%d AND ", $id_vend);
   $query.= sprintf("id_cajero=%d AND fecha='$fecha' AND hora='$hora'", $user->id);
   if (!$resultado = db_query($query, $conn)) {
-	echo "Error al ejecutar $query<br>\n";
-	exit();
+	die("<div class=\"error_f\"Error al consultar ventas</div>\n");
   }
   $id_venta = db_result($resultado, 0, 0);
 
@@ -71,8 +74,7 @@ function registra_venta($id_vend, $art_cant, $art_descr, $art_pu,
                      substr($art_descr[$codigo], 0, $MXT_VENTAS_DET_DESC ), 
                      $art_pu[$codigo], $art_iva_porc[$codigo]);
     if (!$resultado = db_query($query, $conn)) {
-      echo "Error al ejecutar $query<br>\n";
-      exit();
+      die("<div class=\"error_f\">Error al consultar detalle de ventas</div>\n");
     }
   }
   $descto_aplicado = checa_descuento($conn, $id_venta, $alm);
@@ -83,8 +85,7 @@ function registra_venta($id_vend, $art_cant, $art_descr, $art_pu,
 
   $query = sprintf("INSERT INTO corte (numero,bandera) VALUES (%d, B'%s')", $id_venta, $corte);
   if (!$resultado = db_query($query, $conn)) {
-    echo "Error al registrar corte<br>\n";
-    exit();
+    die("<div class=\"error_f\">Error al registrar corte</div>\n");
   }
 
   return($id_venta);
@@ -99,7 +100,7 @@ function update_supp($conn, $art_mcant)
     $query = "SELECT descripcion, cant,min FROM articulos ";
     $query.= sprintf("WHERE codigo='%s'", $codigo);
     if (!$result = db_query($query, $conn)) {
-      echo "<div class=\"error_nf\">Error al actualizar existencias.<br>Abortando actualización.</div><br>\n";
+      echo "<div class=\"error_nf\">Error al actualizar existencias.<br/>Abortando actualización.</div><br/>\n";
       return(0);
     }
     /* Not in database */
@@ -116,7 +117,7 @@ function update_supp($conn, $art_mcant)
                      $qt_remain);
     $query.= sprintf(" WHERE codigo='%s'", $codigo);
     if (!$result = db_query($query, $conn)) {
-      printf("<div class=\error_nf\">Error al actualizar existencias de %s</div><br>\n", $codigo);
+      printf("<div class=\error_nf\">Error al actualizar existencias de %s</div><br/>\n", $codigo);
     }
   }
   return($low_supply);
@@ -130,7 +131,7 @@ function actualiza_inv($db_con, $almacen, $codigo, $cant)
   $query.= sprintf("WHERE codigo='%s' AND id_alm=%d", $codigo, $almacen);
 
   if (!$db_res = db_query($query, $db_con)) {
-    echo "<b>Error al actualizar existencias</b><br>Abortando actualización.<br>\n";
+    echo "<b>Error al actualizar existencias</b><br/>Abortando actualización.<br/>\n";
     return(0);
   }
   /* Not in database */
@@ -147,7 +148,7 @@ function actualiza_inv($db_con, $almacen, $codigo, $cant)
   $query.= sprintf("WHERE codigo='%s' AND id_alm=%d", $codigo, $almacen);
 
   if (!$db_res = db_query($query, $db_con)) {
-    printf("<b>Error al actualizar existencias de %s<br>\n",
+    printf("<b>Error al actualizar existencias de %s<br/>\n",
            $codigo);
   }
 
@@ -161,7 +162,7 @@ function actualiza_costo($db_con, $codigo, $p_costo, $tipo_costeo=0)
   $query = sprintf("SELECT p_costo FROM articulos WHERE codigo='%s'", $codigo);
 
   if (!$db_res = db_query($query, $db_con)) {
-    echo "<b>Error al actualizar existencias</b><br>Abortando actualización.<br>\n";
+    echo "<b>Error al actualizar existencias</b><br/>Abortando actualización.<br/>\n";
     return(0);
   }
   /* Not in database */
@@ -186,11 +187,11 @@ function actualiza_costo($db_con, $codigo, $p_costo, $tipo_costeo=0)
   $query.= sprintf("WHERE codigo='%s'", $codigo);
 
   if (!$db_res = db_query($query, $db_con)) {
-    printf("<b>Error al actualizar precio de costo de %s<br>\n",
+    printf("<b>Error al actualizar precio de costo de %s<br/>\n",
            $codigo);
     if (isset($debug) && $debug>0) {
-      echo db_errormsg($db_con) . "<br>\n";
-      echo "<i>$query</i><br>\n";
+      echo db_errormsg($db_con) . "<br/>\n";
+      echo "<i>$query</i><br/>\n";
     }
   }
 
@@ -261,8 +262,8 @@ function lee_venta($id) {
 
   $query = "SELECT codigo, descrip, cantidad,pu, iva_porc FROM ventas_detalle WHERE id_venta=$id";
   if (!$resultado = db_query($query, $conn)) {
-    echo "Error al ejecutar $query<br>";
-    echo "No se pudo encontrar los datos de la venta<br>" . db_errormsg($conn) . "<br>\n";
+    echo "Error al ejecutar $query<br/>";
+    echo "No se pudo encontrar los datos de la venta<br/>" . db_errormsg($conn) . "<br/>\n";
   }
   $num_art = db_num_rows($resultado);
   if (!$num_art)
@@ -546,7 +547,7 @@ function lista_movimientos($db_con, $item_default, $nm_campo="tipo_mov[]") {
     $query = "SELECT nombre FROM tipo_mov_inv ORDER BY id ASC ";
 
     if (!$db_res = db_query($query, $db_con)) {
-      echo "Error al ejecutar $query<br>\n";
+      echo "Error al ejecutar $query<br/>\n";
       exit();
     }
 
@@ -585,7 +586,7 @@ function lista_movimientos($db_con, $item_default, $nm_campo="tipo_mov[]") {
       echo "   <option ";
       if ($i == $item_default)
         printf("selected ");
-      printf(" value=%d>%s\n", $i, $nm_tipo_mov[$i]);
+      printf(" value=\"%d\">%s</option>\n", $i, $nm_tipo_mov[$i]);
     }
   }
   echo "</select>\n";
@@ -596,7 +597,7 @@ function tipo_mov($db_con, $num_tipo_mov) {
   $query = "SELECT nombre FROM tipo_mov_inv WHERE id=$num_tipo_mov ";
 
   if (!$db_res = db_query($query, $db_con)) {
-    echo "Error al ejecutar $query<br>\n";
+    echo "Error al ejecutar $query<br/>\n";
     exit();
   }
 
@@ -611,14 +612,14 @@ function inserta_cab_movinv($db_con, $almacen, $tipo_mov, $id_prov1, $usuario, $
   $query = "INSERT INTO mov_inv (almacen, tipo_mov, usuario, fecha_hora, id_prov1) VALUES ";
   $query.= sprintf("(%d, %d, '%s', '%s %s', %d)", $almacen, $tipo_mov, $usuario, $fecha, $hora, $id_prov1);
   if (!$db_res = db_query($query, $db_con)) {
-    echo "Error al ejecutar $query<br>\n";
+    echo "Error al ejecutar $query<br/>\n";
     exit();
   }
 
   $query = sprintf("SELECT id FROM mov_inv WHERE almacen=%d AND usuario='%s' AND fecha_hora='%s %s' ",
                    $almacen, $usuario, $fecha, $hora);
   if (!$db_res = db_query($query, $db_con)) {
-    echo "Error al ejecutar $query<br>\n";
+    echo "Error al ejecutar $query<br/>\n";
     exit();
   }
   if (db_num_rows($db_res))
@@ -634,14 +635,14 @@ function inserta_det_movinv($db_con, $almacen, $id, $codigo, $cant, $pu, $p_cost
 
 
   if (!$db_res = db_query($query, $db_con)) {
-    echo "Error al ejecutar $query<br>\n";
+    echo "Error al ejecutar $query<br/>\n";
     exit();
   }
 
   $query = "SELECT entrada FROM tipo_mov_inv WHERE id=$tipo_mov";
 
   if (!$db_res = db_query($query, $db_con)) {
-    echo "Error al consultar tipos de movimientos. Existencia y costo no actualizados<br>\n";
+    echo "Error al consultar tipos de movimientos. Existencia y costo no actualizados<br/>\n";
   }
   else {
 
@@ -670,7 +671,7 @@ function inserta_en_almacen($db_con, $almacen, $codigo) {
   if ($debug>0)
     echo "<i>$query</i><b>\n";
   if (!$db_res = db_query($query, $db_con)) {
-    echo "Error al importar artículo del catálogo<br>\n";
+    echo "Error al importar artículo del catálogo<br/>\n";
     db_errormsg($db_res);
     return(-1);
   }
@@ -683,9 +684,9 @@ function puede_hacer($db_con, $usuario, $accion) {
   $query = "SELECT mod_usr.usuario FROM modulo, modulo_usuarios mod_usr WHERE modulo.id=mod_usr.id ";
   $query.= sprintf("AND modulo.nombre='%s' AND usuario='%s' ", $accion, $usuario);
   if ($debug>2)
-    echo "<i>puede_hacer</i> $query<br>\n";
+    echo "<i>puede_hacer</i> $query<br/>\n";
   if (!$db_res = db_query($query, $db_con)) {
-    echo "Error al consultar permisos del usuario<br>\n";
+    echo "Error al consultar permisos del usuario<br/>\n";
     db_error($db_res);
     return(-1);
   }
@@ -695,7 +696,7 @@ function puede_hacer($db_con, $usuario, $accion) {
 function articulo_descripcion($db_con, $codigo) {
   $query = "SELECT descripcion FROM articulos WHERE codigo='$codigo'";
   if (!$db_res = db_query($query, $db_con)) {
-    echo "Error al leer descripción del artículo<br>\n";
+    echo "Error al leer descripción del artículo<br/>\n";
     db_errormsg($db_res);
     return(-1);
   }
@@ -733,44 +734,47 @@ function imprime_movimiento($db_con, $almacen, $id_mov, $codigo, $ct, $pu, $p_co
 
   $ar  = popen($comando, "w");
   if ($ar<=0)
-    echo "Error: No puedo imprimir<br>";
+    echo "Error: No puedo imprimir<br/>";
   fputs($ar, $linea);
   pclose($ar);
   
 }
 
 
-function checklist_almacen($db_con)
+function checklist_almacen($db_con, $sel)
 {
   $query = "SELECT id FROM almacenes ORDER BY id ASC";
   if (!$db_res = db_query($query, $db_con)) {
-    echo "Error al leer listado del almacenes<br>\n";
+    echo "Error al leer listado del almacenes<br/>\n";
     db_errormsg($db_res);
     return(-1);
   }
   for ($i=0; $i<db_num_rows($db_res); $i++) {
     $almac = db_result($db_res, $i, 0);
-    printf("<input type=\"checkbox\" name=\"almac[]\" value=\"%d\"> %d<br>\n", $almac, $almac);
+    printf("<input type=\"checkbox\" name=\"almac[]\" value=\"%d\" ", $almac);
+    if (!empty($sel) && in_array($almac, $sel))
+      echo "checked ";
+    printf("> %d<br/>\n", $almac);
   }
 }
 
-function lista_almacen($db_con, $nm_lista, $item_0, $alm_def=1)
+function lista_almacen($db_con, $nm_lista, $item_0, $alm_def=1, $opciones="")
 {
   $query = "SELECT id,nombre FROM almacenes";
   if (!$db_res = db_query($query, $db_con)) {
-    printf("Error al consultar almacenes<br>\n");
-    printf("Error: %s<br>\n",db_errormsg($db_con));
+    printf("Error al consultar almacenes<br/>\n");
+    printf("Error: %s<br/>\n",db_errormsg($db_con));
     return($DB_ERROR);
   }
 
-  $buf = "<select name=\"$nm_lista\">\n";
-  $buf.= "<option value=0>$item_0\n";
+  $buf = sprintf("<select name=\"%s\" %s>\n", $nm_lista, $opciones);
+  $buf.= "<option value=\"0\">$item_0</option>\n";
   for ($i=0; $i<db_num_rows($db_res); $i++) {
     $almacen = db_fetch_object($db_res, $i);
     $buf.= sprintf("<option value=\"%d\" ", $almacen->id);
     if ($almacen->id == $alm_def)
       $buf.= " selected ";
-    $buf.= sprintf(">%d. %s\n", $almacen->id, $almacen->nombre);
+    $buf.= sprintf(">%d. %s</option>\n", $almacen->id, $almacen->nombre);
   }
   $buf.= "</select>\n";
   return($buf);
@@ -815,9 +819,9 @@ function lista_precio($db_con, $codigo, $tipo_precio, $almacen=1)
     $query.= sprintf("AND id_alm=%d ", $almacen);
 
   if ($debug>0)
-    echo "<i>$query</i><br>\n";
+    echo "<i>$query</i><br/>\n";
   if (!$db_res = db_query($query, $db_con)) {
-    echo "Error al leer precio<br>\n";
+    echo "Error al leer precio<br/>\n";
     db_errormsg($db_res);
     return(-1);
   }
@@ -834,7 +838,7 @@ function lista_precio($db_con, $codigo, $tipo_precio, $almacen=1)
 function nombre_depto($db_con, $id_depto) {
   $query = sprintf("SELECT nombre FROM departamento WHERE id=%d", $id_depto);
   if (!$db_res = db_query($query, $db_con)) {
-    echo "Error al leer base de datos<br>\n";
+    echo "Error al leer base de datos<br/>\n";
     db_errormsg($db_res);
     return(-1);
   }  
@@ -844,7 +848,7 @@ function nombre_depto($db_con, $id_depto) {
 function nombre_almacen($db_con, $id_almacen=1) {
   $query = sprintf("SELECT nombre FROM almacenes WHERE id=%d", $id_almacen);
   if (!$db_res = db_query($query, $db_con)) {
-    echo "Error al leer base de datos<br>\n";
+    echo "Error al leer base de datos<br/>\n";
     db_errormsg($db_res);
     return(-1);
   }  
@@ -869,9 +873,9 @@ function lista_campo($db_con, $codigo, $campo, $tabla)
     $query.= "codigo='$codigo' ";
 
   if ($debug>0)
-    echo "<i>$query</i><br>\n";
+    echo "<i>$query</i><br/>\n";
   if (!$db_res = db_query($query, $db_con)) {
-    echo "Error al leer base de datos<br>\n";
+    echo "Error al leer base de datos<br/>\n";
     db_errormsg($db_res);
     return(-1);
   }
@@ -893,8 +897,8 @@ function checa_descuento($db_con, $num_venta, $almacen)
   $query = sprintf("SELECT d.id_venta AS id, d.codigo, d.pu AS venta, a.pu AS precio FROM ventas_detalle d, almacen_1 a WHERE d.id_venta=%d AND d.codigo=a.codigo AND d.pu!=a.pu AND a.id_alm=%d", $num_venta, $almacen);
 
   if (!$db_res = db_query($query, $db_con)) {
-    printf("Error al consultar ventas<br>\n");
-    printf("Error: %s<br>\n",db_errormsg($db_con));
+    printf("Error al consultar ventas<br/>\n");
+    printf("Error: %s<br/>\n",db_errormsg($db_con));
     return($DB_ERROR);
   }
   return(db_num_rows($db_res));
@@ -904,8 +908,8 @@ function lista_divisas($db_con, $divisa_def)
 {
   $query = "SELECT id FROM divisas";
   if (!$db_res = db_query($query, $db_con)) {
-    printf("Error al consultar divisas<br>\n");
-    printf("Error: %s<br>\n",db_errormsg($db_con));
+    printf("Error al consultar divisas<br/>\n");
+    printf("Error: %s<br/>\n",db_errormsg($db_con));
     return($DB_ERROR);
   }
 
@@ -914,7 +918,7 @@ function lista_divisas($db_con, $divisa_def)
     $buf.= sprintf("<option value=\"%s\" ", $divisa->id);
     if ($divisa->id == $divisa_def)
       $buf.= " selected ";
-    $buf.= sprintf(">%s\n", $divisa->id);
+    $buf.= sprintf(">%s</option>\n", $divisa->id);
   }
   return($buf);
 }
@@ -960,17 +964,17 @@ function lista_forma_pago($db_con, $nm_lista, $item_0)
 {
   $query = "SELECT id,descripcion FROM forma_pago ";
   if (!$db_res = db_query($query, $db_con)) {
-    printf("Error al consultar formas de pago<br>\n");
-    printf("Error: %s<br>\n",db_errormsg($db_con));
+    printf("Error al consultar formas de pago<br/>\n");
+    printf("Error: %s<br/>\n",db_errormsg($db_con));
     return($DB_ERROR);
   }
 
   $buf = "<select name=\"$nm_lista\">\n";
-  $buf.= "<option value=0>$item_0\n";
+  $buf.= "<option value=\"0\">$item_0</option>\n";
   for ($i=0; $i<db_num_rows($db_res); $i++) {
     $f_pago = db_fetch_object($db_res, $i);
     $buf.= sprintf("<option value=\"%d\" ", $f_pago->id);
-    $buf.= sprintf(">%d. %s\n", $f_pago->id, $f_pago->descripcion);
+    $buf.= sprintf(">%d. %s</option>\n", $f_pago->id, $f_pago->descripcion);
   }
   $buf.= "</select>\n";
   return($buf);
@@ -980,8 +984,8 @@ function checklist_forma_pago($db_con, $nm_lista)
 {
   $query = "SELECT id,descripcion FROM forma_pago ";
   if (!$db_res = db_query($query, $db_con)) {
-    printf("Error al consultar formas de pago<br>\n");
-    printf("Error: %s<br>\n",db_errormsg($db_con));
+    printf("Error al consultar formas de pago<br/>\n");
+    printf("Error: %s<br/>\n",db_errormsg($db_con));
     return($DB_ERROR);
   }
 
@@ -999,8 +1003,8 @@ function revisa_series($db_con, $id_mov) {
   $query.= sprintf("WHERE m.id=%d AND m.codigo=a.codigo AND a.serie='t' ", $id_mov);
 
   if (!$db_res = db_query($query, $db_con)) {
-    printf("Error al consultar movimientos de inventario<br>\n");
-    printf("Error: %s<br>\n",db_errormsg($db_con));
+    printf("Error al consultar movimientos de inventario<br/>\n");
+    printf("Error: %s<br/>\n",db_errormsg($db_con));
     return($DB_ERROR);
   }
   else {
@@ -1022,8 +1026,8 @@ function datos_cliente($db_con, $id) {
   $query = "SELECT * FROM cliente WHERE id=$id ";
 
   if (!$db_res = db_query($query, $db_con)) {
-    printf("Error al consultar formas de pago<br>\n");
-    printf("Error: %s<br>\n",db_errormsg($db_con));
+    printf("Error al consultar formas de pago<br/>\n");
+    printf("Error: %s<br/>\n",db_errormsg($db_con));
     return($DB_ERROR);
   }
 
@@ -1036,7 +1040,7 @@ function agrega_carrito_item($db_con, $codigo, $qt=1) {
   $query = sprintf("SELECT cant FROM carro_virtual WHERE usuario='%s' AND codigo='%s' ",
 				   $user->user, $codigo);
   if ($debug)
-	echo "<i>$query</i><br>\n";
+	echo "<i>$query</i><br/>\n";
   if (!$db_res = @db_query($query, $db_con))
     return($DB_ERROR);
   if (db_num_rows($db_res)) {
@@ -1049,7 +1053,7 @@ function agrega_carrito_item($db_con, $codigo, $qt=1) {
 	$query.= sprintf("VALUES ('%s', '%s', %f) ", $user->user, $codigo, $qt);
   }
   if ($debug)
-	echo "<i>$query</i><br>\n";
+	echo "<i>$query</i><br/>\n";
   if (!$db_res = @db_query($query, $db_con))
     return($DB_ERROR);
   return(0);
@@ -1061,7 +1065,7 @@ function quita_carrito_item($db_con, $codigo) {
   $query = sprintf("DELETE FROM carro_virtual WHERE usuario='%s' AND codigo='%s' ",
 				   $user->user, $codigo);
   if ($debug)
-	echo "<i>$query</i><br>\n";
+	echo "<i>$query</i><br/>\n";
   if (!$db_res = @db_query($query, $db_con))
     return($DB_ERROR);
   return(0);
@@ -1076,7 +1080,7 @@ function cambia_carrito($db_con, $items) {
 	$query = sprintf("UPDATE carro_virtual SET cant=%d WHERE usuario='%s' AND codigo='%s'",
 					 $cant, $user->user, $codigo);
 	if ($debug)
-	  echo "<i>$query</i><br>\n";
+	  echo "<i>$query</i><br/>\n";
 	if (!$db_res = @db_query($query, $db_con))
 	  $errores[] = $codigo;
   }
