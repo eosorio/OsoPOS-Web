@@ -1,8 +1,8 @@
-<?php  /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+<?php  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
 $DB_ERROR = -2;
 
-/* códigos de la impresora */
+/* cÃ³digos de la impresora */
 $ESC =  27;
 $FF  =  12;
 
@@ -43,21 +43,74 @@ if (!isset($MAXTAX))
   $MAXTAX = 6;
 
 class datosclienteClass {
-  var      $id;
-  var      $rfc;
-  var      $curp;
-  var      $nombre;
-  var      $dom_calle;
-  var      $dom_numero;
-  var      $dom_inter;
-  var      $dom_col;
-  var      $dom_ciudad;
-  var      $dom_edo;
-  var      $cp;
+  public      $id = 0;
+  public      $rfc = "";
+  public      $curp = "";
+  public      $nombre = "";
+  public      $ap_paterno;
+  public      $ap_materno;
+  public      $sexo;
+  public      $dom_id;
+  public      $email;
+  public      $dom_calle = "";
+  public      $dom_numero = "";
+  public      $dom_inter = "";
+  public      $dom_col = "";
+  public      $dom_ciudad = "";
+  public      $dom_edo = "";
+  public      $cp = 0;
+
+  function getIdByRfc($rfc) {
+
+    global $conn;
+
+    $query = "SELECT id FROM clientes WHERE rfc='$rfc'";
+
+    if (!$result = db_query($query, $conn)) {
+      return(NULL);
+    }
+    else {
+      if (db_num_rows($result) == 0) {
+        return(NULL);
+      }
+      return(db_result($result, 0, 0));
+    }
+  }
+
+  function setIdByRfc($rfc) {
+    $this->id = $this->getIdByRfc($rfc);
+  }
+
+  function setDataById($id) {
+    global $conn;
+
+    $query = "SELECT * FROM clientes WHERE id='$id'";
+
+    if (!$result = db_query($query, $conn)) {
+      return(NULL);
+    }
+    else {
+      if (db_num_rows($result) == 0) {
+        return(NULL);
+      }
+      $customer = db_fetch_object($result, 0);
+
+      $this->rfc = $customer->rfc;
+      $this->nombre = $customer->nombres;
+      $this->ap_paterno = $customer->ap_paterno;
+      $this->ap_materno = $customer->ap_materno;
+      $this->dom_id  = $customer->dom_principal;
+      $this->email = $customer->email;
+      $this->curp = $customer->curp;
+      $this->sexo = $customer->sexo;
+      $this->telefono1 = $customer->telefono1;
+    }
+
+  }
 };
 
 /*************************** OJO ***********************/
-/* Revisar esta clase de acuerdo al nuevo esquema de las tablas almacen_n y artículos */
+/* Revisar esta clase de acuerdo al nuevo esquema de las tablas almacen_n y artÃ­culos */
 class articulosClass {
   var      $cant, $exist;
   var      $desc;
@@ -79,7 +132,9 @@ class articulosClass {
 };
 
 class fechaClass {
-  var      $dia,$mes,$anio;
+  public $dia = 0;
+  public $mes = 0;
+  public $anio = 0;
 };
 
 /* Propiedades de formato de hoja en impresiones de texto plano */
