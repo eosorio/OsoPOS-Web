@@ -1,22 +1,22 @@
 <?php /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
 
- Busca cliente. SubmÛdulo de facturaciÛn de OsoPOS Web.
+ Busca cliente. Subm√≥dulo de facturaci√≥n de OsoPOS Web.
 
-        Copyright (C) 2000-2005 Eduardo Israel Osorio Hern·ndez
-        desarrollo@elpuntodeventa.com
+        Copyright (C) 2000-2005,2008 Eduardo Israel Osorio Hern√°ndez
+        eduardo.osorio.ti en gmail (dot ) com
 
         Este programa es un software libre; puede usted redistribuirlo y/o
-modificarlo de acuerdo con los tÈrminos de la Licencia P˙blica General GNU
-publicada por la Free Software Foundation: ya sea en la versiÛn 2 de la
-Licencia, o (a su elecciÛn) en una versiÛn posterior. 
+modificarlo de acuerdo con los t√©rminos de la Licencia P√∫blica General GNU
+publicada por la Free Software Foundation: ya sea en la versi√≥n 2 de la
+Licencia, o (a su elecci√≥n) en una versi√≥n posterior. 
 
-        Este programa es distribuido con la esperanza de que sea ˙til, pero
-SIN GARANTIA ALGUNA; incluso sin la garantÌa implÌcita de COMERCIABILIDAD o
-DE ADECUACION A UN PROPOSITO PARTICULAR. VÈase la Licencia P˙blica General
+        Este programa es distribuido con la esperanza de que sea √∫til, pero
+SIN GARANTIA ALGUNA; incluso sin la garant√≠a impl√≠cita de COMERCIABILIDAD o
+DE ADECUACION A UN PROPOSITO PARTICULAR. V√©ase la Licencia P√∫blica General
 GNU para mayores detalles. 
 
-        DeberÌa usted haber recibido una copia de la Licencia P˙blica General
-GNU junto con este programa; de no ser asÌ, escriba a Free Software
+        Deber√≠a usted haber recibido una copia de la Licencia P√∫blica General
+GNU junto con este programa; de no ser as√≠, escriba a Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA. 
 */
 
@@ -37,12 +37,19 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <meta name="Author" content="E. Israel Osorio Hern·ndez">
+   <meta name="Author" content="E. Israel Osorio Hern√°ndez">
    <title>OsoPOS - FacturWeb v. 0.06</title>
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/numerico.css">
    <style type="text/css">
      td.nm_campo {font-face: helvetica,arial; text-align: right}
+    .popup
+    {
+       COLOR: #9F141A;
+       CURSOR: help;
+       TEXT-DECORATION: none
+    }
+</STYLE>
    </style>
    <script>
    function ponPrefijo(id,rfc,curp,nombre,calle,exter,inter,col,ciudad,edo,cp){
@@ -76,7 +83,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   <td colspan=3><h4>Buscar cualquiera de estos datos en registro:</h4></td>
  </tr>
  <tr>
-  <td class="nm_campo">RazÛn social:</td>
+  <td class="nm_campo">Raz√≥n social:</td>
   <td><input type="text" name="razon_soc" size=50></td>
   <td><input type="submit" value="Encontrar cliente"></td>
  </tr>
@@ -130,7 +137,7 @@ if ($_POST['fase'] == 2) {
 //   //igm  $ = $_POST[''];
 
   if (empty($rfc) && empty($curp) && empty($contacto) && empty($razon_soc) && empty($contacto) && empty($nombre_comer)) {
-	echo "<div class=\"error_nf\">Debe seleccionar al menos un criterio de b˙squeda</div>\n";
+	echo "<div class=\"error_nf\">Debe seleccionar al menos un criterio de b√∫squeda</div>\n";
 	$fase = 1;
   }
   else {
@@ -167,20 +174,48 @@ if ($_POST['fase'] == 2) {
 	$query.= "SELECT cli.id, cli.rfc, cli.curp, cli.nombres, cli.ap_paterno, cli.ap_materno, ";
 	$query.= "cli.contacto, d.dom_calle, d.dom_numero, d.dom_inter, d.dom_col, d.dom_mpo, ";
 	$query.= "d.dom_ciudad, d.dom_edo_id, d.dom_cp, d.dom_pais_id, d.dom_telefono, d.dom_nombre, ";
-    $query.= "cli.nombre_comer FROM clientes cli, domicilios d ";
+        $query.= "cli.nombre_comer FROM clientes cli, domicilios d ";
 	$query.= "WHERE d.id_cliente=cli.id ";
 	if ($_POST['dom_principal'])
 	  $query.= "AND cli.dom_principal=d.id ";
 	$query.= sprintf("AND (%s) ", $condicion);
 
-    //	/*igm*/ echo "<i>$query</i><br>\n";
+        //    	/*igm*/ echo "<i>$query</i><br>\n";
 	$result =  db_query($query, $conn);
 	if (!$result) {
 	  die("<div class=\"error_f\">Error al consultar datos de clientes y domicilios</div>\n");
 	}
 	$num_ren = db_num_rows($result);
 
-	if ($num_ren > 0) {
+        /* NO se encont√≥ registro en la tabla de clientes, buscamos en tabla de facturas */
+        if ($num_ren==0) {
+          $condicion = "";
+          if (!empty($razon_soc))
+            $condicion = sprintf("cli_f.nombre~*'%s' ", $razon_soc);
+
+          if (!empty($rfc)) {
+            if (!empty($condicion))
+              $condicion.= "OR ";
+            $condicion.= sprintf("cli_f.rfc~*'%s' ", $rfc);
+          }
+
+          if (!empty($curp)) {
+            if (!empty($condicion))
+              $condicion.= "OR ";
+            $condicion[$i++]= sprintf("cli_f.curp~*'%s' ", $curp);
+          }
+
+          $query = "SELECT cli_f.rfc, cli_f.nombre, cli_f.curp, fi.rfc, fi.dom_calle, fi.dom_numero, fi.dom_inter , fi.dom_col , fi.dom_ciudad , fi.dom_edo , fi.dom_cp ";
+          $query.= sprintf("FROM facturas_ingresos fi, clientes_fiscales cli_f WHERE cli_f.rfc=fi.rfc AND (%s) LIMIT 10",
+                           $condicion);
+          $result =  db_query($query, $conn);
+          if (!$result) {
+            die("<div class=\"error_f\">Error al consultar datos de clientes fiscales</div>\n");
+          }
+          $num_ren = db_num_rows($result);
+        }
+        if ($num_ren > 0) {
+
 ?>
 
 Seleccione uno de los registros siguientes:<br>
@@ -189,27 +224,51 @@ Seleccione uno de los registros siguientes:<br>
  <th>I.D.</th>
  <th>R.F.C.</th>
  <th>Nombre</th>
- <th>PseudÛnimo</th>
+ <th>Pseud√≥nimo</th>
  <th>Domicilio</th>
 </tr>
 
 <?php
   for ($i=0; $i < $num_ren; $i++) {
-	$r = db_fetch_object($result, $i);
-    $nombre_completo = sprintf("%s %s %s", $r->nombres, $r->ap_paterno, $r->ap_materno);
-	echo "<tr>\n";
-	printf("  <td class=\"serie\"><a href=\"#\" onclick=\"ponPrefijo(%d,'%s','%s','%s',", $r->id, $r->rfc,
- 		   $r->curp, $nombre_completo);
-	printf("'%s','%s','%s','%s','%s','%s','%s')\">%s</a></td>\n",
-		   $r->dom_calle, $r->dom_numero,
-		   $r->dom_inter, $r->dom_col, $r->dom_ciudad, $r->dom_edo,
-		   $r->dom_cp, $r->id);
-	printf("  <td>%s</td>\n", $r->rfc);
-	printf("  <td>%s</td>\n", $nombre_completo);
-    printf("  <td>%s</td>\n", $r->nombre_comer);
-    printf("  <td>%s</td>\n", $r->dom_nombre);
+    $r = db_fetch_object($result, $i);
+
+    if (isset($r->id))
+      $customerID = $r->id;
+    else
+      $customerID = 0;
+
+    if (isset($r->nombres))  /* campo de la tabla clientes */
+      $nombre_completo = sprintf("%s %s %s", $r->nombres, $r->ap_paterno, $r->ap_materno);
+    else
+      $nombre_completo = $r->nombre;  /* Campo de la tabla clientes_fiscales */
+
+    if (isset($r->nombre_comer))
+      $nombre_comer = $r->nombre_comer;
+    else
+      $nombre_comer = $r->nombre;
+
+    /* Fallback, si los datos no vienen de la tabla domicilios, ponemos "Fiscal" */
+    if (isset($r->dom_nombre))
+      $dom_nombre = $r->dom_nombre;
+    else
+      $dom_nombre = "Fiscal";
+
+    $dom_completo = sprintf("%s %s %s %s %s %s %d", $r->dom_calle, $r->dom_numero, $r->dom_inter, $r->dom_col, $r->dom_ciudad, $r->dom_edo, $r->dom_cp);
+
+    echo "<tr>\n";
+    printf("  <td class=\"serie\"><a href=\"#\" onclick=\"ponPrefijo(%d,'%s','%s','%s',", $customerID, $r->rfc,
+           $r->curp, $nombre_completo);
+    printf("'%s','%s','%s','%s','%s','%s','%s')\"><SPAN title=\" %s \" class=\"popup\">%d</span></a></td>\n",
+           $r->dom_calle, $r->dom_numero,
+           $r->dom_inter, $r->dom_col, $r->dom_ciudad, $r->dom_edo,
+           $r->dom_cp, $dom_completo, $customerID);
+    printf("  <td>%s</td>\n", $r->rfc);
+    printf("  <td>%s</td>\n", $nombre_completo);
+    printf("  <td>%s</td>\n", $nombre_comer);
+    printf("  <td>%s</td>\n", $dom_nombre);
+    echo " </tr>\n";
   }
-  echo " </tr>\n";
+
 ?>
 
 </table>
@@ -218,7 +277,7 @@ Seleccione uno de los registros siguientes:<br>
 <?php
 	}
 	else
-	  echo "No se encontrÛ registro con ninguno de esos criterios<br>\n";
+	  echo "No se encontr√≥ registro con ninguno de esos criterios<br>\n";
   }
 }
 db_close($conn);
