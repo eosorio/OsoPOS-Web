@@ -34,7 +34,12 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   $fase = $_POST['fase'];
   $id_venta = $_POST['id_venta'];
   $id = $_POST['id'];
-  $id_cliente = $_POST['id_cliente'];
+
+  if (isset($_POST['id_cliente']))
+    $id_cliente = $_POST['id_cliente'];
+  else
+    $id_cliente = 0;
+
   $razon_soc = $_POST['razon_soc'];
   $rfc = $_POST['rfc'];
   $curp = $_POST['curp'];
@@ -237,7 +242,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $observaciones = $_POST['observaciones'];
       $subtotal = $_POST['subtotal'];
       $iva = $_POST['iva'];
-      $id_cliente = $_POST['id_cliente'];
+      //      if (isset($_POST['id_cliente']))
+      //        $id_cliente = $_POST['id_cliente'];
     }
     else {
       die("<div class=\"error_f\">Error al obtener datos de artículos</div>\n");
@@ -250,6 +256,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     $peticion.= sprintf("%d, %.2f, %.2f", $dom_cp, $subtotal, $iva);
     for ($j=0; $j<$MAXTAX; $j++)
       $peticion.= sprintf(", %.2f", $impuesto[$j]);
+    if (isset($id_cliente))
+      $peticion.= sprintf(", %d", $id_cliente);
     $peticion.= ")";
 
     if (isset($debug) && $debug>0)
@@ -273,7 +281,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       }
     }
 
-    if ($AGREGA_CLIENTES != 0) {
+    if ($AGREGA_CLIENTES != 0 && $id_cliente>0) {
       $peticion = "SELECT rfc FROM clientes_fiscales WHERE rfc='$rfc'";
       if (!$resultado = db_query($peticion, $conn))
         die("<div class=\"error_f\">Error al consultar RFC</div>\n");
@@ -303,8 +311,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       else
         $mensaje = "";
       if (!$resultado = db_query($peticion, $conn)) {
-        echo "Error al registrar cliente fiscal<br>" . db_errormsg($conn) . "</body></html>\n";
-        exit();
+        die("<div class=\"error_f\">Error al registrar cliente</div>\n");
       }
       else {
         $peticion = "SELECT id FROM clientes WHERE rfc='$rfc' AND curp='$curp' AND nombres='$razon_soc' ORDER BY id DESC";
