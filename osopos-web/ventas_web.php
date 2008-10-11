@@ -387,12 +387,20 @@ else {
 ?>
 <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
 Mostrar ventas con los siguientes criterios:<br>
-Desde la venta <input type="text" name="id_from" size="5"> y hasta la venta <input type="text" name="id_to" size="5"><br>
-Por tiempo, desde <input type="text" name="fecha_d_from" size="2">/<input type="text" name="fecha_m_from" size="2">/<input type="text" name="fecha_a_from" size="4">
+<table border=1>
+<tr>
+  <td>Desde la venta <input type="text" name="id_from" size="5"><br>
+   y hasta la venta <input type="text" name="id_to" size="5">
+  </td>
+  <td>Por tiempo<br>
+desde <input type="text" name="fecha_d_from" size="2">/<input type="text" name="fecha_m_from" size="2">/<input type="text" name="fecha_a_from" size="4">
 <input type="text" name="hora_h_from" size="2">:<input type="text" name="hora_m_from" size="2">
+<br>
 y hasta <input type="text" name="fecha_d_to" size="2">/<input type="text" name="fecha_m_to" size="2">/<input type="text" name="fecha_a_to" size="4">
 <input type="text" name="hora_h_to" size="2">:<input type="text" name="hora_m_to" size="2">
-<br>
+  </td>
+</tr>
+</table>
 Tipo de comprobante:
 <select name="s_tipo_comp">
 <option value=0>Todos
