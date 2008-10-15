@@ -74,7 +74,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
    <script>
    var miPopup
    function abreVentana(scriptFile){
-	miPopup = window.open(scriptFile,"miwin","width=700,height=400,scrollbars=yes")
+	miPopup = window.open(scriptFile + "?rfc=" + forma_cliente.rfc.value + "&razon_soc=" + forma_cliente.razon_soc.value,"miwin","width=700,height=400,scrollbars=yes")
 	miPopup.focus()
 	}
    </script>
