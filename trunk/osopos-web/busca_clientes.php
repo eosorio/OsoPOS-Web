@@ -74,6 +74,17 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <?php
   include("include/encabezado.inc");
+
+if (isset($_GET['rfc']))
+  $rfc = $_GET['rfc'];
+else
+  $rfc = "";
+
+if (isset($_GET['razon_soc']))
+  $razon_soc = $_GET['razon_soc'];
+else
+  $razon_soc = "";
+
 ?>
 
 <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method=post>
@@ -84,7 +95,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
  </tr>
  <tr>
   <td class="nm_campo">Razón social:</td>
-  <td><input type="text" name="razon_soc" size=50></td>
+  <td><input type="text" name="razon_soc" size=50 value="<?php echo $razon_soc ?>"></td>
   <td><input type="submit" value="Encontrar cliente"></td>
  </tr>
  <tr>
@@ -93,7 +104,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
  </tr>
  <tr>
   <td class="nm_campo">R.F.C.</td>
-  <td><input type="text" name="rfc" size=13 maxlength=13></td>
+  <td><input type="text" name="rfc" size=13 maxlength=13 value="<?php echo $rfc ?>"></td>
   <td>&nbsp;</td>
  </tr>
  <tr>
@@ -237,8 +248,13 @@ Seleccione uno de los registros siguientes:<br>
     else
       $customerID = 0;
 
-    if (isset($r->nombres))  /* campo de la tabla clientes */
-      $nombre_completo = sprintf("%s %s %s", $r->nombres, $r->ap_paterno, $r->ap_materno);
+    if (isset($r->nombres)) { /* campo de la tabla clientes */
+      $nombre_completo = sprintf("%s", $r->nombres);
+      if (isset($r->ap_paterno) && strlen($r->ap_paterno)>0)
+        $nombre_completo.= sprintf(" %s", $r->ap_paterno);
+      if (isset($r->ap_materno) && strlen($r->ap_materno)>0)
+        $nombre_completo.= sprintf(" %s", $r->ap_materno);
+    }
     else
       $nombre_completo = $r->nombre;  /* Campo de la tabla clientes_fiscales */
 

@@ -37,7 +37,7 @@ Introduzca los datos del cliente. Cuando termine, apriete el bot&oacute;n de  co
  </tr>
  <tr>
   <td align="right">I.D.</td>
-  <td><input type="text" name="id_cliente" size=6> <a href="#"><img src="imagenes/lupa.png" onclick="abreVentana()" border=0></a>
+  <td><input type="text" name="id_cliente" size=6> <a href="#"><img src="imagenes/lupa.png" onclick="abreVentana('busca_clientes.php')" border=0></a>
  </tr>
  <tr>
   <td align="right">Raz&oacute;n social
