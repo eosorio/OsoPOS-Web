@@ -230,6 +230,20 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
              /********************** fase tres ******************/
   if ( strlen(strstr($accion, "agregar")) ) {
+    function agregaObservaciones() {
+      global $conn;
+
+      $query = "INSERT INTO factura_ingresos_obs (id, observaciones) VALUES (";
+      $query.= sprintf("%d, '%s') ", $_POST['id'], $_POST['observaciones']) ;
+
+      if (isset($debug) && $debug>0)
+        echo "<i>$query</i><br>\n";
+      else if (!$resultado = db_query($query, $conn)) {
+        echo "<div class=\"error_nf\">Error al agregar observaciones de factura</div>\n";
+      }
+
+    }
+
     if (!$conn)
       die("<div class=\"error_f\">Al conectarse a la base de datos</div>\n");
 
@@ -281,7 +295,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       }
     }
 
-    if ($AGREGA_CLIENTES != 0 && $id_cliente>0) {
+    if ($AGREGA_CLIENTES != 0 && $id_cliente<=0) {
       $peticion = "SELECT rfc FROM clientes_fiscales WHERE rfc='$rfc'";
       if (!$resultado = db_query($peticion, $conn))
         die("<div class=\"error_f\">Error al consultar RFC</div>\n");
@@ -340,6 +354,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
         }
       }
     }
+
+    agregaObservaciones();
     $fase = 0;
   }
 
