@@ -1175,7 +1175,7 @@ function getDomicilioEstadosID($db_con, $sEstado) {
 }
 
 
-function read_invoice_header($db_con, $id) {
+function readInvoiceHeader($db_con, $id) {
 
   $query = sprintf("SELECT * FROM facturas_ingresos WHERE id = %d", $id);
 
@@ -1189,7 +1189,7 @@ function read_invoice_header($db_con, $id) {
   }
 }
 
-function read_invoice_items($db_con, $id) {
+function readInvoiceItems($db_con, $id) {
 
   $data = array();
   $query = sprintf("SELECT * FROM fact_ingresos_detalle WHERE id_factura = %d", $id);
@@ -1200,8 +1200,24 @@ function read_invoice_items($db_con, $id) {
   else {
     $rows = db_num_rows($resultado);
     for ($i=0; $i<$rows; $i++)
-      $data[] =  db_fetch_object($resultado, 0);
+      $data[] =  db_fetch_object($resultado, $i);
     return($data);
   }
 }
+
+function readInvoiceNotes($db_con, $id) {
+
+  $query = sprintf("SELECT observaciones FROM factura_ingresos_obs WHERE id = %d", $id);
+  if (!$resultado = db_query($query, $db_con)) {
+    $mens = "<div class=\"error_nf\">Error al consultar observaciones de facturas</div>\n";
+    return(0);
+  }
+  else {
+    $rows = db_num_rows($resultado);
+    for ($i=0; $i<$rows; $i++)
+      $data =  db_result($resultado, 0, 0);
+    return($data);
+  }
+}
+
 ?>
