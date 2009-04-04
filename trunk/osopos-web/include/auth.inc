@@ -65,7 +65,7 @@ function cambia_usuario($db_conn, $nombre, $ant_passwd, $nivel, $nvo_passwd) {
   $id = existe_usuario($db_conn, $nombre, $ant_passwd, $nivel);
   if ($id) {
 	$query = sprintf("UPDATE users SET \"user\"='%s', passwd='%s', level=%d ",
-					 $nombre, md5($nvo_passwd), $nivel);
+					 $nombre, sha1($nvo_passwd), $nivel);
 	$query.= sprintf("WHERE id=%d ", $id);
 	$db_res = db_query($query, $db_conn);
 	if (!$db_res)
