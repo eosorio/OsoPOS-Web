@@ -29,7 +29,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   else {
 
     if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
-      $passwd = md5($_SERVER['PHP_AUTH_PW']);
+      $passwd = sha1($_SERVER['PHP_AUTH_PW']);
       $con_pwd = db_connect($DB_HOST, $HTTP_USER, $HTTP_PASSWD, $DB_NAME, "", $DB_PORT);
       if ($con_pwd == 0  &&  $SQL_TYPE == "postgres") {
         echo "ERROR: Al conectarse a la base de datos $DB_NAME<br>\n";
