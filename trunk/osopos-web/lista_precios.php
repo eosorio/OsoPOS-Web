@@ -1,20 +1,20 @@
 <?php  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
-        Beta test. Módulo de pruebas de OsoPOS Web.
+        Beta test. MÃ³dulo de pruebas de OsoPOS Web.
 
-        Copyright (C) 2004 Eduardo Israel Osorio Hernández
+        Copyright (C) 2004 Eduardo Israel Osorio HernÃ¡ndez
 
         Este programa es un software libre; puede usted redistribuirlo y/o
-modificarlo de acuerdo con los términos de la Licencia Pública General GNU
-publicada por la Free Software Foundation: ya sea en la versión 2 de la
-Licencia, o (a su elección) en una versión posterior. 
+modificarlo de acuerdo con los tÃ©rminos de la Licencia PÃºblica General GNU
+publicada por la Free Software Foundation: ya sea en la versiÃ³n 2 de la
+Licencia, o (a su elecciÃ³n) en una versiÃ³n posterior. 
 
-        Este programa es distribuido con la esperanza de que sea útil, pero
-SIN GARANTIA ALGUNA; incluso sin la garantía implícita de COMERCIABILIDAD o
-DE ADECUACION A UN PROPOSITO PARTICULAR. Véase la Licencia Pública General
+        Este programa es distribuido con la esperanza de que sea Ãºtil, pero
+SIN GARANTIA ALGUNA; incluso sin la garantÃ­a implÃ­cita de COMERCIABILIDAD o
+DE ADECUACION A UN PROPOSITO PARTICULAR. VÃ©ase la Licencia PÃºblica General
 GNU para mayores detalles. 
 
-        Debería usted haber recibido una copia de la Licencia Pública General
-GNU junto con este programa; de no ser así, escriba a Free Software
+        DeberÃ­a usted haber recibido una copia de la Licencia PÃºblica General
+GNU junto con este programa; de no ser asÃ­, escriba a Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA. 
 
 */ 
@@ -42,7 +42,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
      $alm = 1;
 ?>
 <form action="<?php echo $PHP_SELF ?>" method="post">
-Almacén: <?php echo lista_almacen($conn, "alm", "--Seleccione un almacen--", $alm) ?>
+AlmacÃ©n: <?php echo lista_almacen($conn, "alm", "--Seleccione un almacen--", $alm) ?>
 <input type="submit" value="Mostrar"><br>
 </form>
 <br>
@@ -65,7 +65,7 @@ Almacén: <?php echo lista_almacen($conn, "alm", "--Seleccione un almacen--", $al
 
   echo "<table border=0 width=100%>\n";
   echo "<tr>\n";
-  echo "  <th>Código</th><th>Descripción</th><th>P.U.</th><th>Ct.</th>\n";
+  echo "  <th>CÃ³digo</th><th>DescripciÃ³n</th><th>P.U.</th><th>Ct.</th>\n";
   echo "</th>\n";
 
   for ($i=0; $i < $num_ren; $i++) {

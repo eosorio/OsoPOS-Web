@@ -1,20 +1,20 @@
 <?php  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
-        Almacen Web. Sub-MÛdulo de inventarios de OsoPOS Web.
+        Almacen Web. Sub-M√≥dulo de inventarios de OsoPOS Web.
 
-        Copyright (C) 2000-2005 Eduardo Israel Osorio Hern·ndez
+        Copyright (C) 2000-2005 Eduardo Israel Osorio Hern√°ndez
 
         Este programa es un software libre; puede usted redistribuirlo y/o
-modificarlo de acuerdo con los tÈrminos de la Licencia P˙blica General GNU
-publicada por la Free Software Foundation: ya sea en la versiÛn 2 de la
-Licencia, o (a su elecciÛn) en una versiÛn posterior. 
+modificarlo de acuerdo con los t√©rminos de la Licencia P√∫blica General GNU
+publicada por la Free Software Foundation: ya sea en la versi√≥n 2 de la
+Licencia, o (a su elecci√≥n) en una versi√≥n posterior. 
 
-        Este programa es distribuido con la esperanza de que sea ˙til, pero
-SIN GARANTIA ALGUNA; incluso sin la garantÌa implÌcita de COMERCIABILIDAD o
-DE ADECUACION A UN PROPOSITO PARTICULAR. VÈase la Licencia P˙blica General
+        Este programa es distribuido con la esperanza de que sea √∫til, pero
+SIN GARANTIA ALGUNA; incluso sin la garant√≠a impl√≠cita de COMERCIABILIDAD o
+DE ADECUACION A UN PROPOSITO PARTICULAR. V√©ase la Licencia P√∫blica General
 GNU para mayores detalles. 
 
-        DeberÌa usted haber recibido una copia de la Licencia P˙blica General
-GNU junto con este programa; de no ser asÌ, escriba a Free Software
+        Deber√≠a usted haber recibido una copia de la Licencia P√∫blica General
+GNU junto con este programa; de no ser as√≠, escriba a Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA. 
 
 */ 
@@ -85,11 +85,11 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     $limit = 10;
 
 
-    printf("<b>AlmacÈn %d %s</b><br>\n", $almc, $alm_desc);
+    printf("<b>Almac√©n %d %s</b><br>\n", $almc, $alm_desc);
     if (!isset($action) || strlen($action)<1) {
       echo "<ul>\n";
-      echo "  <li><a href=\"$PHP_SELF?action=agregar&almc=$almc\">Anexar producto del cat·logo al almacÈn</a></li>\n";
-      echo "  <li><a href=\"$PHP_SELF?action=borrar&almc=$almc\">Quitar producto del almacÈn</a></li>\n";
+      echo "  <li><a href=\"$PHP_SELF?action=agregar&almc=$almc\">Anexar producto del cat√°logo al almac√©n</a></li>\n";
+      echo "  <li><a href=\"$PHP_SELF?action=borrar&almc=$almc\">Quitar producto del almac√©n</a></li>\n";
       echo "</ul>\n";
     }
     else if($action=="agregar") {
@@ -146,8 +146,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       }
     }
     else if($action=="borrar") {
-      echo "Para quitar un artÌculo del almacÈn, debe dirigirse al listado de productos del almacÈn ";
-      echo "en el <a href=\"invent_web.php\">mÛdulo de inventarios</a>, y presionar sobre la imagen de eliminar.<br>\n";
+      echo "Para quitar un art√≠culo del almac√©n, debe dirigirse al listado de productos del almac√©n ";
+      echo "en el <a href=\"invent_web.php\">m√≥dulo de inventarios</a>, y presionar sobre la imagen de eliminar.<br>\n";
     }
   }
   echo "<hr>\n";

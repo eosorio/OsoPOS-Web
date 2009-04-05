@@ -1,20 +1,20 @@
 <?php  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- 
  OsoPOS Web 1.21. Sistema de punto de venta en Intranet
-        Copyright (C) 1999-2003 Eduardo Israel Osorio Hernández
+        Copyright (C) 1999-2003 Eduardo Israel Osorio HernÃ¡ndez
         iosorio@elpuntodeventa.com
 
         Este programa es un software libre; puede usted redistribuirlo y/o
-modificarlo de acuerdo con los términos de la Licencia Pública General GNU
-publicada por la Free Software Foundation: ya sea en la versión 2 de la
-Licencia, o (a su elección) en una versión posterior. 
+modificarlo de acuerdo con los tÃ©rminos de la Licencia PÃºblica General GNU
+publicada por la Free Software Foundation: ya sea en la versiÃ³n 2 de la
+Licencia, o (a su elecciÃ³n) en una versiÃ³n posterior. 
 
-        Este programa es distribuido con la esperanza de que sea útil, pero
-SIN GARANTIA ALGUNA; incluso sin la garantía implícita de COMERCIABILIDAD o
-DE ADECUACION A UN PROPOSITO PARTICULAR. Véase la Licencia Pública General
+        Este programa es distribuido con la esperanza de que sea Ãºtil, pero
+SIN GARANTIA ALGUNA; incluso sin la garantÃ­a implÃ­cita de COMERCIABILIDAD o
+DE ADECUACION A UN PROPOSITO PARTICULAR. VÃ©ase la Licencia PÃºblica General
 GNU para mayores detalles. 
 
-        Debería usted haber recibido una copia de la Licencia Pública General
-GNU junto con este programa; de no ser así, escriba a Free Software
+        DeberÃ­a usted haber recibido una copia de la Licencia PÃºblica General
+GNU junto con este programa; de no ser asÃ­, escriba a Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA. 
 */
 
@@ -38,7 +38,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <meta name="Author" content="E. Israel Osorio Hernández">
+   <meta name="Author" content="E. Israel Osorio HernÃ¡ndez">
    <title>OsoPOS v. 1.21</title>
 <?php include("menu/menu_principal.inc"); ?>
 
@@ -61,8 +61,8 @@ elpuntodeventa.com</h3>
 
 <br>
 <br>
-<p><div style="font-size: 8pt">OsoPOS es gratuito y distribuido con la esperanza de que sea útil, pero
-SIN GARANTIA ALGUNA. Consulte la <a href="gpl.php">licencia de uso</a> para más información</div></p>
+<p><div style="font-size: 8pt">OsoPOS es gratuito y distribuido con la esperanza de que sea Ãºtil, pero
+SIN GARANTIA ALGUNA. Consulte la <a href="gpl.php">licencia de uso</a> para mÃ¡s informaciÃ³n</div></p>
 
 </body>
 </html>

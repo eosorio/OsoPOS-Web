@@ -1,21 +1,21 @@
 <?php  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
 
- Renta Web 0.02-1. MÛdulo de rentas de OsoPOS Web.
+ Renta Web 0.02-1. M√≥dulo de rentas de OsoPOS Web.
 
-        Copyright (C) 2003 Eduardo Israel Osorio Hern·ndez
+        Copyright (C) 2003 Eduardo Israel Osorio Hern√°ndez
 
         Este programa es un software libre; puede usted redistribuirlo y/o
-modificarlo de acuerdo con los tÈrminos de la Licencia P˙blica General GNU
-publicada por la Free Software Foundation: ya sea en la versiÛn 2 de la
-Licencia, o (a su elecciÛn) en una versiÛn posterior. 
+modificarlo de acuerdo con los t√©rminos de la Licencia P√∫blica General GNU
+publicada por la Free Software Foundation: ya sea en la versi√≥n 2 de la
+Licencia, o (a su elecci√≥n) en una versi√≥n posterior. 
 
-        Este programa es distribuido con la esperanza de que sea ˙til, pero
-SIN GARANTIA ALGUNA; incluso sin la garantÌa implÌcita de COMERCIABILIDAD o
-DE ADECUACION A UN PROPOSITO PARTICULAR. VÈase la Licencia P˙blica General
+        Este programa es distribuido con la esperanza de que sea √∫til, pero
+SIN GARANTIA ALGUNA; incluso sin la garant√≠a impl√≠cita de COMERCIABILIDAD o
+DE ADECUACION A UN PROPOSITO PARTICULAR. V√©ase la Licencia P√∫blica General
 GNU para mayores detalles. 
 
-        DeberÌa usted haber recibido una copia de la Licencia P˙blica General
-GNU junto con este programa; de no ser asÌ, escriba a Free Software
+        Deber√≠a usted haber recibido una copia de la Licencia P√∫blica General
+GNU junto con este programa; de no ser as√≠, escriba a Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA. 
 
 */
@@ -39,7 +39,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <meta name="Author" content="E. Israel Osorio Hern·ndez">
+   <meta name="Author" content="E. Israel Osorio Hern√°ndez">
    <title>OsoPOS Web - Renta Web v. <? echo $factur_web_vers ?></title>
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/numerico.css">
@@ -65,7 +65,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     $query.= "rentas_detalle det WHERE c.status&B'10000000' = B'10000000' AND r.cliente=c.id AND ";
     $query.= "r.status&B'10000000' != B'10000000' AND r.id=det.id ORDER BY id ASC, f_entrega ASC ";
     /*igm*/  /* OJO: En este query se consultaba el campo rentas_entrega. Hay que ver la forma
-    de mostrar la fecha de entrega del producto m·s prÛximo a la fecha de la consulta */
+    de mostrar la fecha de entrega del producto m√°s pr√≥ximo a la fecha de la consulta */
     if (!@$db_res = db_query($query, $conn)) {
       $mens = "<div class=\"error_f\">Error al consultar clientes</div><br>";
 	  $mens.= db_errormsg($conn);
@@ -222,7 +222,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $itotal+=$importe;
     }
     $linea_impr.= sprintf("                         Total: $%6.2f\n", $itotal);
-    $linea_impr.= sprintf("Total de artÌculos rentados: %d\n", count($costo));
+    $linea_impr.= sprintf("Total de art√≠culos rentados: %d\n", count($costo));
     $linea_impr.= "\n\nGracias por su preferencia\n\n\n\n";
 
     /*igm*/ echo "<pre>Salida del ticket:\n$linea_impr\n</pre>\n";
@@ -243,12 +243,12 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
                          $importe, $serie);
         
       if (!@$db_res = db_query($query, $conn)) {
-        $mens = sprintf("<div class=\"error_nf\">ERROR: Al actualizar recuperaciÛn de costo de articulo %s, %s.</div>\n",
+        $mens = sprintf("<div class=\"error_nf\">ERROR: Al actualizar recuperaci√≥n de costo de articulo %s, %s.</div>\n",
                         $serie, $descripcion[$serie]);
         echo ($mens);
       }
     }
-    printf("<b>%d artÌculos registrados en renta</b><br>\n", $i);
+    printf("<b>%d art√≠culos registrados en renta</b><br>\n", $i);
     echo "<br><br>";
     
 
@@ -259,7 +259,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   else if ($accion=="costos") {
     $query = "SELECT * FROM articulos_rentas WHERE codigo='$codigo' ";
     if (!@$db_res = db_query($query, $conn)) {
-      $mens = "<div class=\"error_f\">Error al consultar cat·logo de costos de renta</div><br>";
+      $mens = "<div class=\"error_f\">Error al consultar cat√°logo de costos de renta</div><br>";
 	  $mens.= db_errormsg($conn);
       die($mens);
     } 

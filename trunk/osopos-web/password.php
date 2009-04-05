@@ -1,21 +1,21 @@
 <?php  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
 
-  passsword.php Módulo de contraseñas de OsoPOS Web
-        Copyright (C) 2002-2004 Eduardo Israel Osorio Hernández
+  passsword.php MÃ³dulo de contraseÃ±as de OsoPOS Web
+        Copyright (C) 2002-2004 Eduardo Israel Osorio HernÃ¡ndez
         desarrollo@elpuntodeventa.com
 
         Este programa es un software libre; puede usted redistribuirlo y/o
-modificarlo de acuerdo con los términos de la Licencia Pública General GNU
-publicada por la Free Software Foundation: ya sea en la versión 2 de la
-Licencia, o (a su elección) en una versión posterior. 
+modificarlo de acuerdo con los tÃ©rminos de la Licencia PÃºblica General GNU
+publicada por la Free Software Foundation: ya sea en la versiÃ³n 2 de la
+Licencia, o (a su elecciÃ³n) en una versiÃ³n posterior. 
 
-        Este programa es distribuido con la esperanza de que sea útil, pero
-SIN GARANTIA ALGUNA; incluso sin la garantía implícita de COMERCIABILIDAD o
-DE ADECUACION A UN PROPOSITO PARTICULAR. Véase la Licencia Pública General
+        Este programa es distribuido con la esperanza de que sea Ãºtil, pero
+SIN GARANTIA ALGUNA; incluso sin la garantÃ­a implÃ­cita de COMERCIABILIDAD o
+DE ADECUACION A UN PROPOSITO PARTICULAR. VÃ©ase la Licencia PÃºblica General
 GNU para mayores detalles. 
 
-        Debería usted haber recibido una copia de la Licencia Pública General
-GNU junto con este programa; de no ser así, escriba a Free Software
+        DeberÃ­a usted haber recibido una copia de la Licencia PÃºblica General
+GNU junto con este programa; de no ser asÃ­, escriba a Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA. 
 
  */
@@ -32,7 +32,7 @@ include("include/pos.inc");
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <HTML>
 <HEAD>
-  <TITLE>OsoPOS Web - Contraseñas</TITLE>
+  <TITLE>OsoPOS Web - ContraseÃ±as</TITLE>
   <?php include("menu/menu_principal.inc"); ?>
   <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
   <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/numerico.css">
@@ -75,7 +75,7 @@ include("include/pos.inc");
 
         $id = agrega_usuario($conn, $login, $new_passwd, $level, $name);
         if ($id>0) {
-          echo "<i>Usuario $id, $login agregado exitósamente</i><br>\n";
+          echo "<i>Usuario $id, $login agregado exitÃ³samente</i><br>\n";
           include("forms/usuarios_modulos.bdy");
         }
         else if ($id==0)
@@ -99,7 +99,7 @@ include("include/pos.inc");
         if (alta_modulos_usuario($conn, $login, $modulo))
           echo "<i>Se otorgaron los permisos correspondientes al usuario $login</i><br>\n";
         else
-          echo "<b>Error al dar acceso a módulos al usuario $login</b><br>\n";
+          echo "<b>Error al dar acceso a mÃ³dulos al usuario $login</b><br>\n";
       }
       if (!isset($action) || $action!="listar" && $action!='agregar')
         include("bodies/password.bdy");

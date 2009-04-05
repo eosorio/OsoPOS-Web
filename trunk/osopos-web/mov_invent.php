@@ -1,20 +1,20 @@
 <?php  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
-        Mov. Invent Web. Submódulo de movimientos al inventario de OsoPOS Web.
+        Mov. Invent Web. SubmÃ³dulo de movimientos al inventario de OsoPOS Web.
 
-        Copyright (C) 2000-2005 Eduardo Israel Osorio Hernández
+        Copyright (C) 2000-2005 Eduardo Israel Osorio HernÃ¡ndez
 
         Este programa es un software libre; puede usted redistribuirlo y/o
-modificarlo de acuerdo con los términos de la Licencia Pública General GNU
-publicada por la Free Software Foundation: ya sea en la versión 2 de la
-Licencia, o (a su elección) en una versión posterior. 
+modificarlo de acuerdo con los tÃ©rminos de la Licencia PÃºblica General GNU
+publicada por la Free Software Foundation: ya sea en la versiÃ³n 2 de la
+Licencia, o (a su elecciÃ³n) en una versiÃ³n posterior. 
 
-        Este programa es distribuido con la esperanza de que sea útil, pero
-SIN GARANTIA ALGUNA; incluso sin la garantía implícita de COMERCIABILIDAD o
-DE ADECUACION A UN PROPOSITO PARTICULAR. Véase la Licencia Pública General
+        Este programa es distribuido con la esperanza de que sea Ãºtil, pero
+SIN GARANTIA ALGUNA; incluso sin la garantÃ­a implÃ­cita de COMERCIABILIDAD o
+DE ADECUACION A UN PROPOSITO PARTICULAR. VÃ©ase la Licencia PÃºblica General
 GNU para mayores detalles. 
 
-        Debería usted haber recibido una copia de la Licencia Pública General
-GNU junto con este programa; de no ser así, escriba a Free Software
+        DeberÃ­a usted haber recibido una copia de la Licencia PÃºblica General
+GNU junto con este programa; de no ser asÃ­, escriba a Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA. 
 
 */ 
@@ -86,8 +86,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
    include("menu/menu_principal.bdy");
    echo "<br>\n";
    if (!puede_hacer($conn, $user->user, "movinv_general")) {
-     echo "<h4>Usted no tiene permisos para accesar este módulo</h4><br>\n";
-     echo "<a href=\"index.php\">Regresar a menú principal</a>\n";
+     echo "<h4>Usted no tiene permisos para accesar este mÃ³dulo</h4><br>\n";
+     echo "<a href=\"index.php\">Regresar a menÃº principal</a>\n";
      echo "</body>\n";
      echo "</html>\n";
      exit();
@@ -211,7 +211,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $query = "INSERT INTO articulos_series (id, codigo, almacen) VALUES ";
       $query.= sprintf("('%s', '%s', %d) ", $serial[$i], $codigo[$i], $almacen);
       if (!$db_res = db_query($query, $conn)) {
-        printf("Error al agregar número de serie \"%s\", código %s<br>\n", $serial[$i], $codigo[$i]);
+        printf("Error al agregar nÃºmero de serie \"%s\", cÃ³digo %s<br>\n", $serial[$i], $codigo[$i]);
         echo db_errormsg($conn);
         $error_serie = 1;
       }
