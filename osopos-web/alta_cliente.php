@@ -1,20 +1,20 @@
 <?php  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
-        Beta test. Módulo de pruebas de OsoPOS Web.
+        Beta test. MÃ³dulo de pruebas de OsoPOS Web.
 
-        Copyright (C) 2004 Eduardo Israel Osorio Hernández
+        Copyright (C) 2004 Eduardo Israel Osorio HernÃ¡ndez
 
         Este programa es un software libre; puede usted redistribuirlo y/o
-modificarlo de acuerdo con los términos de la Licencia Pública General GNU
-publicada por la Free Software Foundation: ya sea en la versión 2 de la
-Licencia, o (a su elección) en una versión posterior. 
+modificarlo de acuerdo con los tÃ©rminos de la Licencia PÃºblica General GNU
+publicada por la Free Software Foundation: ya sea en la versiÃ³n 2 de la
+Licencia, o (a su elecciÃ³n) en una versiÃ³n posterior. 
 
-        Este programa es distribuido con la esperanza de que sea útil, pero
-SIN GARANTIA ALGUNA; incluso sin la garantía implícita de COMERCIABILIDAD o
-DE ADECUACION A UN PROPOSITO PARTICULAR. Véase la Licencia Pública General
+        Este programa es distribuido con la esperanza de que sea Ãºtil, pero
+SIN GARANTIA ALGUNA; incluso sin la garantÃ­a implÃ­cita de COMERCIABILIDAD o
+DE ADECUACION A UN PROPOSITO PARTICULAR. VÃ©ase la Licencia PÃºblica General
 GNU para mayores detalles. 
 
-        Debería usted haber recibido una copia de la Licencia Pública General
-GNU junto con este programa; de no ser así, escriba a Free Software
+        DeberÃ­a usted haber recibido una copia de la Licencia PÃºblica General
+GNU junto con este programa; de no ser asÃ­, escriba a Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA. 
 
 */ 
@@ -82,10 +82,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     }
   }
   
-  /* Cargamos matriz de países */
+  /* Cargamos matriz de paÃ­ses */
   $query = "SELECT * FROM domicilio_paises ORDER BY id ASC";
   if (!$resultado = db_query($query, $conn)) {
-    $mens = "<div class=\"error_nf\">Error al consultar países</div>\n";
+    $mens = "<div class=\"error_nf\">Error al consultar paÃ­ses</div>\n";
   }
   else {
     $a_paises = array();
@@ -154,7 +154,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
           }
  
         } /* fin de consulta de id domicilio principal */
-      }  /* fin de inserción de domicilio de cliente */
+      }  /* fin de inserciÃ³n de domicilio de cliente */
     }
   }
 }
@@ -193,16 +193,16 @@ while(list ($id_tipo, $valor) = each($a_clientes_tipo))
       <td>&nbsp;  </td>
     </tr>
     <tr>
-      <td>Página Web  </td>
+      <td>PÃ¡gina Web  </td>
       <td><input type="text" name="url" size=40>  </td>
       <td>email  </td>
       <td><input type="text" name="email">  </td>
 
     </tr>
     <tr>
-      <td>Teléfono 1  </td>
+      <td>TelÃ©fono 1  </td>
       <td><input type="text" name="telefono1"></td>
-      <td>Teléfono 2  </td>
+      <td>TelÃ©fono 2  </td>
       <td><input type="text" name="telefono2"></td>
     </tr>
     <tr>
@@ -230,15 +230,15 @@ Domicilio principal:<br>
   <td colspan=3><input type="text" name="dom_calle" size=60></td>
 </tr>
 <tr>
-  <td>Número exterior:</td>
+  <td>NÃºmero exterior:</td>
   <td><input type="text" name="dom_numero"></td>
-  <td>Número interior:</td>
+  <td>NÃºmero interior:</td>
   <td><input type="text" name="dom_inter"></td>
 </tr>
 <tr>
   <td>Colonia:</td>
   <td><input type="text" name="dom_col"></td>
-  <td>Municipio/delegación:</td>
+  <td>Municipio/delegaciÃ³n:</td>
   <td><input type="text" name="dom_mpo"></td>
 </tr>
 <tr>
@@ -259,7 +259,7 @@ Domicilio principal:<br>
 </tr>
 
 <tr>
-  <td>País:</td>
+  <td>PaÃ­s:</td>
   <td><select name="dom_pais_id">
 <?php
       while(list ($id_pais, $valor) = each($a_paises)) {
@@ -276,7 +276,7 @@ Domicilio principal:<br>
 </tr>
 
 <tr>
-  <td>Teléfono</td>
+  <td>TelÃ©fono</td>
   <td colspan=3><input type="text" name="dom_telefono"></td>
 </tr>
 </table>

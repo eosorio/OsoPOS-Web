@@ -1,21 +1,21 @@
 <?php  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
 
- Cliente Web 0.4-1. Módulo de clientes de OsoPOS Web.
+ Cliente Web 0.4-1. MÃ³dulo de clientes de OsoPOS Web.
 
-        Copyright (C) 2000,2003 Eduardo Israel Osorio Hernández
+        Copyright (C) 2000,2003 Eduardo Israel Osorio HernÃ¡ndez
 
         Este programa es un software libre; puede usted redistribuirlo y/o
-modificarlo de acuerdo con los términos de la Licencia Pública General GNU
-publicada por la Free Software Foundation: ya sea en la versión 2 de la
-Licencia, o (a su elección) en una versión posterior. 
+modificarlo de acuerdo con los tÃ©rminos de la Licencia PÃºblica General GNU
+publicada por la Free Software Foundation: ya sea en la versiÃ³n 2 de la
+Licencia, o (a su elecciÃ³n) en una versiÃ³n posterior. 
 
-        Este programa es distribuido con la esperanza de que sea útil, pero
-SIN GARANTIA ALGUNA; incluso sin la garantía implícita de COMERCIABILIDAD o
-DE ADECUACION A UN PROPOSITO PARTICULAR. Véase la Licencia Pública General
+        Este programa es distribuido con la esperanza de que sea Ãºtil, pero
+SIN GARANTIA ALGUNA; incluso sin la garantÃ­a implÃ­cita de COMERCIABILIDAD o
+DE ADECUACION A UN PROPOSITO PARTICULAR. VÃ©ase la Licencia PÃºblica General
 GNU para mayores detalles. 
 
-        Debería usted haber recibido una copia de la Licencia Pública General
-GNU junto con este programa; de no ser así, escriba a Free Software
+        DeberÃ­a usted haber recibido una copia de la Licencia PÃºblica General
+GNU junto con este programa; de no ser asÃ­, escriba a Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA. 
 
 */
@@ -56,7 +56,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <meta name="Author" content="E. Israel Osorio Hernández">
+   <meta name="Author" content="E. Israel Osorio HernÃ¡ndez">
    <title>OsoPOS Web - Clientes v. <? echo $factur_web_vers ?></title>
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/numerico.css">
@@ -133,7 +133,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
           }
  
         } /* fin de consulta de id domicilio principal */
-      }  /* fin de inserción de domicilio de cliente */
+      }  /* fin de inserciÃ³n de domicilio de cliente */
     }
   }
 

@@ -3,7 +3,7 @@
 
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <meta name="Author" content="E. Israel Osorio Hernández">
+   <meta name="Author" content="E. Israel Osorio HernÃ¡ndez">
    <title>OsoPOS v. <? echo $osopos_web_vers ?></title>
    <style type="text/css">
     body { background: white; font-family: helvetica }
@@ -23,7 +23,7 @@
 </head>
 
 <body background="imagenes/fondo.gif">
-<a href="osopos.php">Regresar al menú principal</a><br><br>
+<a href="osopos.php">Regresar al menÃº principal</a><br><br>
 <pre>
 <?
 include("LICENCIA");
@@ -31,5 +31,5 @@ include("LICENCIA");
 </pre>
 <br>
 <br>
-<a href="osopos.php">Regresar al menú principal</a>
+<a href="osopos.php">Regresar al menÃº principal</a>
 </body>

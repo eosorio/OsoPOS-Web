@@ -1,19 +1,19 @@
 <?php  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
-        Factur Web. Módulo de inventarios de OsoPOS Web.
-        Copyright (C) 2000-2004 Eduardo Israel Osorio Hernández
+        Factur Web. MÃ³dulo de inventarios de OsoPOS Web.
+        Copyright (C) 2000-2004 Eduardo Israel Osorio HernÃ¡ndez
 
         Este programa es un software libre; puede usted redistribuirlo y/o
-modificarlo de acuerdo con los términos de la Licencia Pública General GNU
-publicada por la Free Software Foundation: ya sea en la versión 2 de la
-Licencia, o (a su elección) en una versión posterior. 
+modificarlo de acuerdo con los tÃ©rminos de la Licencia PÃºblica General GNU
+publicada por la Free Software Foundation: ya sea en la versiÃ³n 2 de la
+Licencia, o (a su elecciÃ³n) en una versiÃ³n posterior. 
 
-        Este programa es distribuido con la esperanza de que sea útil, pero
-SIN GARANTIA ALGUNA; incluso sin la garantía implícita de COMERCIABILIDAD o
-DE ADECUACION A UN PROPOSITO PARTICULAR. Véase la Licencia Pública General
+        Este programa es distribuido con la esperanza de que sea Ãºtil, pero
+SIN GARANTIA ALGUNA; incluso sin la garantÃ­a implÃ­cita de COMERCIABILIDAD o
+DE ADECUACION A UN PROPOSITO PARTICULAR. VÃ©ase la Licencia PÃºblica General
 GNU para mayores detalles. 
 
-        Debería usted haber recibido una copia de la Licencia Pública General
-GNU junto con este programa; de no ser así, escriba a Free Software
+        DeberÃ­a usted haber recibido una copia de la Licencia PÃºblica General
+GNU junto con este programa; de no ser asÃ­, escriba a Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA. 
 
 */ 
@@ -37,7 +37,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <HEAD>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <meta name="Author" content="E. Israel Osorio Hernández">
+  <meta name="Author" content="E. Israel Osorio HernÃ¡ndez">
   <TITLE>OsoPOS - Factur Web v. <? echo $factur_web_vers ?></TITLE>
   <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
   <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/numerico.css">
@@ -257,7 +257,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     echo "<th>";
     echo "<a href=\"$PHP_SELF?offset=0&order_by=razon_soc&order=";
     printf("%d&table=%s",  $order_by=="razon_soc" && !$order, $table);
-    echo "$href_prov\">Nombre o razón social</th>\n";
+    echo "$href_prov\">Nombre o razÃ³n social</th>\n";
   }
 
     echo "  <th><font face=\"helvetica,arial\"><a href=\"$PHP_SELF?offset=0&order_by=subtotal&order=";
