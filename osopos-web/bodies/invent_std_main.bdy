@@ -1,4 +1,4 @@
-<? /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- */ ?>
+<?php /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- */ ?>
 <!-- bodies/invent_std_main.bdy -->
 
 <table border=0 width='100%'>
@@ -7,15 +7,15 @@
   if (puede_hacer($conn, $user->user, "invent_borrar_item"))
 	echo "  <th>&nbsp;</th>\n";
 
-    echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=codigo&order=";
+    echo "  <th><a href=\"" .$_SERVER['PHP_SELF'] . "?offset=0&order_by=codigo&order=";
     printf("%d&alm=%d",  $order_by=="codigo" && !$order, $alm);
     echo "$href_dept$href_prov\">C&oacute;digo</a></th>\n";
 
-    echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=descripcion&order=";
+    echo "  <th><a href=\"" .$_SERVER['PHP_SELF'] . "?offset=0&order_by=descripcion&order=";
     printf("%d&alm=%d",  $order_by=="descripcion" && !$order, $alm);
     echo "$href_dept$href_prov\">Descripci&oacute;n</a></th>\n";
 
-    echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=pu&order=";
+    echo "  <th><a href=\"" .$_SERVER['PHP_SELF'] . "?offset=0&order_by=pu&order=";
     printf("%d&alm=%d",  $order_by=="pu" && !$order, $alm);
     echo "$href_dept$href_prov\">Precio</a></th>\n";
 
@@ -26,25 +26,25 @@
    <th>Max</th>
 <?
     } else if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
-      echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=id_prov&order=";
+      echo "  <th><a href=\"" .$_SERVER['PHP_SELF'] . "?offset=0&order_by=id_prov&order=";
       printf("%d&alm=%d",  $order_by=="id_prov" && !$order, $alm);
       echo "$href_dept$href_prov\">Proveedor</a></th>";
     }
 
-    echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=id_dept&order=";
+    echo "  <th><a href=\"" .$_SERVER['PHP_SELF'] . "?offset=0&order_by=id_dept&order=";
     printf("%d&alm=%d",  $order_by=="id_dept" && !$order, $alm);
     echo "$href_dept$href_prov\">Departamento</a></th>\n";
     if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
-      echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=prov_clave&order=";
+      echo "  <th><a href=\"" .$_SERVER['PHP_SELF'] . "?offset=0&order_by=prov_clave&order=";
       printf("%d&alm=%d",  $order_by=="p_costo" && !$order, $alm);
       echo "$href_dept$href_prov\">Clave Prov.</a></th>\n";
     }
 
     if (puede_hacer($conn, $user->user, "invent_ver_pcosto") && !isset($alm)) {
-	  echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=p_costo&order=";
+	  echo "  <th><a href=\"" .$_SERVER['PHP_SELF'] . "?offset=0&order_by=p_costo&order=";
 	  printf("%d",  $order_by=="p_costo" && !$order);
 	  echo "$href_dept$href_prov\">P. costo</a></th>\n";
-	}
+    }
 
 
     for ($i=0; $i<$num_ren; $i++) {
@@ -73,12 +73,12 @@
       echo " <tr>\n";
       if (puede_hacer($conn, $user->user, "invent_borrar_item")) {
 		echo "  <td>\n";
-		echo "   <a href=\"$PHP_SELF?order_by=$order_by&order=$order&action=borrar&offset=$offset";
+		echo "   <a href=\"" .$_SERVER['PHP_SELF'] . "?order_by=$order_by&order=$order&action=borrar&offset=$offset";
 		echo "$href_dept$href_prov&alm=$alm&codigo=";
 		echo str_replace(" ", "%20", htmlentities($reng->codigo));
-		echo "\" border=0><img src=\"imagenes/borrar.gif\" border=0></a></td>";
+		echo "\" border=0><img src=\"imagenes/borrar.gif\" border=0 /></a></td>";
 	  }
-      echo "  <td$td_fondo><a href=\"$PHP_SELF?codigo=";
+      echo "  <td$td_fondo><a href=\"" .$_SERVER['PHP_SELF'] . "?codigo=";
       echo str_replace(" ", "%20", htmlentities($reng->codigo));
       echo "&order_by=$order_by&order=$order&action=muestra&offset=$offset$href_dept$href_prov";
 	  if ($debug)

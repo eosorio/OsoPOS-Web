@@ -60,7 +60,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
    <meta name="Author" content="E. Israel Osorio Hernández">
-   <title>OsoPOS - FacturWeb v. <? echo $factur_web_vers ?></title>
+   <title>OsoPOS - FacturWeb v. <?php echo $factur_web_vers ?></title>
    <?php include("menu/menu_principal.inc"); ?>
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/numerico.css">
@@ -97,7 +97,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <?php
   include("menu/menu_principal.bdy");
-  echo "<br>\n";
+  echo "<br />\n";
 
   include("bodies/menu/factur.bdy");
   include("include/encabezado.inc");
@@ -123,13 +123,13 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
           if (!empty($id_venta)) {
 
                 if (!$conn) {
-                  die("<div class=\"error_f\">ERROR: Al conectarse a la base de datos</div><br>\n");
+                  die("<div class=\"error_f\">ERROR: Al conectarse a la base de datos</div><br />\n");
                 }
 
                 if (!isset($existe_venta))
                   $existe_venta = 0;
                 if (!is_array($articulo = lee_venta($id_venta))) {
-                  echo "<div class=\"error_nf\">Error al leer artículos de la venta $id_venta</div><br>\n";
+                  echo "<div class=\"error_nf\">Error al leer artículos de la venta $id_venta</div><br />\n";
                   $accion = "articulos";
                 }
                 else {
@@ -237,7 +237,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $query.= sprintf("%d, '%s') ", $_POST['id'], $_POST['observaciones']) ;
 
       if (isset($debug) && $debug>0)
-        echo "<i>$query</i><br>\n";
+        echo "<i>$query</i><br />\n";
       else if (!$resultado = db_query($query, $conn)) {
         echo "<div class=\"error_nf\">Error al agregar observaciones de factura</div>\n";
       }
@@ -275,13 +275,13 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     $peticion.= ")";
 
     if (isset($debug) && $debug>0)
-      echo "<i>$peticion</i><br>\n";
+      echo "<i>$peticion</i><br />\n";
     else if (!$resultado = db_query($peticion, $conn)) {
-      $mens = "Error al agregar datos de factura<br>" . db_errormsg($conn);
+      $mens = "Error al agregar datos de factura<br />" . db_errormsg($conn);
       die($mens);
     }
     else
-      echo "<div class=\"mens_inf\">Factura $id, $rfc agregada</div><br>";
+      echo "<div class=\"mens_inf\">Factura $id, $rfc agregada</div><br />";
 
     for ($i=0; $i<count($desc); $i++) {
       $peticion = "INSERT INTO fact_ingresos_detalle ";
@@ -290,7 +290,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $peticion.= sprintf("%d, '%s', '%s', %d, %.2f)",
                           $id, $codigo[$i], $desc[$i], $cant[$i], $pu[$i]);
       if (!$resultado = db_query($peticion, $conn)) {
-        echo "Error al ejecutar $peticion<br>" . db_errormsg($conn) . "</body></html>\n";
+        echo "Error al ejecutar $peticion<br />" . db_errormsg($conn) . "</body></html>\n";
         exit();
       }
     }
@@ -303,12 +303,12 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       if (db_num_rows($resultado) == 0) {
         $peticion = "INSERT INTO clientes_fiscales (\"rfc\", \"curp\", \"nombre\") ";
         $peticion.= " VALUES ('$rfc', '$curp', '$razon_soc')";
-        $mensaje = "<div class=\"mens_inf\">Cliente fiscal $razon_soc agregado</div><br>";
+        $mensaje = "<div class=\"mens_inf\">Cliente fiscal $razon_soc agregado</div><br />";
       }
       else
         $mensaje = "";
       if (!$resultado = db_query($peticion, $conn)) {
-        echo "Error al registrar cliente fiscal<br>" . db_errormsg($conn) . "</body></html>\n";
+        echo "Error al registrar cliente fiscal<br />" . db_errormsg($conn) . "</body></html>\n";
         exit();
       }
       echo $mensaje;
@@ -320,7 +320,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       if (db_num_rows($resultado) == 0) {
         $peticion = "INSERT INTO clientes (\"rfc\", \"curp\", \"nombres\", ap_paterno, ap_materno) ";
         $peticion.= " VALUES ('$rfc', '$curp', '$razon_soc', '', '')";
-        $mensaje = "<div class=\"mens_inf\">Cliente $razon_soc agregado</div><br>\n";
+        $mensaje = "<div class=\"mens_inf\">Cliente $razon_soc agregado</div><br />\n";
       }
       else
         $mensaje = "";
@@ -430,7 +430,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
       $impresion = popen($linea, "w");
       if (!$impresion) {
-        echo "<div class=\"error_nf\">Error al ejecutar <i>$cmd_impresion $nm_archivo</i></div><br>\n";
+        echo "<div class=\"error_nf\">Error al ejecutar <i>$cmd_impresion $nm_archivo</i></div><br />\n";
       }
       else {
         echo "<div class=\"mens_inf\">Factura impresa.</div>\n";
@@ -447,7 +447,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
   if (empty($fase)  ||  $fase==0) {
     if (!$conn) {
-      echo "ERROR: Al conectarse a la base de datos $DB_NAME<br>\n</body></html>";
+      echo "ERROR: Al conectarse a la base de datos $DB_NAME<br />\n</body></html>";
       exit();
     }
 
@@ -472,7 +472,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 //       $peticion = "SELECT * FROM facturas_ingresos WHERE rfc='$rfc' ORDER BY fecha DESC";
 //       if (!$resultado = db_query($peticion, $conn)) {
-//         echo "Error al ejecutar $peticion<br>No se pudo encontrar los datos del cliente<br>" . db_errormesg($conn) . "<br>\n";
+//         echo "Error al ejecutar $peticion<br />No se pudo encontrar los datos del cliente<br />" . db_errormesg($conn) . "<br />\n";
 //       }
 //       else {
 //         if (db_num_rows($resultado)) {
@@ -491,7 +491,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     if (empty($id)) {
       $query = "SELECT max(id) AS next_id FROM facturas_ingresos";
       if (!$result = db_query($query, $conn)) {
-        echo "Error al ejecutar $peticion<br>No se pudo extraer último folio<br>" . db_errormsg($conn) . "<br>\n";
+        echo "Error al ejecutar $peticion<br />No se pudo extraer último folio<br />" . db_errormsg($conn) . "<br />\n";
       }
       else {
         $id = db_result($result, 0, "next_id");
@@ -509,10 +509,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   }
   else if ($accion=="lista") {
         if ($debug>0)
-          echo "<i>$query</i><br>\n";
+          echo "<i>$query</i><br />\n";
         $query = "SELECT * FROM facturas_ingresos ORDER BY id ASC";
         if (!$db_res = db_query($query, $conn)) {
-    echo "Error al ejecutar $query<br>\n";
+    echo "Error al ejecutar $query<br />\n";
     exit();
         }
         include("bodies/ingresos_lista.bdy");
