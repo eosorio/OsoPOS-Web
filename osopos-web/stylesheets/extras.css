@@ -1,0 +1,7 @@
+font.item_tit { font-weight: bold }
+font.filme_tit { font-family: helvetica, sans-serif;
+                 text-size: 14pt;
+                 font-weight: bold }
+td.item_tit { font-weight: bold; text-align: right; font-size: x-small }
+td.tit_campo { font-family: Helvetica Arial sans-serif; font-size: small; text-align: right }
+div.men_res { font-weight: bold; font-style: italic }

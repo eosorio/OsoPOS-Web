@@ -1,0 +1,32 @@
+body { font-family: helvetica, sans-serif; size: 12pt;
+      background-color: #FFFFFF;
+      background-image: url(../imagenes/fondo.png);
+      background-attachment: fixed;
+      background-position: 2cm 2cm;
+}
+
+
+@media screen {  /* hide from IE3 */
+a[href]:hover { background: #ffa }
+}
+
+
+h1.princ { text-align: center }
+div.pie { font-size: 14pt; text-align: center }
+div.menu_texto { font-size: small }
+div.advt { color: #FFFF00 }
+div.error_f { color: red; font-weight: bold }
+div.error_nf { color: red; font-style: italic }
+a.menu { background-color: yellow }
+td.menu { background-color: yellow }
+th.peq { font-size: 10pt }
+
+tr.estilo_a { background-color: #dcffdb }
+tr.estilo_b { background-color: #fdffd3 }
+tr.estilo_c { background-color: #FFFFFF }
+
+td.ren_codigo { }
+td.ren_moneda { }
+td.ren_serie { }
+td.ren_prov { }
+td.ren_depto { }
