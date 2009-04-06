@@ -1,4 +1,4 @@
-<? /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+<?php /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 {
   $estado = array();
 
@@ -12,27 +12,27 @@
   $estado[ 8] = "Colima"        ;
   $estado[ 9] = "D.F."          ;
   $estado[10] = "Durango"       ;
-  $estado[11] = "Edo. México"   ;
+  $estado[11] = "Edo. MÃ©xico"   ;
   $estado[12] = "Guanajuato"    ;
   $estado[13] = "Guerrero"      ;
   $estado[14] = "Hidalgo"       ;
   $estado[15] = "Jalisco"       ;
-  $estado[16] = "Michoacán"     ;
+  $estado[16] = "MichoacÃ¡n"     ;
   $estado[17] = "Morelos"       ;
   $estado[18] = "Nayarit"       ;
-  $estado[19] = "Nuevo León"    ;
+  $estado[19] = "Nuevo LeÃ³n"    ;
   $estado[20] = "Oaxaca"        ;
   $estado[21] = "Puebla"         ;
-  $estado[22] = "Querétaro"      ;
+  $estado[22] = "QuerÃ©taro"      ;
   $estado[23] = "Qintana Roo"    ;
-  $estado[24] = "San Luis Potosí";
+  $estado[24] = "San Luis PotosÃ­";
   $estado[25] = "Sinaloa"        ;
   $estado[26] = "Sonora"         ;
   $estado[27] = "Tabasco"        ;
   $estado[28] = "Tamaulipas"     ;
   $estado[29] = "Tlaxcala"       ;
   $estado[30] = "Veracruz"       ;
-  $estado[31] = "Yucatán"        ;
+  $estado[31] = "YucatÃ¡n"        ;
   $estado[32] = "Zacatecas"      ;
 }
 ?>

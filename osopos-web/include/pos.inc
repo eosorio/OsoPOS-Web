@@ -52,8 +52,7 @@ function registra_venta($id_vend, $art_cant, $art_descr, $art_pu,
                    $total, $tipo_pago, $tipo_comprobante, $utilidad, $id_vend,
 					  $user->id, $fecha, $hora, $iva);
   if (!$resultado = db_query($query, $conn)) {
-	echo "Error al ejecutar $query<br>\n";
-	exit();
+    die("<div class=\"error_f\">Error al insertar venta</div>\n");
   }
 
 
@@ -62,8 +61,7 @@ function registra_venta($id_vend, $art_cant, $art_descr, $art_pu,
   $query = sprintf("SELECT numero FROM ventas WHERE id_vendedor=%d AND ", $id_vend);
   $query.= sprintf("id_cajero=%d AND fecha='$fecha' AND hora='$hora'", $user->id);
   if (!$resultado = db_query($query, $conn)) {
-	echo "Error al ejecutar $query<br>\n";
-	exit();
+    die("<div class=\"error_f\">Error al consultar datos de vendedor en ventas</div>\n");
   }
   $id_venta = db_result($resultado, 0, 0);
 
@@ -76,8 +74,7 @@ function registra_venta($id_vend, $art_cant, $art_descr, $art_pu,
                      substr($art_descr[$codigo], 0, $MXT_VENTAS_DET_DESC ), 
                      $art_pu[$codigo], $art_iva_porc[$codigo]);
     if (!$resultado = db_query($query, $conn)) {
-      echo "Error al ejecutar $query<br>\n";
-      exit();
+      die("<div class=\"error_f\">Error al ejecutar $query</div>\n");
     }
   }
   $descto_aplicado = checa_descuento($conn, $id_venta, $alm);
@@ -88,8 +85,7 @@ function registra_venta($id_vend, $art_cant, $art_descr, $art_pu,
 
   $query = sprintf("INSERT INTO corte (numero,bandera) VALUES (%d, B'%s')", $id_venta, $corte);
   if (!$resultado = db_query($query, $conn)) {
-    echo "Error al registrar corte<br>\n";
-    exit();
+    die("<div class=\"error_f\">Error al registrar corte</div>\n");
   }
 
   return($id_venta);
@@ -551,8 +547,7 @@ function lista_movimientos($db_con, $item_default, $nm_campo="tipo_mov[]") {
     $query = "SELECT nombre FROM tipo_mov_inv ORDER BY id ASC ";
 
     if (!$db_res = db_query($query, $db_con)) {
-      echo "Error al ejecutar $query<br>\n";
-      exit();
+      die("<div class=\"error_f\">Error al consultar tipo de movimientos de inventario</div>\n");
     }
 
     $nm_tipo_mov = array();
@@ -601,8 +596,7 @@ function tipo_mov($db_con, $num_tipo_mov) {
   $query = "SELECT nombre FROM tipo_mov_inv WHERE id=$num_tipo_mov ";
 
   if (!$db_res = db_query($query, $db_con)) {
-    echo "Error al ejecutar $query<br>\n";
-    exit();
+    die("<div class=\"error_f\">Error al consultar tipo de movimientos de inventario</div>\n");
   }
 
   return(db_result($db_res, 0, 0));
@@ -616,15 +610,13 @@ function inserta_cab_movinv($db_con, $almacen, $tipo_mov, $id_prov1, $usuario, $
   $query = "INSERT INTO mov_inv (almacen, tipo_mov, usuario, fecha_hora, id_prov1) VALUES ";
   $query.= sprintf("(%d, %d, '%s', '%s %s', %d)", $almacen, $tipo_mov, $usuario, $fecha, $hora, $id_prov1);
   if (!$db_res = db_query($query, $db_con)) {
-    echo "Error al ejecutar $query<br>\n";
-    exit();
+    die("<div class=\"error_f\">Error al insertar movimientos al inventario</div>\n");
   }
 
   $query = sprintf("SELECT id FROM mov_inv WHERE almacen=%d AND usuario='%s' AND fecha_hora='%s %s' ",
                    $almacen, $usuario, $fecha, $hora);
   if (!$db_res = db_query($query, $db_con)) {
-    echo "Error al ejecutar $query<br>\n";
-    exit();
+    die("<div class=\"error_f\">Error al consultar modvimientos al inventario</div>\n");
   }
   if (db_num_rows($db_res))
     return(db_result($db_res, 0, 0));
@@ -639,8 +631,7 @@ function inserta_det_movinv($db_con, $almacen, $id, $codigo, $cant, $pu, $p_cost
 
 
   if (!$db_res = db_query($query, $db_con)) {
-    echo "Error al ejecutar $query<br>\n";
-    exit();
+    die("<div class=\"error_f\">Error al insertar detalle de movimientos al inventario</div>\n");
   }
 
   $query = "SELECT entrada FROM tipo_mov_inv WHERE id=$tipo_mov";

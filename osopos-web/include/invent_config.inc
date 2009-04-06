@@ -1,13 +1,13 @@
-<? /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+<?php /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 {
-  // Versión
+  // VersiÃ³n
   $INVENT_VERSION = "0.14";
 
-  // Colores en reglones de listado de artículos
+  // Colores en reglones de listado de artÃ­culos
   $bg_color1 = "#dcffdb";
   $bg_color2 = "#fdffd3";
 
-  // Divisa por omisión en artículos nuevos
+  // Divisa por omisiÃ³n en artÃ­culos nuevos
   $DIVISA_OMISION = "MXP";
 
 }

@@ -1,4 +1,4 @@
-<? /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+<?php /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
 function db_pconnect($db_host, $db_user, $db_passwd, $db_name, $tty = "", $port = "")
 {
