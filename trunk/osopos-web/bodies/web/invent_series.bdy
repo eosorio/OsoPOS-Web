@@ -1,37 +1,37 @@
 <?php /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- 
-        invent_series.bdy. Cuerpo del módulo de inventarios de OsoPOS Web.
+        invent_series.bdy. Cuerpo del mÃ³dulo de inventarios de OsoPOS Web.
 
-        Copyright (C) 2000-2003 Eduardo Israel Osorio Hernández
+        Copyright (C) 2000-2003 Eduardo Israel Osorio HernÃ¡ndez
 
         Este programa es un software libre; puede usted redistribuirlo y/o
-modificarlo de acuerdo con los términos de la Licencia Pública General GNU
-publicada por la Free Software Foundation: ya sea en la versión 2 de la
-Licencia, o (a su elección) en una versión posterior. 
+modificarlo de acuerdo con los tÃ©rminos de la Licencia PÃºblica General GNU
+publicada por la Free Software Foundation: ya sea en la versiÃ³n 2 de la
+Licencia, o (a su elecciÃ³n) en una versiÃ³n posterior. 
 
-        Este programa es distribuido con la esperanza de que sea útil, pero
-SIN GARANTIA ALGUNA; incluso sin la garantía implícita de COMERCIABILIDAD o
-DE ADECUACION A UN PROPOSITO PARTICULAR. Véase la Licencia Pública General
+        Este programa es distribuido con la esperanza de que sea Ãºtil, pero
+SIN GARANTIA ALGUNA; incluso sin la garantÃ­a implÃ­cita de COMERCIABILIDAD o
+DE ADECUACION A UN PROPOSITO PARTICULAR. VÃ©ase la Licencia PÃºblica General
 GNU para mayores detalles. 
 
-        Debería usted haber recibido una copia de la Licencia Pública General
-GNU junto con este programa; de no ser así, escriba a Free Software
+        DeberÃ­a usted haber recibido una copia de la Licencia PÃºblica General
+GNU junto con este programa; de no ser asÃ­, escriba a Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA. 
 
 */
 {
-  $boton = "series"; /* Indicador de cual botón debe aparecer presionado */
+  $boton = "series"; /* Indicador de cual botÃ³n debe aparecer presionado */
   include("bodies/web/invent_costos_head.bdy");
 
 
   $query = "SELECT id,nombre FROM almacenes ";
   if (!$res = db_query($query, $conn)) {
-    echo "Error al consultar almacenes<br>\n";
+    echo "Error al consultar almacenes<br />\n";
     exit();
   }
   $alm = array();
   $ic = array(); /* Contador de cada columna de la tabla a mostrar */
 
-  $num_cols = db_num_rows($res); /* Número de columnas de la tabla a mostrar */
+  $num_cols = db_num_rows($res); /* NÃºmero de columnas de la tabla a mostrar */
 
   for ($i=0; $i < $num_cols; $i++) {
 	$r = db_fetch_object($res, $i);
@@ -50,13 +50,12 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 ?>
 </tr>
 <?php
-   /* Construcción de renglones de la tabla */
+   /* ConstrucciÃ³n de renglones de la tabla */
 
   $ren = array(array());
   $query = "SELECT id,codigo,almacen,status from articulos_series WHERE codigo='$codigo' ORDER BY id";
   if (!$res = db_query($query, $conn)) {
-    echo "Error al ejecutar $query<br>\n";
-    exit();
+    die("<div class=\Â·error_f\">Error al seleccionar series de artÃ­culos</div>\n");
   }
 
   for ($i=0; $i < db_num_rows($res); $i++) {
@@ -88,4 +87,4 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <?php
 }
 ?>
-<br>
+<br />

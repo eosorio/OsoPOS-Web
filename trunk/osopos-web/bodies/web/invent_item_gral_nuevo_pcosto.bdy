@@ -1,12 +1,12 @@
 <?php /* -*- mode: html; indent-tabs-mode: nil; c-basic-offset: 2 -*- 
-invent_item_gral_nuevo_pcosto.bdy. Cuerpo del m骴ulo de inventarios de OsoPOS Web.
+invent_item_gral_nuevo_pcosto.bdy. Cuerpo del m贸dulo de inventarios de OsoPOS Web.
 
-        Copyright (C) 2003,2006 Eduardo Israel Osorio Hern醤dez
+        Copyright (C) 2003,2006 Eduardo Israel Osorio Hern谩ndez
 
         Este programa es un software libre; puede usted redistribuirlo y/o
-modificarlo de acuerdo con los t閞minos de la Licencia P鷅lica General GNU
-publicada por la Free Software Foundation: ya sea en la versi髇 2 de la
-Licencia, o (a su elecci髇) en una versi髇 posterior. */
+modificarlo de acuerdo con los t茅rminos de la Licencia P煤blica General GNU
+publicada por la Free Software Foundation: ya sea en la versi贸n 2 de la
+Licencia, o (a su elecci贸n) en una versi贸n posterior. */
 ?>
 <h4>Nuevo precio de costo</h4>
 <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
@@ -17,18 +17,18 @@ Licencia, o (a su elecci髇) en una versi髇 posterior. */
 </colgroup>
 <tr>
   <th>Proveedor</th><th>Costo</th><th>% IVA</th><th>Divisa</th><th>Tiempo entrega</th><th>Clave prov.</th>
-  <th>Costo env韔</th><th>Div. envio</th>
+  <th>Costo env铆o</th><th>Div. envio</th>
 </tr>
 <tr>
   <td><?php lista_proveedores(FALSE, "id_prov", "Seleccione uno", 1) ?></td>
-  <td><input type="text" size="10" name="costo1"><input type="hidden" name="codigo" value="<?php echo $codigo ?>"></td>
-  <td><input type="text" size="5" name="iva_porc"></td>
+  <td><input type="text" size="10" name="costo1" /><input type="hidden" name="codigo" value="<?php echo $codigo ?>"></td>
+  <td><input type="text" size="5" name="iva_porc" /></td>
   <td><select name="divisa"><?php echo lista_divisas($conn, $DIVISA_OMISION) ?></select></td>
-  <td><input type="text" size="3" name="entrega1"><input type="hidden" name="boton" value="costos"></td>
+  <td><input type="text" size="3" name="entrega1" /><input type="hidden" name="boton" value="costos"></td>
   <td><input type="text" size="10" name="prov_clave"><input type="hidden" name="action" value="ver"></td>
-  <td><input type="text" size="10" name="costo_envio1"><input type="hidden" name="subaction" value="agrega_pcosto">
+  <td><input type="text" size="10" name="costo_envio1"><input type="hidden" name="subaction" value="agrega_pcosto" /></td>
   <td><select name="divisa_env"><?php echo lista_divisas($conn, $DIVISA_OMISION) ?></select></td>
 </tr>
 </table>
-<input type="submit" value="Agregar">
+<input type="submit" value="Agregar" />
 </form>

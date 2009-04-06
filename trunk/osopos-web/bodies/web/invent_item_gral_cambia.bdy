@@ -1,13 +1,13 @@
-<h4>Modificación de precio de costo</h4>
+<h4>ModificaciÃ³n de precio de costo</h4>
 <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
-<table border=1>
+<table border="1">
 <colgroup>
   <col width="200"><col width="100"><col width="50"><col width="95">
   <col width="100"><col width="50"><col width="50">
 </colgroup>
 <tr>
   <th>Proveedor</th><th>Costo</th><th>Divisa</th><th>% IVA</th><th>Tiempo entrega</th>
-  <th>Clave prov.</th><th>Costo envío</th><th>Div. envio</th><th>Estatus</th>
+  <th>Clave prov.</th><th>Costo envÃ­o</th><th>Div. envio</th><th>Estatus</th>
 </tr>
 <tr>
   <td><?php lista_proveedores(FALSE, "id_prov", "Seleccione proveedor", $ord_prov, $id_prov) ?></td>

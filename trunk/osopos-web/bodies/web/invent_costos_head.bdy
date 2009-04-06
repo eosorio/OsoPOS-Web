@@ -1,6 +1,6 @@
-<table border="0" width="700px" cellspacing=0 cellpadding=0>
+<table border="0" width="700px" cellspacing="0" cellpadding="0">
 <colgroup>
-  <col width="101px" span=5><col width=*>
+  <col width="101px" span="5"><col width="*">
 </colgroup>
 <tr>
   <td>

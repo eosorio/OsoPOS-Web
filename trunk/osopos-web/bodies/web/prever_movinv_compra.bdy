@@ -1,23 +1,23 @@
-<table border=0 width=400>
+<table border="0" width="400">
 <tr>
   <td>Movimiento No. <?php echo $id_mov ?></td><td>Fecha <?php printf("%s", date("j/n/Y")) ?></td>
 </tr>
 <tr>
-  <td colspan=2>Tipo de movimiento: <?php printf("%s %s", $tipo_mov, tipo_mov($conn, $tipo_mov)) ?></td>
+  <td colspan="2">Tipo de movimiento: <?php printf("%s %s", $tipo_mov, tipo_mov($conn, $tipo_mov)) ?></td>
 </tr>
 <tr>
-  <td colspan=2>Almacen de entrada: <? echo $almacen ?></td>
+  <td colspan="2">Almacen de entrada: <?php echo $almacen ?></td>
 </tr>
 <tr>
-  <td colspan=2>I.D. Proveedor: <?php echo $id_prov1 ?></td>
+  <td colspan="2">I.D. Proveedor: <?php echo $id_prov1 ?></td>
 </tr>
 </table>
 
-<table cellpadding=3>
+<table cellpadding="3">
 <tr>
-  <th>Código</th><th>Descripción</th><th>Ct.</th><th>P. Costo</th><th>Alm. dest.</th>
+  <th>CÃ³digo</th><th>DescripciÃ³n</th><th>Ct.</th><th>P. Costo</th><th>Alm. dest.</th>
 </tr>
-<? 
+<?php
 {
   for ($i=0; $i<count($codigo); $i++) {
     echo "<tr>\n";

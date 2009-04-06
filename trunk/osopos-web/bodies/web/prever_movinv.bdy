@@ -1,11 +1,11 @@
-Movimiento No. <?php echo $id_mov ?><br>
-Tipo de movimiento: <?php printf("%s %s", $tipo_mov, tipo_mov($conn, $tipo_mov)) ?><br>
-Almacen: <? echo $almacen ?><br>
+Movimiento No. <?php echo $id_mov ?><br />
+Tipo de movimiento: <?php printf("%s %s", $tipo_mov, tipo_mov($conn, $tipo_mov)) ?><br />
+Almacen: <?php echo $almacen ?><br />
 <table>
 <tr>
-  <th>Código</th><th>Cantidad</th><th>P.U.</th><th>P. Costo</th><th>Alm. dest.</th>
+  <th>CÃ³digo</th><th>Cantidad</th><th>P.U.</th><th>P. Costo</th><th>Alm. dest.</th>
 </tr>
-<? 
+<?php 
 {
   for ($i=0; $i<count($codigo); $i++) {
 	echo "<tr>\n";
