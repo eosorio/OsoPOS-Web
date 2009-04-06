@@ -4,18 +4,18 @@
   @Header("HTTP/1.0 401 Unauthorized");
 }
 ?>
-<HTML>
-<HEAD>
-  <TITLE>OsoPOS Web - Fin de sesiÛn</TITLE>
+<html>
+<head>
+  <title>OsoPOS Web - Fin de sesi√≥n</title>
   <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
-</HEAD>
-<BODY BGCOLOR="white" BACKGROUND="imagenes/fondo.gif">
-<h4>Ya est· fuera del sistema.</h4>
+</head>
+<body bgcolor="white" background="imagenes/fondo.gif">
+<h4>Ya est√° fuera del sistema.</h4>
 <center><h2>Gracias por usar un producto de</h2>
 <br><br><br><br>
 <a href="http://elpuntodeventa.com"><img src="imagenes/elpuntodeventa.png" border=0 alt="elpuntodeventa.com"></a>
 </center>
-</BODY>
-</HTML>
+</body>
+</html>
 <?php  exit(); ?>
 

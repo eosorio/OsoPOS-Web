@@ -165,7 +165,7 @@ function Crea_Factura($cliente,    /*clase datoscliente */
 }
 
 /* Tenemos de dos sopas: Se busca la venta en la base de datos, o se le
-envían los datos a la función como parámetros. */
+envÃ­an los datos a la funciÃ³n como parÃ¡metros. */
 function Crea_Ticket ($nm_ticket,
                       $id_venta,
                       $art_cod,
@@ -185,7 +185,7 @@ function Crea_Ticket ($nm_ticket,
   if ($lee_venta != 0)
     $art = lee_venta ($id_venta);
   else {
-    /* ¿Habrá manera de que se le pase el objeto como parámetro de función? */
+    /* Â¿HabrÃ¡ manera de que se le pase el objeto como parÃ¡metro de funciÃ³n? */
     $art = array(new articulosClass);
     for ($i=0; $i<count($art_cod); $i++) {
       $art[$i]->cod = $art_cod[$i];
@@ -199,8 +199,7 @@ function Crea_Ticket ($nm_ticket,
 
   $impr = fopen($nm_ticket, "w");
   if (!$impr) {
-    echo "<b>Error al abrir el archivo $nm_ticket</b><br></body></html>";
-    exit();
+    die("<div class=\"error_f\">Error al abrir el archivo $nm_ticket</div>\n";
   }
 
   if (strtoupper($IMPRESORA_TIPO) == "STAR")
@@ -291,9 +290,9 @@ function print_ticket_header()
   $nm_ar = tempnam("/tmp", "tkct_h");
   if ( !($ar = fopen($nm_ar, "w")) )
     return(1);
-  fputs($ar, "RFC: OOHE-740628-RNA\n");
-  fputs($ar, "Dom. fiscal: 2a. Calle Ote. No. 2.\n");
-  fputs($ar, "             Tapachula, Chiapas.n");
+  fputs($ar, "RFC: XXXX-nnnnnn-HHH\n");
+  fputs($ar, "Dom. fiscal: Poner aqui domicilio.\n");
+  fputs($ar, "             Estado, Ciudad.n");
   fputs($ar, "-------------------------------------\n");
   fclose($ar);
   $comando = sprintf("%s -P %s %s", $CMD_IMPRESION, $COLA_TICKET, $nm_ar);
