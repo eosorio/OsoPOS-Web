@@ -1,20 +1,20 @@
 <?php /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- 
-        invent_item_gral.bdy. Cuerpo del mÛdulo de inventarios de OsoPOS Web.
+        invent_item_gral.bdy. Cuerpo del m√≥dulo de inventarios de OsoPOS Web.
 
-        Copyright (C) 2003 Eduardo Israel Osorio Hern·ndez
+        Copyright (C) 2003 Eduardo Israel Osorio Hern√°ndez
 
         Este programa es un software libre; puede usted redistribuirlo y/o
-modificarlo de acuerdo con los tÈrminos de la Licencia P˙blica General GNU
-publicada por la Free Software Foundation: ya sea en la versiÛn 2 de la
-Licencia, o (a su elecciÛn) en una versiÛn posterior. 
+modificarlo de acuerdo con los t√©rminos de la Licencia P√∫blica General GNU
+publicada por la Free Software Foundation: ya sea en la versi√≥n 2 de la
+Licencia, o (a su elecci√≥n) en una versi√≥n posterior. 
 
-        Este programa es distribuido con la esperanza de que sea ˙til, pero
-SIN GARANTIA ALGUNA; incluso sin la garantÌa implÌcita de COMERCIABILIDAD o
-DE ADECUACION A UN PROPOSITO PARTICULAR. VÈase la Licencia P˙blica General
+        Este programa es distribuido con la esperanza de que sea √∫til, pero
+SIN GARANTIA ALGUNA; incluso sin la garant√≠a impl√≠cita de COMERCIABILIDAD o
+DE ADECUACION A UN PROPOSITO PARTICULAR. V√©ase la Licencia P√∫blica General
 GNU para mayores detalles. 
 
-        DeberÌa usted haber recibido una copia de la Licencia P˙blica General
-GNU junto con este programa; de no ser asÌ, escriba a Free Software
+        Deber√≠a usted haber recibido una copia de la Licencia P√∫blica General
+GNU junto con este programa; de no ser as√≠, escriba a Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA. 
 
 */
@@ -24,7 +24,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
   $query = "SELECT a.* FROM articulos a WHERE codigo='$codigo' ";
   if (!$db_res = db_query($query, $conn)) {
-    echo "Error al consultar informaciÛn de catalogo del producto<br>\n";
+    echo "Error al consultar informaci√≥n de cat√°logo del producto<br />\n";
     exit();
   }
   $ren = db_fetch_object($db_res, 0);
@@ -46,11 +46,11 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     $query.= sprintf("'%s', %f, '%s', '%s', '%s') ", $prov_clave, $costo_envio1, $actualizacion, $divisa, $divisa_env);
 
     if (!$db_res = db_query($query, $conn)) {
-      echo "Error al registrar informaciÛn del producto<br>\n";
+      echo "Error al registrar informaci√≥n del producto<br />\n";
       exit();
     }
     else
-      printf("<b>Art&iacute;culo <i>%s</i> actualizado.</b><br>\n", $codigo);
+      printf("<b>Art&iacute;culo <i>%s</i> actualizado.</b><br />\n", $codigo);
     $subaction="";
     unset($subaction);
   }
@@ -62,11 +62,11 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     $query.= sprintf("divisa_envio='%s' WHERE (codigo='%s' AND id_prov=%d) ", $divisa_env, $codigo, $id_prov);
 
     if (!$db_res = db_query($query, $conn)) {
-      echo "Error al actualizar costo del producto<br>\n";
+      echo "Error al actualizar costo del producto<br />\n";
       exit();
     }
     else
-      printf("<b>Art&iacute;culo <i>%s</i> actualizado.</b><br>\n", $codigo);
+      printf("<b>Art&iacute;culo <i>%s</i> actualizado.</b><br />\n", $codigo);
     $subaction = "";
     unset($subaction);
   }
@@ -75,11 +75,11 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
                      $codigo, $id_prov, $act);
 
     if (!$db_res = db_query($query, $conn)) {
-      echo "Error al actualizar costo del producto<br>\n";
+      echo "Error al actualizar costo del producto<br />\n";
       exit();
     }
     else
-      printf("<b>Costo de art&iacute;culo <i>%s</i> eliminado.</b><br>\n", $codigo);
+      printf("<b>Costo de art&iacute;culo <i>%s</i> eliminado.</b><br />\n", $codigo);
 
     $subaction = "";
     unset($subaction);
@@ -112,7 +112,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 </th>
 
 <th>% IVA</th>
-  <th>Tiempo entrega</th><th>Clave prov.</th><th>Costo envÌo</th><th>⁄ltima act.</th><th>Est.</th>
+  <th>Tiempo entrega</th><th>Clave prov.</th><th>Costo env√≠o</th><th>√öltima act.</th><th>Est.</th>
 </tr>
 <?php
 
@@ -120,7 +120,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   $query.= "actualizacion, status, divisa, divisa_envio FROM articulos_costos WHERE codigo='$codigo' ";
   $query.= "ORDER BY costo1 ASC ";
   if (!$db_res = db_query($query, $conn)) {
-      echo "Error al consultar informaciÛn del producto<br>\n";
+      echo "Error al consultar informaci√≥n del producto<br />\n";
       exit();
   }
   $num_ren = db_num_rows($db_res);
@@ -194,7 +194,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 </table>
 <form action="<?php echo $PHP_SELF ?>" method="post">
 <?php printf("   <input type=\"hidden\" name=\"codigo\" value=\"%s\">\n", $codigo) ?>
-  <input type="hidden" name="action" value="ver">
+  <input type="hidden" name="action" value="ver" />
   <input type="hidden" name="subaction" value="nuevo_pcosto">
   <input type="hidden" name="boton" value="costos">
   <input type="image" src="imagenes/web/botones/btn_nuevo_costo_inactivo.png">

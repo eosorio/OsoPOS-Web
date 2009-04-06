@@ -1,27 +1,27 @@
 <?php /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- 
-        invent_pventa.bdy. Cuerpo del mÛdulo de inventarios de OsoPOS Web.
+        invent_pventa.bdy. Cuerpo del m√≥dulo de inventarios de OsoPOS Web.
 
-        Copyright (C) 2000-2003 Eduardo Israel Osorio Hern·ndez
+        Copyright (C) 2000-2003 Eduardo Israel Osorio Hern√°ndez
 
         Este programa es un software libre; puede usted redistribuirlo y/o
-modificarlo de acuerdo con los tÈrminos de la Licencia P˙blica General GNU
-publicada por la Free Software Foundation: ya sea en la versiÛn 2 de la
-Licencia, o (a su elecciÛn) en una versiÛn posterior. 
+modificarlo de acuerdo con los t√©rminos de la Licencia P√∫blica General GNU
+publicada por la Free Software Foundation: ya sea en la versi√≥n 2 de la
+Licencia, o (a su elecci√≥n) en una versi√≥n posterior. 
 
-        Este programa es distribuido con la esperanza de que sea ˙til, pero
-SIN GARANTIA ALGUNA; incluso sin la garantÌa implÌcita de COMERCIABILIDAD o
-DE ADECUACION A UN PROPOSITO PARTICULAR. VÈase la Licencia P˙blica General
+        Este programa es distribuido con la esperanza de que sea √∫til, pero
+SIN GARANTIA ALGUNA; incluso sin la garant√≠a impl√≠cita de COMERCIABILIDAD o
+DE ADECUACION A UN PROPOSITO PARTICULAR. V√©ase la Licencia P√∫blica General
 GNU para mayores detalles. 
 
-        DeberÌa usted haber recibido una copia de la Licencia P˙blica General
-GNU junto con este programa; de no ser asÌ, escriba a Free Software
+        Deber√≠a usted haber recibido una copia de la Licencia P√∫blica General
+GNU junto con este programa; de no ser as√≠, escriba a Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA. 
 
    */
 {
   $query = "SELECT max(id) as max_alm FROM almacenes ";
   if (!$resultado = db_query($query, $conn)) {
-    echo "Error al ejecutar $query<br>\n";
+    echo "Error al ejecutar $query<br />\n";
     exit();
   }
   
@@ -32,7 +32,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
   /*  $query = "SELECT  as max_alm FROM almacenes ";
   if (!$resultado = db_query($query, $conn)) {
-    echo "Error al ejecutar $query<br>\n";
+    echo "Error al ejecutar $query<br />\n";
     exit();
   }*/
   
@@ -44,8 +44,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   $renglon[4] = "<td>Precio 4</td>";         /* Precio 4 */
   $renglon[5] = "<td>Precio 5</td>";         /* Precio 5 */
   $renglon[6] = "<td>Existencia</td>";            /* Existencia */
-  $renglon[7] = "<td>Ex. minima</td>";     /* Ex. m·xima */
-  $renglon[8] = "<td>Ex. m·xima</td>";     /* MÌnima */
+  $renglon[7] = "<td>Ex. minima</td>";     /* Ex. m√°xima */
+  $renglon[8] = "<td>Ex. m√°xima</td>";     /* M√≠nima */
   $r_colgroup = sprintf("<col width=\"%d\"><col width=\"%d\" span=\"%d\">", 
                         $head_width, $alm_col_width, $max_alm);
 
@@ -57,7 +57,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     $query2.= sprintf("WHERE codigo='%s' AND id_alm=%d", $codigo, $i);
 
     if ((!$db_res2 = db_query($query2, $conn)) || (!$db_res1 = db_query($query1, $conn))) {
-      echo "Error al consultar informaciÛn del producto<br>\n";
+      echo "Error al consultar informaci√≥n del producto<br />\n";
       exit();
     }
 
@@ -91,13 +91,13 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 }
 ?>
 <?php
-  $boton = "pventa"; /* Indicador de cual botÛn debe aparecer presionado */
+  $boton = "pventa"; /* Indicador de cual bot√≥n debe aparecer presionado */
   include("bodies/web/invent_costos_head.bdy");
   include("bodies/web/invent_item_descripcion.bdy");
 ?>
 
 
-<table border="1" cellpadding=2 width="<?php echo $t_width ?>">
+<table border="1" cellpadding="2" width="<?php echo $t_width ?>">
 <?php
     printf("<colgroup>\n%s\n</colgroup>\n", $r_colgroup);
     for ($i=0; $i< count($renglon); $i++)

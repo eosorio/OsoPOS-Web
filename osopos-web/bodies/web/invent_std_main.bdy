@@ -1,15 +1,15 @@
 <?php /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- */ ?>
 <!-- bodies/invent_std_main.bdy -->
 
-<table border=0 width='100%' cellpadding=0 cellspan=0>
+<table border="0" width="100%" cellpadding="0" cellspan="0">
 <colgroup>
-  <col width=20 span=3><col width=110><col width=*>
+  <col width="20" span="3"><col width="110"><col width="*">
 <?php
   if (isset($alm) && $alm>0) {
-    echo "<col width=80><col width=30><col width=20 span=2><col width=160>\n";
+    echo "<col width=\"80\"><col width=30><col width=20 span=2><col width=160>\n";
   }
   else {
-    echo "<col width=120><col width=120><col width=80>\n";
+    echo "<col width=\"120\"><col width=120><col width=80>\n";
   }
 ?>
 </colgroup>
@@ -36,7 +36,7 @@
    <th>Ex.</th>
    <th>Min</th>
    <th>Max</th>
-<?
+<?php
     } else if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
       echo "  <th><a href=\"" . $_SERVER['PHP_SELF'] . "?offset=0&order_by=id_prov&order=";
       printf("%d",  $order_by=="id_prov" && !$order);

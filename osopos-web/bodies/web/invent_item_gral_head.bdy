@@ -1,6 +1,6 @@
-<table border=0 width="100%">
+<table border="0" width="100%">
 <colgroup>
-  <col width="390"><col>
+  <col width="390" /><col />
 </colgroup>
 <tr>
   <td>
@@ -21,7 +21,7 @@
 	  <td><?php printf("%s", nombre_depto($conn, $ren->id_depto)) ?></td>
 	</tr>
 	<tr>
-      <td class="item_tit">P. último costo</td>
+      <td class="item_tit">P. Ãºltimo costo</td>
       <td>&nbsp;</td>
 	</tr>
 	<tr>
@@ -63,7 +63,7 @@
   <td>
 <?php
    if (!empty($ren->img_location))
-     printf("   <img src=\"%s/%s\">\n", $IMG_DIR, $ren->img_location);
+     printf("   <img src=\"%s/%s\" />\n", $IMG_DIR, $ren->img_location);
    else
 	 echo "&nbsp;\n";
 ?>
