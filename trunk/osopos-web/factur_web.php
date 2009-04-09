@@ -1,8 +1,8 @@
 <?php  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
 
- Facturación Web 0.4-1. Módulo de facturación de OsoPOS Web.
+ Facturación Web 0.05-1. Módulo de facturación de OsoPOS Web.
 
-        Copyright (C) 2000,2003-2005 Eduardo Israel Osorio Hernández
+        Copyright (C) 2000,2003-2009 Eduardo Israel Osorio Hernández
 
         Este programa es un software libre; puede usted redistribuirlo y/o
 modificarlo de acuerdo con los términos de la Licencia Pública General GNU
@@ -25,7 +25,12 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   include("include/factur_config.inc");
   include("include/pos-var.inc");
 
-  include("include/passwd.inc");
+  if (isset($salir)) {
+    include("include/logout.inc");
+  }
+  else {
+    include("include/passwd.inc");
+  }
 
   $accion = $_POST['accion'];
   $dia = $_POST['dia'];
@@ -58,7 +63,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <html>
 
 <head>
-   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
    <meta name="Author" content="E. Israel Osorio Hernández">
    <title>OsoPOS - FacturWeb v. <?php echo $factur_web_vers ?></title>
    <?php include("menu/menu_principal.inc"); ?>
@@ -256,8 +261,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $observaciones = $_POST['observaciones'];
       $subtotal = $_POST['subtotal'];
       $iva = $_POST['iva'];
-      //      if (isset($_POST['id_cliente']))
-      //        $id_cliente = $_POST['id_cliente'];
     }
     else {
       die("<div class=\"error_f\">Error al obtener datos de artículos</div>\n");
@@ -277,7 +280,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     if (isset($debug) && $debug>0)
       echo "<i>$peticion</i><br />\n";
     else if (!$resultado = db_query($peticion, $conn)) {
-      $mens = "Error al agregar datos de factura<br />" . db_errormsg($conn);
+      $mens = "<div class=\"error_f\">Error al agregar datos de factura</div>\n" . db_errormsg($conn);
       die($mens);
     }
     else
@@ -290,8 +293,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $peticion.= sprintf("%d, '%s', '%s', %d, %.2f)",
                           $id, $codigo[$i], $desc[$i], $cant[$i], $pu[$i]);
       if (!$resultado = db_query($peticion, $conn)) {
-        echo "Error al ejecutar $peticion<br />" . db_errormsg($conn) . "</body></html>\n";
-        exit();
+        die("<div class=\"error_f\">Error al insertar detalle de factura</div>\n" . db_errormsg($conn));
       }
     }
 
@@ -308,8 +310,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       else
         $mensaje = "";
       if (!$resultado = db_query($peticion, $conn)) {
-        echo "Error al registrar cliente fiscal<br />" . db_errormsg($conn) . "</body></html>\n";
-        exit();
+        die("<div class=\"error_f\">Error al registrar cliente fiscal</div>\n" . db_errormsg($conn));
       }
       echo $mensaje;
 
@@ -447,8 +448,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
   if (empty($fase)  ||  $fase==0) {
     if (!$conn) {
-      echo "ERROR: Al conectarse a la base de datos $DB_NAME<br />\n</body></html>";
-      exit();
+      die("<div class=\"error_f\">ERROR: Al conectarse a la base de datos $DB_NAME</div>\n");
     }
 
     if (!$REPEAT_FACT_DATA) {
@@ -512,8 +512,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
           echo "<i>$query</i><br />\n";
         $query = "SELECT * FROM facturas_ingresos ORDER BY id ASC";
         if (!$db_res = db_query($query, $conn)) {
-    echo "Error al ejecutar $query<br />\n";
-    exit();
+          die("<div class=\"error_f\">Error al consultar facturas</div>\n");
         }
         include("bodies/ingresos_lista.bdy");
   } 
