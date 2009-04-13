@@ -1,64 +1,64 @@
 Agregar usuario:
-<form action="<? echo $PHP_SELF ?>" method="post">
-<table border=0 width="400">
+<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
+<table border="0" width="400">
 <tr>
   <td align="right">login:</td>
-  <td><input type="text" size=15 name="login"></td>
+  <td><input type="text" size="15" name="login"></td>
 </tr>
 <tr>
-  <td align="right">Contraseña:</td>
-  <td><input type="password" name="new_passwd" size=20></td>
+  <td align="right">ContraseÃ±a:</td>
+  <td><input type="password" name="new_passwd" size="20"></td>
 </tr>
 <tr>
   <td align="right">Nivel:</td>
-  <td><input type="text" name="level" size=1></td>
+  <td><input type="text" name="level" size="1"></td>
 </tr>
 <tr>
-  <td colspan=2><input type="submit" value="Agregar"></td>
+  <td colspan="2"><input type="submit" value="Agregar"></td>
 </tr>
 </table>
 <input type="hidden" name="action" value="agregar">
 </form>
 <hr>
-Borrar usuario (no se solicitará confirmación)
-<form action="<? echo $PHP_SELF ?>" method="post">
-<table border=0 width="400">
+Borrar usuario (no se solicitarÃ¡ confirmaciÃ³n)
+<form action="<?php echo $PHP_SELF ?>" method="post">
+<table border="0" width="400">
 <tr>
   <td align="right">login:</td>
-  <td><input type="text" size=15 name="login"></td>
+  <td><input type="text" size="15" name="login"></td>
 </tr>
 <tr>
-  <td colspan=2><input type="submit" value="Borrar"></td>
+  <td colspan="2"><input type="submit" value="Borrar"></td>
 </tr>
 </table>
 <input type="hidden" name="action" value="borrar">
 </form>
 <hr>
-Cambiar contraseña
-<form action="<? echo $PHP_SELF ?>" method="post">
-<table border=0 width="400">
+Cambiar contraseÃ±a
+<form action="<?php echo $PHP_SELF ?>" method="post">
+<table border="0" width="400">
 <tr>
   <td align="right">login:</td>
-  <td><input type="text" size=15 name="login"></td>
+  <td><input type="text" size="15" name="login"></td>
 </tr>
 <tr>
-  <td align="right">Contraseña anterior:</td>
-  <td><input type="password" name="old_passwd" size=20></td>
+  <td align="right">ContraseÃ±a anterior:</td>
+  <td><input type="password" name="old_passwd" size="20"></td>
 </tr>
 <tr>
-  <td align="right">Nueva contraseña:</td>
-  <td><input type="password" name="new_passwd1" size=20></td>
+  <td align="right">Nueva contraseÃ±a:</td>
+  <td><input type="password" name="new_passwd1" size="20"></td>
 </tr>
 <tr>
-  <td align="right">Confirma nueva contraseña:</td>
-  <td><input type="password" name="new_passwd2" size=20></td>
+  <td align="right">Confirma nueva contraseÃ±a:</td>
+  <td><input type="password" name="new_passwd2" size="20"></td>
 </tr>
 <tr>
   <td align="right">Nivel:</td>
-  <td><input type="text" name="level" size=1></td>
+  <td><input type="text" name="level" size="1"></td>
 </tr>
 <tr>
-  <td colspan=2><input type="submit" value="Cambiar"></td>
+  <td colspan="2"><input type="submit" value="Cambiar"></td>
 </tr>
 </table>
 <input type="hidden" name="action" value="cambiar">
