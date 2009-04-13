@@ -39,10 +39,15 @@ var MenuPrincipal = [
  	    [null,'Listado','proveedor.php',null,'Listado de proveedores'],
  	    [null,'Alta','proveedor.php?accion=agrega',null,'Alta de proveedores']
 	],
-	[null,'Herramientas',null,null,'Alta de usuarios, cajeros y vendedores',
+	[null,'Catálogos',null,null,'Alta de usuarios, cajeros y vendedores',
 		[null,'Usuarios','password.php',null,'Alta, baja y modificación de usuarios'],
 		[null,'Cajeros','cajeros.php',null,'Administración de cajeros'],
-		[null,'Vendedores','vendedores.php',null,'Administración de vendedores']
+		[null,'Vendedores','vendedores.php',null,'Administración de vendedores'],
+                _cmSplit,
+		[null,'Módulos de operación',null,null,'Módulos de OsoPOS Web',
+			       [null, 'Listar', 'modulos.php?action=list', null, 'Listado de módulos'],
+                               [null, 'Usuarios por módulo', 'modulos.php?action=users', null, 'Listado de usuarios por módulo']
+                 ]
 	],
 	[null,'Ayuda',null,null,null,
 		[null,'Licencia de operación del sistema','gpl.php',null,null]
