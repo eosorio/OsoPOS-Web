@@ -22,41 +22,48 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 {
   include("include/general_config.inc");
   include("include/pos.inc");
-  include("include/passwd.inc");
+  if (isset($salir)) {
+    include("include/logout.inc");
+  }
+  else {
+    include("include/passwd.inc");
+  }
+
+  if (isset($_POST["action"]))
+    $action = $_POST["action"];
+  else if (isset($_GET["action"]))
+    $action = $_GET["action"];
+  else
+    $action = "";
 
 }
 
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 
-<HTML>
+<html>
 
-<HEAD>
-  <TITLE>OsoPOS Web - Subm&oacute;dulo de proveedores</TITLE>
+<head>
+  <title>OsoPOS Web - Subm&oacute;dulo de proveedores</title>
    <?php include("menu/menu_principal.inc"); ?>
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
 
-</HEAD>
-<BODY>
+</head>
+<body>
 <?php 
 
    include("menu/menu_principal.bdy");
-   echo "<br>\n";
+   echo "<br />\n";
    if (!puede_hacer($conn, $user->user, "invent_ver_prov")) {
      echo "<body>\n";
-     echo "<h4>Usted no tiene permisos para accesar este módulo</h4><br>\n";
+     echo "<h4>Usted no tiene permisos para accesar este módulo</h4><br />\n";
      echo "</body>\n";
      echo "</html>\n";
      exit();
    }
-  if (isset($_POST['accion']))
-    $accion = $_GET['accion'];
-  else if (isset($_POST['accion']))
-    $accion = $_POST['accion'];
-/*  else
- $accion = "muestra"; */
 
-  if ($accion == "cambia") {
+
+  if ($action == "cambia") {
     $peticion = sprintf("UPDATE proveedores SET nick='%s'", $_POST['nick']);
     if ($razon_soc)
       $peticion.= sprintf(", razon_soc='%s'", $_POST['razon_soc']);
@@ -102,12 +109,12 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       }
     }
   }
-  else if ($accion == "muestra"  ||  $accion == "agrega") {
-    if ($accion == "muestra") {
+  else if ($action == "muestra"  ||  $action == "agrega") {
+    if ($action == "muestra") {
       $peticion = "SELECT * FROM proveedores WHERE id=$id";
       //      if (!$resultado = pg_exec($conn, $peticion)) {
       if (!$resultado = db_query($peticion, $conn)) {
-        /*igm*/ echo "$peticion<br>\n";
+        /*igm*/ echo "$peticion<br />\n";
         die("<div class=\"error_f\">Error al consultar proveedores</div>");
       }
       $reng = db_fetch_object($resultado, 0);
@@ -151,9 +158,9 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 	  $id = $renglon->id + 1;
     }
     include ("forms/proveedor.inc");
-    echo "<hr>\n";
+    echo "<hr />\n";
   }
-  else if ($accion == "inserta") {
+  else if ($action == "inserta") {
     $peticion = "INSERT INTO proveedores (nick, razon_soc, calle, colonia, ciudad, ";
     $peticion.= sprintf("estado, contacto) VALUES ('%s', ", $_POST['nick']);
     $peticion.= sprintf("'%s', '%s', '%s', '%s',", $_POST['razon_soc'],
@@ -164,8 +171,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     }
     $peticion = "SELECT max(id) as max_id FROM proveedores";
     if (!$resultado = db_query($peticion, $conn)) {
-      echo "Error al ejecutar $peticion<br>\n";
-      exit();
+      die("<div class=\"Error al consultar proveedores</div>\n");
     }
     $renglon = db_fetch_object($resultado, 0);
     $id = $renglon->max_id;
@@ -201,7 +207,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       }
     }
 
-    printf("<i>Proveedor %s agregado</i><br>", $_POST['nick']);
+    printf("<div class=\"mens_inf\">Proveedor %s agregado</div>", $_POST['nick']);
   }
 
   $peticion = "SELECT id, nick, razon_soc, calle, colonia, ciudad, estado, contacto";
@@ -237,7 +243,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
     echo " <tr>\n";
     echo "  <td $td_fondo>";
-    $href = sprintf("%s?accion=muestra&id=%d", $_SERVER['PHP_SELF'], $reng->id);
+    $href = sprintf("%s?action=muestra&id=%d", $_SERVER['PHP_SELF'], $reng->id);
     echo "<a href=\"$href\">" . $reng->id . "</a></td>\n";
     echo "  <td $td_fondo>$reng->nick</td>\n";
     echo "  <td $td_fondo>";
@@ -295,12 +301,12 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   echo "</table>\n";
   if ($i<10) {
     for ($j=0; $j<10-$i; $j++)
-      echo "<br>\n";
+      echo "<br />\n";
   }
 
   db_close($conn);
 ?>
 
 
-</BODY>
-</HTML>
+</body>
+</html>
