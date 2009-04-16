@@ -12,11 +12,14 @@ a[href]:hover { background: #ffa }
 
 
 h1.princ { text-align: center }
+
 div.pie { font-size: 14pt; text-align: center }
 div.menu_texto { font-size: small }
 div.advt { color: #FFFF00 }
+div.mens_inf { font: italic small-caps 900 12px helvetica,arial }
 div.error_f { color: red; font-weight: bold }
 div.error_nf { color: red; font-style: italic }
+
 a.menu { background-color: yellow }
 td.menu { background-color: yellow }
 th.peq { font-size: 10pt }
@@ -27,6 +30,7 @@ tr.estilo_c { background-color: #FFFFFF }
 
 td.ren_codigo { }
 td.ren_moneda { }
+
 td.ren_serie { }
 td.ren_prov { }
 td.ren_depto { }
