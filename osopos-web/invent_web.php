@@ -28,8 +28,13 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     include("include/videopos.inc");
   }
   include("include/pos.inc");
-  include("include/passwd.inc");
 
+  if (isset($salir)) {
+    include("include/logout.inc");
+  }
+  else {
+    include("include/passwd.inc");
+  }
 
 
   /* Variables globales */
