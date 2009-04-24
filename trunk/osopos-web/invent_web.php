@@ -158,7 +158,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
    if (!puede_hacer($conn, $user->user, "invent_general")) {
      echo "<body>\n";
      include("menu/menu_principal.bdy");
-     echo "<br/><h4>Usted no tiene permisos para accesar este módulo</h4><br/>\n";
+     echo "<br/><div class=\"mens_inf\">Usted no tiene permisos para accesar este módulo</div><br/>\n";
      echo "<a href=\"index.php\">Regresar a menú principal</a>\n";
      echo "</body>\n";
      exit();
@@ -232,8 +232,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   $query = "SELECT id,nick FROM proveedores ORDER BY id";
 
   if (!$resultado = db_query($query, $conn)) {
-    echo "<div class=\"error_f\">Error al consultar proveedores</div><br/>\n";
-    exit();
+    die("<div class=\"error_f\">Error al consultar proveedores</div>\n");
   }
   $num_ren_prov = db_num_rows($resultado);
 
@@ -253,8 +252,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     $query = "SELECT id,nombre FROM genero ORDER BY id";
 
   if (!$resultado = db_query($query, $conn)) {
-    echo "Error al ejecutar $query<br/>\n";
-    exit();
+    die("<div class=\"error_f\">Error al consultar catálogo</div>\n");
   }
 
   $num_ren_depto = db_num_rows($resultado);
@@ -627,8 +625,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
         if (isset($debug) && $debug>0)
           echo "<i>$query</i><br/>\n";
         if (!$db_res = db_query($query, $conn)) {
-          echo "Error al ejecutar $query<br/>" . db_errormsg($conn);
-          exit();
+          die("<div class=\"Error al consultar catálogo</div>");
         }
         $ren = db_fetch_object($db_res, 0);
         $val_tit_orig = $ren->tit_orig;
@@ -729,8 +726,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
           $query = "DELETE FROM articulos WHERE codigo='$codigo'";
           if (!$resultado = db_query($query, $conn)) {
-            echo "<div class=\"error_nf\">Error al eliminar articulo del catálogo general.</div><br/>\n";
-            exit();
+            die("<div class=\"error_nf\">Error al eliminar articulo del catálogo general.</div><br/>\n");
           }
           else
             echo "<b>Art&iacute;culo <i>$codigo</i> eliminado.</b><br/>\n";
@@ -907,8 +903,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
       $query.= " LIMIT $limit OFFSET $offset";
 
     if (!$resultado = db_query($query, $conn)) {
-      echo "Error al ejecutar $query<br/>\n";
-      exit();
+      die("Error al consultar catálogo</div>\n");
     }
 
     if (isset($debug) && $debug>0) {
