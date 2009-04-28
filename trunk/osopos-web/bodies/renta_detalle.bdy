@@ -1,7 +1,7 @@
 <!-- -*- mode: html; indent-tabs-mode: nil; c-basic-offset: 2 -*- -->
 
 <h2>Detalle de renta</h2>
-<table border=0 width="100%" height="500px">
+<table border="0" width="100%" height="500px">
 <tr valign="top">
   <td>
 <?php
@@ -58,14 +58,14 @@
     } 
 ?>
 <br>
-<table border=0 width="100%">
+<table border="0" width="100%">
 <colgroup>
   <col width="25px"><col width="100px"><col width="*"><col width="180px"><col width="200px">
 </colgroup>
 <tr>
   <th><img src="imagenes/renta_regresar.png"></th>
   <th>Serie</th>
-  <th>Descripción</th>
+  <th>DescripciÃ³n</th>
   <th>Estado</th>
   <th>F. entrega</th>
 </tr>

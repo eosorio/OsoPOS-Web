@@ -88,8 +88,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     printf("<b>Almacén %d %s</b><br>\n", $almc, $alm_desc);
     if (!isset($action) || strlen($action)<1) {
       echo "<ul>\n";
-      echo "  <li><a href=\"$PHP_SELF?action=agregar&almc=$almc\">Anexar producto del catálogo al almacén</a></li>\n";
-      echo "  <li><a href=\"$PHP_SELF?action=borrar&almc=$almc\">Quitar producto del almacén</a></li>\n";
+      echo "  <li><a href=\"$_SERVER['PHP_SELF']?action=agregar&almc=$almc\">Anexar producto del catálogo al almacén</a></li>\n";
+      echo "  <li><a href=\"$_SERVER['PHP_SELF']?action=borrar&almc=$almc\">Quitar producto del almacén</a></li>\n";
       echo "</ul>\n";
     }
     else if($action=="agregar") {
@@ -156,4 +156,4 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 }
 ?>
 </body>
-</HTML>
+</html>

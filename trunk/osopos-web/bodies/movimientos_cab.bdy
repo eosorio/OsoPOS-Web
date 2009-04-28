@@ -7,7 +7,7 @@ Nuevo movimiento de inventario<br>
   <td>Proveedor: <?php  lista_proveedores(0, "id_prov1", "Seleccione su proveedor", 1) ?></td>
 </tr>
 <tr>
-  <td><input type="submit" value="Continuar"><input type="hidden" name="accion" value="cabecera"></td>
+  <td><input type="submit" value="Continuar"><input type="hidden" name="accion" value="cabecera" /></td>
 </tr>
 </table>
 </form>

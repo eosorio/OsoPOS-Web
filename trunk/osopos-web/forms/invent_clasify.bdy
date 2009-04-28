@@ -46,7 +46,7 @@ Baja ex. <input type="radio" name="mode" value="baja_ex"
 else if ($PROGRAMA=="video") {
 ?>
    <td>
-    Género.:
+    GÃ©nero.:
     <select name="depto">
 <?
   $d_selected =0;

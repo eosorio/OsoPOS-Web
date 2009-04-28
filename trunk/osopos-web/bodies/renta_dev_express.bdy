@@ -1,14 +1,14 @@
-<h1>Devolución rápida de productos rentados</h1>
-<table border=0 width="100%" height="500px">
+<h1>DevoluciÃ³n rÃ¡pida de productos rentados</h1>
+<table border="0" width="100%" height="500px">
 <tr valign="top">
   <td>
-<form action="<?php echo $PHP_SELF ?>" method="post" name="express">
+<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post" name="express">
 <table border=0 width="600px">
 <colgroup>
   <col width="300px"><col width=*>
 </colgroup>
 <tr>
-  <td class="item_tit" valign="top">Número de serie del producto
+  <td class="item_tit" valign="top">NÃºmero de serie del producto
   <input type="hidden" name="accion" value="devolucion_express"></td>
   <td align="left" valign="top"><input type="text" name="serie" size=20><input type="hidden" name="subaccion" value="agrega"></td>
 </tr>
@@ -50,7 +50,7 @@
 			     $ren->almacen, $ren->codigo);
 
 	    if (!@$db_res = db_query($query, $conn)) {
-	      $mens = "<div class=\"error_nf\">Error al actualizar catálogo de almacen</div><br>";
+	      $mens = "<div class=\"error_nf\">Error al actualizar catÃ¡logo de almacen</div><br>";
 	      $mens.= db_errormsg($conn);
 	      echo "$mens";
 	    }

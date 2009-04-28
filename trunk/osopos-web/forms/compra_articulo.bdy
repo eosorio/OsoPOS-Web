@@ -1,4 +1,4 @@
-<?  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
+<?php  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*-
         Invent Web. Módulo de inventarios de OsoPOS Web.
 
         Copyright (C) 2000-2002 Eduardo Israel Osorio Hernández
@@ -19,10 +19,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 */ 
 ?>
-<form action="<? echo $PHP_SELF ?>" method="post">
-Proveedor: <? lista_proveedores() ?>
+<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
+Proveedor: <?php lista_proveedores() ?>
 <table>
-<?
+<?php
 {
   /*igm*/ $numren_compras;
   for ($i=0; $i<$numren_compras; $i++) {
@@ -35,7 +35,7 @@ Proveedor: <? lista_proveedores() ?>
   <td><input type="text" name="cant" size=4></td>
   <td><input type="text" name="pu" size=8></td>
 </tr>
-   <? } ?>
+   <?php } ?>
 <tr>
   <td colspan=3 align="right"><input type="button" value="Registrar"></td>
 </tr>

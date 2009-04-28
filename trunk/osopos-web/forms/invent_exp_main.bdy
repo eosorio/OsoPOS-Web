@@ -1,30 +1,30 @@
-<? /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- */ ?>
+<?php /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- */ ?>
 <!-- forms/invent_exp_main.bdy -->
 
-<form action=<? echo $PHP_SELF ?> method=<?/*"POST"*/?>GET name="f_articulos">
+<form action=<?php echo $_SERVER['PHP_SELF'] ?> method=<?php/*"POST"*/?>GET name="f_articulos">
 <table border=0 width='100%'>
  <tr>
    <th><image src="imagenes/trash.png" alt="Eliminar"></th>
-<?
-    echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=codigo&order=";
+<?php
+    echo "  <th><a href=\"$_SERVER['PHP_SELF']?offset=0&order_by=codigo&order=";
     printf("%d",  $order_by=="codigo" && !$order);
     echo "$href_dept$href_prov\">C&oacute;digo</a></th>\n";
 
-    echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=descripcion&order=";
+    echo "  <th><a href=\"$_SERVER['PHP_SELF']?offset=0&order_by=descripcion&order=";
     printf("%d",  $order_by=="descripcion" && !$order);
     echo "$href_dept$href_prov\">Descripci&oacute;n</a></th>\n";
 
     if ($alm>0) {
-      echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=pu&order=";
+      echo "  <th><a href=\"$_SERVER['PHP_SELF']?offset=0&order_by=pu&order=";
       printf("%d",  $order_by=="pu" && !$order);
       echo "$href_dept$href_prov\">P. Público</a></th>\n";
 
-      echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=pu2&order=";
+      echo "  <th><a href=\"$_SERVER['PHP_SELF']?offset=0&order_by=pu2&order=";
       printf("%d",  $order_by=="pu2" && !$order);
       echo "$href_dept$href_prov\">P.U. 2</a></th>\n";
     }
     else {
-      echo "  <th><a href=\"$PHP_SELF?offset=0&order_by=p_costo&order=";
+      echo "  <th><a href=\"$_SERVER['PHP_SELF']?offset=0&order_by=p_costo&order=";
       printf("%d",  $order_by=="p_costo" && !$order);
       echo "$href_dept$href_prov\">P. Costo</a></th>\n";
     }
@@ -36,14 +36,14 @@
 
   <th>Entradas</th>
   <th>Salidas</th>
-<?
+<?php
      }
     }
 ?>
   <th>Modif.</th>
  </tr>
 
-<?
+<?php
 
     for ($i=0; $i<$num_ren; $i++) {
       $reng = db_fetch_object($resultado, $i);
@@ -73,7 +73,7 @@
       printf("<input type=\"checkbox\" name=\"delete[%d]\">", $i);
       echo "</td>\n";
 
-      echo "  <td class=\"$class\"><a href=\"$PHP_SELF?codigo=";
+      echo "  <td class=\"$class\"><a href=\"$_SERVER['PHP_SELF']?codigo=";
       echo str_replace(" ", "%20", htmlentities($reng->codigo));
       echo "&order_by=$order_by&order=$order&action=muestra&offset=$offset$href_dept$href_prov\">";
       echo stripslashes($codigo) . "</a>";
@@ -149,20 +149,20 @@
   }
 ?>
    <tr>
-   <td class="bg0_right" colspan=<?php printf("%d", ($alm>0)*3+5) ?>><input type="reset" value="Cancelar">&nbsp;
+   <td class="bg0_right" colspan=<?phpphp printf("%d", ($alm>0)*3+5) ?>><input type="reset" value="Cancelar">&nbsp;
    <input type="submit" value="Cambiar"></td>
    <input type="hidden" name="mode" value="express">
    <input type="hidden" name="action" value="cambia">
-   <input type="hidden" name="num_ren" value="<? echo $num_ren ?>">
-   <input type="hidden" name="order" value="<? echo $order ?>">
-   <input type="hidden" name="order_by" value="<? echo $order_by ?>">
-   <input type="hidden" name="offset" value="<? echo $offset ?>">
-   <input type="hidden" name="id_depto" value="<? echo $id_dept ?>">
-   <input type="hidden" name="prov" value="<? echo $prov ?>">
-   <input type="hidden" name="alm_item" value="<? echo $alm ?>">
-<? if (isset($id_prov)) { ?>
-	<input type="hidden" name="id_prov" value="<? echo $id_prov ?>">
-<? } ?>
+   <input type="hidden" name="num_ren" value="<?php echo $num_ren ?>">
+   <input type="hidden" name="order" value="<?php echo $order ?>">
+   <input type="hidden" name="order_by" value="<?php echo $order_by ?>">
+   <input type="hidden" name="offset" value="<?php echo $offset ?>">
+   <input type="hidden" name="id_depto" value="<?php echo $id_dept ?>">
+   <input type="hidden" name="prov" value="<?php echo $prov ?>">
+   <input type="hidden" name="alm_item" value="<?php echo $alm ?>">
+<?php if (isset($id_prov)) { ?>
+	<input type="hidden" name="id_prov" value="<?php echo $id_prov ?>">
+<?php } ?>
   </tr>
   </table>
   </form>

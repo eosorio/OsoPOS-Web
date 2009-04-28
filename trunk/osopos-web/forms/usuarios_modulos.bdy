@@ -6,7 +6,7 @@ Indique los accesos a los modulos para el usuario <?php echo $login ?>:<br>
   if (!$db_res2)
 	echo "<div class=\"error_nf\">Error al consultar módulos</div><br>\n";
   else {
-	echo "<form action=\"$PHP_SELF\" method=\"post\">\n";
+	echo "<form action=\"$_SERVER['PHP_SELF']\" method=\"post\">\n";
 	echo "<table border=0 cellpadding=3>\n";
 	echo "<colgroup>\n  <col width=40><col width=*><col width=20>\n</colgroup>\n";
 	for ($i=0; $i < db_num_rows($db_res2); $i++) {

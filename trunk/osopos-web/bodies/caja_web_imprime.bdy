@@ -1,20 +1,20 @@
-<?  /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*- */  ?>
+<?php  /* -*- mode: c; indent-tabs-mode: nil; c-basic-offset: 2 -*- */  ?>
 <!doctype html public "-//w3c//dtd html 4.0 transitional//en">
 <html>
 <head>
- <title>OsoPOS - Caja Web v.  <? echo $caja_web_vers ?></title>
+ <title>OsoPOS - Caja Web v.  <?php echo $caja_web_vers ?></title>
 </head>
 
 <body bgcolor="white" background="imagenes/fondo.gif" onload="document.confirmar.cambio.focus()">
 
-<?
+<?php
 {
 
   include("include/minegocio.inc");
 
   if ($pago >= 20) {
     if ($succes = open_drawer() > 0)
-      echo "<b>Error: No puedo activar el cajÛn</b><br>\n";
+      echo "<b>Error: No puedo activar el caj√≥n</b><br>\n";
   }
 
   if ($comprobante==$TCOMP_NOTA) {
@@ -87,18 +87,18 @@
 
 ?>
 
-<form action="<? echo $php_anterior ?>" method="post" name="confirmar">
+<form action="<?php echo $php_anterior ?>" method="post" name="confirmar">
 <table border=0 cellpadding=0 cellspacing=0>
 <tbody>
 <tr>
  <td colspan=2><h3>
 
-<?
+<?php
  if ($comprobante==5)
    echo "Corte el papel y a";
  else
    echo "A";
- ?>priete el botÛn o
+ ?>priete el bot√≥n o
  presione <i>Intro</i> para continuar</h3></td>
 </tr>
 <tr><td>&nbsp;</td></tr>
@@ -116,11 +116,11 @@
 </tr>
 </tbody>
 </table>
-<input type="hidden" name="mode" value="<? echo $mode ?>">
+<input type="hidden" name="mode" value="<?php echo $mode ?>">
 <input type="hidden" name="imprime_cabecera" value=1>
 
 </form>
 
-  <? } ?>
+  <?php } ?>
 </body>
 </html>

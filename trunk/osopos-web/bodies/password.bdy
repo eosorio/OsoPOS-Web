@@ -21,7 +21,7 @@ Agregar usuario:
 </form>
 <hr>
 Borrar usuario (no se solicitará confirmación)
-<form action="<?php echo $PHP_SELF ?>" method="post">
+<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
 <table border="0" width="400">
 <tr>
   <td align="right">login:</td>
@@ -35,7 +35,7 @@ Borrar usuario (no se solicitará confirmación)
 </form>
 <hr>
 Cambiar contraseña
-<form action="<?php echo $PHP_SELF ?>" method="post">
+<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
 <table border="0" width="400">
 <tr>
   <td align="right">login:</td>

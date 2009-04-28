@@ -61,12 +61,12 @@ include("include/pos.inc");
     include("bodies/usuarios.bdy");
   }
   else {
-    echo "<form action=\"$PHP_SELF\" method=\"post\">\n";
+    echo "<form action=\"$_SERVER['PHP_SELF']\" method=\"post\">\n";
     echo "  <input type=\"hidden\" name=\"action\" value=\"listar\">\n";
     echo "  <input type=\"image\" src=\"imagenes/lupa.png\">\n";
     echo "Ver usuarios<br>\n";
     echo "</form>\n";
-    //    echo "<a href=\"$PHP_SELF?action=listar\">Ver usuarios</a><br>\n";
+    //    echo "<a href=\"$_SERVER['PHP_SELF']?action=listar\">Ver usuarios</a><br>\n";
     echo "<hr>\n";
 
     if (puede_hacer($conn, $user->user, "usuarios_general")) {
