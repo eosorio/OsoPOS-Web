@@ -19,9 +19,9 @@
 ?>
   
   <td>
-  Folio: <? echo $id ?><br>
+  Folio: <?php echo $id ?><br>
   Fecha: 
-  <? 
+  <?php 
     echo "$dia-$mes-$anio<br>\n";
   ?>
   Observaciones: <br><br><br><br>
@@ -105,14 +105,14 @@
 ?>
 
  <tr>
-  <td <? echo $bgcolor ?>><? echo $articulo[$i]->codigo ?>&nbsp;
-  <input type="hidden" name="codigo[<? echo $i ?>]" value="<? echo $articulo[$i]->codigo ?>"></td>
-  <td <? echo $bgcolor ?> align=center><? echo $articulo[$i]->cant ?>
-  <input type="hidden" name="cant[<? echo $i ?>]" value="<? echo $articulo[$i]->cant ?>"></td>
-  <td width="0*" <? echo $bgcolor ?>><? echo htmlspecialchars(stripslashes($articulo[$i]->desc)) ?>&nbsp;
-  <input type="hidden" name="desc[<? echo $i ?>]" value="<? echo htmlspecialchars(stripslashes($articulo[$i]->desc)) ?>"></td>
-  <td <? echo $bgcolor ?> align="right"><? printf("%.2f",  $articulo[$i]->pu) ?>
-  <input type="hidden" name="pu[<? echo $i ?>]" value="<? echo $articulo[$i]->pu ?>"></td>
+  <td <?php echo $bgcolor ?>><?php echo $articulo[$i]->codigo ?>&nbsp;
+  <input type="hidden" name="codigo[<?php echo $i ?>]" value="<?php echo $articulo[$i]->codigo ?>"></td>
+  <td <?php echo $bgcolor ?> align=center><?php echo $articulo[$i]->cant ?>
+  <input type="hidden" name="cant[<?php echo $i ?>]" value="<?php echo $articulo[$i]->cant ?>"></td>
+  <td width="0*" <?php echo $bgcolor ?>><?php echo htmlspecialchars(stripslashes($articulo[$i]->desc)) ?>&nbsp;
+  <input type="hidden" name="desc[<?php echo $i ?>]" value="<?php echo htmlspecialchars(stripslashes($articulo[$i]->desc)) ?>"></td>
+  <td <?php echo $bgcolor ?> align="right"><?php printf("%.2f",  $articulo[$i]->pu) ?>
+  <input type="hidden" name="pu[<?php echo $i ?>]" value="<?php echo $articulo[$i]->pu ?>"></td>
   <td <?php echo $bgcolor ?> align="right">
 	<?php printf("%.2f",  $articulo[$i]->pu*$articulo[$i]->cant) ?>
 	<?php printf("<input type=\"hidden\" name=\"iva_porc[%d]\" value=\"%f\">", $i, $articulo[$i]->iva_porc) ?>
@@ -127,7 +127,7 @@
   <td colspan=3>
     <table margin=0 width="100%">
     <tr>
-	  <td class="campo"><small><b>Garantía:</b></small></td>
+	  <td class="campo"><small><b>GarantÃ­a:</b></small></td>
 	  <td class="campo"><small><b>Observaciones:</b></small>
 	  <input type=hidden name=id value="<?php printf("%d", $id) ?>">
       <input type=hidden name=anio value="<?php printf("%d", $anio) ?>">
@@ -150,8 +150,8 @@
        <input type="text" name="garantia" size=10>
      </td>
      <td class="campo" colspan=2 rowspan=3>
-      <textarea name="observaciones" cols=<? printf("%d", $OBS_MAXCOLS) ?>
-      rows=<? printf("%d", $OBS_MAXRENS) ?>><? echo $OBS_DEFAULT ?></textarea>
+      <textarea name="observaciones" cols=<?php printf("%d", $OBS_MAXCOLS) ?>
+      rows=<?php printf("%d", $OBS_MAXRENS) ?>><?php echo $OBS_DEFAULT ?></textarea>
      </td>
     </tr>
   </table>
@@ -161,34 +161,34 @@
      <table border=0 width="100%">
      <tr>
        <td class="right"><b>Subtotal</b></td>
-       <td class="moneda"><b><? printf("%.2f", $subtotal) ?></b>
+       <td class="moneda"><b><?php printf("%.2f", $subtotal) ?></b>
        <input type="hidden" name="subtotal" value=<?php echo $subtotal ?>></td>
      </tr>
 
      <tr>
      <td class="right"><b>I.V.A.</b></td>
-     <td class="moneda"><b><? printf("%.2f", $iva) ?></b>
-     <input type="hidden" name="iva" value=<? echo $iva ?>></td>
+     <td class="moneda"><b><?php printf("%.2f", $iva) ?></b>
+     <input type="hidden" name="iva" value=<?php echo $iva ?>></td>
     </tr>
 
-<? if ($DESGLOSAR_IMPUESTO[0]) { ?>
+<?php if ($DESGLOSAR_IMPUESTO[0]) { ?>
     <tr>
      <td class="right"><b>I.E.P.S.</b></td>
-     <td class="moneda"><b><? printf("%.2f", $impuesto[0]) ?></b>
-     <input type="hidden" name="impuesto[0]" value=<? printf("%.2f", $impuesto[0]) ?>></td>
+     <td class="moneda"><b><?php printf("%.2f", $impuesto[0]) ?></b>
+     <input type="hidden" name="impuesto[0]" value=<?php printf("%.2f", $impuesto[0]) ?>></td>
     </tr>
-<? }
+<?php }
   $impuestos = $impuesto[0] + $iva;
 
   for ($i=1; $i<$MAXTAX; $i++) {
 	$impuestos += $impuesto[$i];
     if ($DESGLOSAR_IMPUESTO[$i]) { ?>
     <tr>
-     <td class="right"><b><? echo "Impuesto $i" ?></b></td>
-     <td class="moneda"><b><? printf("%.2f", $impuesto[$i]) ?></b>
-     <input type="hidden" name="impuesto[<? echo $i ?>]" value=<? printf("%.2f", $impuesto[$i]) ?>></td>
+     <td class="right"><b><?php echo "Impuesto $i" ?></b></td>
+     <td class="moneda"><b><?php printf("%.2f", $impuesto[$i]) ?></b>
+     <input type="hidden" name="impuesto[<?php echo $i ?>]" value=<?php printf("%.2f", $impuesto[$i]) ?>></td>
     </tr>
-<? }
+<?php }
   }
   $total = $subtotal + $impuestos;
   $importe_letra = sprintf("%s pesos %s/100 M.N.", str_cant($total, $centavos), $centavos);
@@ -215,7 +215,7 @@
   <td width=5 align="center"><input type="radio" name="accion" value="agregarimprimir" checked>
   <td>Agregar e imprimir
   <td width=5 align="center"><input type="radio" name="accion" value="agregar">
-  <td>Sólo agregar
+  <td>SÃ³lo agregar
   <td align=right><input type=submit value="Registrar factura">
 </tbody>
 </table>

@@ -1,4 +1,4 @@
-<?  /* -*- mode: html; indent-tabs-mode: nil; c-basic-offset: 2 -*- 
+<?php  /* -*- mode: html; indent-tabs-mode: nil; c-basic-offset: 2 -*- 
 
  Caja Web 0.02-1. Módulo de caja de OsoPOS Web.
 
@@ -64,13 +64,13 @@ if ($mode == "express") {
  <tr>
   <td align="center" width="5%"><input type=radio name=pago value=20 checked>
   <td>Efectivo
-  <td align="right">$<input type=hidden name=php_anterior value="<? echo $PHP_SELF ?>">
+  <td align="right">$<input type=hidden name=php_anterior value="<?php echo $_SERVER['PHP_SELF'] ?>">
   <td><small><input type=text
   name=efectivo size=10></small>
-  <td colspan=5>&nbsp;<input type=hidden name=nm_ticket value="<? echo $nm_ticket ?>">
+  <td colspan=5>&nbsp;<input type=hidden name=nm_ticket value="<?php echo $nm_ticket ?>">
   <td><font color=blue><input type=submit value="Cobrar"></font>
  <tr>
-  <input type=hidden name=cheque value=<? printf("%.2f", $subtotal) ?>>
+  <input type=hidden name=cheque value=<?php printf("%.2f", $subtotal) ?>>
   <td align="center" width="5%"><input type=radio name=pago value=21>
   <td>Cheque
   <td align="right"><small>N&uacute;mero</small>
@@ -80,13 +80,13 @@ if ($mode == "express") {
   <td align="right"><small>Banco</small>
   <td><small><input type=text name=cheque_banco size=10></small>
  <tr>
-  <input type=hidden name="credito" value=<? printf("%.2f", $subtotal) ?>>
+  <input type=hidden name="credito" value=<?php printf("%.2f", $subtotal) ?>>
   <td align="center" width="5%"><input type=radio name=pago value=2>
   <td>A cr&eacute;dito
   <td align="right"><small>Autorizaci&oacute;n</small>
   <td><small><input type="text" name="credito_aut" size=7></small>
  <tr>
-  <input type=hidden name=tarjeta value=<? printf("%.2f", $subtotal) ?>>
+  <input type=hidden name=tarjeta value=<?php printf("%.2f", $subtotal) ?>>
   <td align="center" width="5%"><input type=radio name=pago value=1>
   <td>Con tarjeta
   <td align="right"><small>Num.</small>
@@ -131,14 +131,14 @@ if ($mode == "express") {
 <hr>
 <center>
 <font size=+3>
-<font color="green">Total a pagar: <? printf("%.2f", $subtotal+$iva) ?></font><br>
+<font color="green">Total a pagar: <?php printf("%.2f", $subtotal+$iva) ?></font><br>
 <?php echo str_cant($subtotal+$iva, $centavos) . "pesos $centavos"?>/100 M.N.<br>
-<input type=hidden name=total value=<? printf("%.2f", $subtotal+$iva) ?>>
+<input type=hidden name=total value=<?php printf("%.2f", $subtotal+$iva) ?>>
 </font>
 </center>
 <br>
 
-<?
+<?php
   /* Si los datos vienen como array de la página anterior. Se omite conversion a articulosClass */
   if ($mode != "express") {
 	for ($i=0; $i<count($articulo_codigo); $i++) {
@@ -167,5 +167,5 @@ if ($mode == "express") {
 
 
 </form>
-</BODY>
-</HTML>
+</body>
+</html>

@@ -1,9 +1,9 @@
 <!-- -*- mode: html; indent-tabs-mode: nil; c-basic-offset: 2 -*- -->
-<h2>Artículos rentados por entregar</h2>
+<h2>ArtÃ­culos rentados por entregar</h2>
 <table height="500px" width="100%" border=0>
 <tr valign="top">
   <td>
-<table border=0 width="100%">
+<table border="0" width="100%">
 <colgroup>
   <col width="50px"><col width="200px" span=2><col width="100px"><col width=*><col width="75px">
 </colgroup>
@@ -12,7 +12,7 @@
   <th>F.entrega</th>
   <th>F. pedido</th>
   <th>Serie</th>
-  <th>Descripción</th>
+  <th>DescripciÃ³n</th>
   <th>Id. Cliente</th>
 </tr>
 <?php for ($i=0, $last_id=-1; $i < db_num_rows($db_res); $i++) {
@@ -21,7 +21,7 @@
   <tr>
     <td class="serie"><?php
     printf("<a href=\"%s?accion=detalle_renta&id=%d\">%d</a>",
-	$PHP_SELF, $ren->id, $ren->id)
+	$_SERVER['PHP_SELF'], $ren->id, $ren->id)
  ?></td>
 	<td class="serie"><?php echo $ren->entrega ?></td> 
 	<td class="serie"><?php echo $ren->pedido ?></td>

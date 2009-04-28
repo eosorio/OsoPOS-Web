@@ -1,6 +1,6 @@
 <!-- -*- mode: html; indent-tabs-mode: nil; c-basic-offset: 2 -*- -->
-<h1>Estad韘ticas</h1>
-<table border=0 width="100%" height="500px">
+<h1>Estad铆sticas</h1>
+<table border="0" width="100%" height="500px">
 <tr valign="top">
   <td>
 <?php
@@ -11,15 +11,15 @@
     if (!isset($pagina))
       $pagina = 0;
 
-    echo "<h2>Costos de recuperaci髇</h2>\n";
-    /* Asumo que se consulta m醩 r醦ido al extraer un count() que contando una por una */
+    echo "<h2>Costos de recuperaci贸n</h2>\n";
+    /* Asumo que se consulta m谩s r谩pido al extraer un count() que contando una por una */
     $query = "SELECT count(rc.serie) ";
     $query.= "FROM articulos_recup_costo rc, ";
     $query.= "articulos a, articulos_series s WHERE rc.serie=s.id AND ";
     $query.= "s.codigo=a.codigo ";
 	
     if (!@$db_res = db_query($query, $conn)) {
-      $mens = "<div class=\"error_f\">Error al consultar costos de recuperaci髇</div>";
+      $mens = "<div class=\"error_f\">Error al consultar costos de recuperaci贸n</div>";
       /*img*/ echo "<i>$query</i><br>\n";
       die($mens);
     }
@@ -33,17 +33,17 @@
 	
     if (!@$db_res = db_query($query, $conn)) {
       /*igm*/ echo "<i>$query</i><br>\n";
-      $mens = "<div class=\"error_f\">Error al consultar costos de recuperaci髇</div>";
+      $mens = "<div class=\"error_f\">Error al consultar costos de recuperaci贸n</div>";
       die($mens);
     }
 	$num_ren = db_num_rows($db_res);
 	if ($num_ren) {
-	  echo "<table width=\"100%\" cellpadding=1>\n";
+	  echo "<table width=\"100%\" cellpadding=\"1\">\n";
 	  echo "<colgroup>\n";
 	  echo "  <col width=20><col width=200><col width=*><col width=150 span=2><col width=100>\n";
 	  echo "</colgroup>\n";
 	  echo "<tr>\n";
-	  echo "  <th>&nbsp;</th><th>Serie</th><th>Descripci髇</th><th>Costo</th><th>Recuperaci髇</th><th>Restante</th>\n";
+	  echo "  <th>&nbsp;</th><th>Serie</th><th>Descripci贸n</th><th>Costo</th><th>Recuperaci贸n</th><th>Restante</th>\n";
 	  echo "</tr>\n";
 	  for ($i=0; $i<$num_ren; $i++) {
 		$ren = db_fetch_object($db_res, $i);
@@ -64,11 +64,11 @@
 	  echo "</table>\n";
 ?>
 <br>
-<table width=150 border=0 align="center">
+<table width="150" border="0" align="center">
 <tr>
   <td>
   <?php if ($pagina>0) { ?>
-    <form action="<?php echo $PHP_SELF ?>" method="post">
+    <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
 	<input type="hidden" name="accion" value="estadistica">
 	<input type="hidden" name="subaccion" value="recuperacion">
 	<input type="image" src="imagenes/web/botones/anterior.png">
@@ -80,7 +80,7 @@
 
   <td>
   <?php if ($pagina*$limit+1 < $num_items) { ?>
-    <form action="<?php echo $PHP_SELF ?>" method="post">
+    <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
 	<input type="hidden" name="accion" value="estadistica">
 	<input type="hidden" name="subaccion" value="recuperacion">
 	<input type="image" src="imagenes/web/botones/siguiente.png">
@@ -93,19 +93,19 @@
 </table>
 <table width="100%" align="center">
 <colgroup>
-  <col width=20><col><col width=20><col>
+  <col width="20"><col><col width="20"><col>
 </colgroup>
 <tr>
-  <td><img src="imagenes/ok.png" width=16 length=16></td>
+  <td><img src="imagenes/ok.png" width="16" length="16"></td>
   <td style="font-size: small">Costo recuperado</td>
 </tr>
 <tr>
   <td><img src="imagenes/web/botones/anterior.png" width=16 length=16></td>
-  <td style="font-size: small">P醙ina anterior</td>
+  <td style="font-size: small">P谩gina anterior</td>
 </tr>
 <tr>
   <td><img src="imagenes/web/botones/siguiente.png" width=16 length=16></td>
-  <td style="font-size: small">P醙ina siguiente</td>
+  <td style="font-size: small">P谩gina siguiente</td>
 </tr>
 </table>
 
@@ -116,8 +116,8 @@
 	  echo "No hay datos a reportar<br><br><hr>\n";
   }
   else {
-	echo "<a href=\"$PHP_SELF?accion=estadistica&subaccion=recuperacion\">";
-	echo "Costos de recuperaci髇</a>\n";
+	echo "<a href=\"$_SERVER['PHP_SELF']?accion=estadistica&subaccion=recuperacion\">";
+	echo "Costos de recuperaci贸n</a>\n";
 	echo "<br><br><br>\n";
   }
   echo "  </td>\n";

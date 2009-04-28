@@ -1,9 +1,9 @@
-<h2>Almacén <? echo $almacen ?></h2>
+<h2>AlmacÃ©n <? echo $almacen ?></h2>
 <b>Movimiento <? printf("%d", $id_mov) ?></b><br>
-<form action="<? echo $PHP_SELF ?>" method="post">
+<form action="<? echo $_SERVER['PHP_SELF'] ?>" method="post">
 <table border=0>
 <tr>
-  <th>Código</th><th>Cant.</th><th>P. unitario</th>
+  <th>CÃ³digo</th><th>Cant.</th><th>P. unitario</th>
   <th>Tipo de movimiento</th><th>Alm. dest.</th><th>&nbsp;</th>
 </tr>
 <? for ($i=0; $i<15; $i++) { ?>

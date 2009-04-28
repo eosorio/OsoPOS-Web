@@ -20,7 +20,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 */ 
 
 ?>
-<form action="<?php echo $PHP_SELF ?>" method="post">
+<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
 <small>Mostrar almacen: <?php echo lista_almacen($conn, "almc", "Mostrar almacenes") ?>&nbsp;</small>
 <input type="submit" value="Mostrar" />
 </form><br />

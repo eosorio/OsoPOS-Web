@@ -2,14 +2,14 @@
 {
   $td_style = "border-right-width: 0; border-left-width: 0";
 ?>
-<h2>Introduzca los números de serie de los productos</h2>
-<form action="<?php echo $PHP_SELF ?>" method="post">
+<h2>Introduzca los nÃºmeros de serie de los productos</h2>
+<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
 <table border=1 width="100%" cellpadding=2>
 <colgroup>
   <col width=75><col width=*><col width=350>
 </colgroup>
 <tr>
-  <th>Código</th><th>Descripción</th><th>Serie</th>
+  <th>CÃ³digo</th><th>DescripciÃ³n</th><th>Serie</th>
 </tr>
 <?php
 

@@ -1,10 +1,10 @@
-<h2>Almacén <?php echo $almacen ?></h2>
+<h2>AlmacÃ©n <?php echo $almacen ?></h2>
 <b>Movimiento <?php printf("%d", $id_mov) ?></b><br>
 Tipo de movimiento <?php echo $tipo_mov ?> (transferencia)<br>
-<form action="<?php echo $PHP_SELF ?>" method="post">
-<table border=0>
+<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
+<table border="0">
 <tr>
-  <th>Código</th><th>&nbsp;</th><th>Cant.</th><th>P. costo</th>
+  <th>CÃ³digo</th><th>&nbsp;</th><th>Cant.</th><th>P. costo</th>
   <th>Alm. dest.</th><th>&nbsp;</th>
 </tr>
 <?php

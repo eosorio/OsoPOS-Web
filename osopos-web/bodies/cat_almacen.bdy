@@ -1,6 +1,6 @@
-<b>Cat·logo de almacenes</b><br>
+<b>Cat√°logo de almacenes</b><br>
 <br>
-<table border=0 width=210>
+<table border="0" width="210">
 <colgroup>
   <col width=30><col width=180>
 </colgroup>
@@ -13,11 +13,11 @@
 	$ren = db_fetch_object($db_res, $i);
 	echo "<tr>\n";
 	printf("  <td style=\"text-align: center\"><a href=\"%s?almc=%d\">%d</a></td><td>%s</td>\n",
-		   $PHP_SELF, $ren->id, $ren->id, $ren->nombre);
+		   $_SERVER['PHP_SELF'], $ren->id, $ren->id, $ren->nombre);
 	echo "</tr>\n";
   }
 ?>
 </table>
 <br>
-<small>Presione sobre el n˙mero de almacÈn deseado para anexar o quitar productos del cat·logo</small><br>
+<small>Presione sobre el n√∫mero de almac√©n deseado para anexar o quitar productos del cat√°logo</small><br>
     

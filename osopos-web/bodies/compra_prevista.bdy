@@ -1,5 +1,5 @@
 <?php if (empty($subaction) || $subaction!="imprimir")
-	 echo "<form action=\"$PHP_SELF\" method=\"post\">\n";
+	 echo "<form action=\"$_SERVER['PHP_SELF']\" method=\"post\">\n";
 ?>
 <table width="800pt">
   <tbody>

@@ -6,16 +6,16 @@
 <?php
 {
   if (empty($id_cliente)) { ?>
-<form action=<?php echo "\"$PHP_SELF\"" ?> method="post">
-Indique número de cliente: 
-<input type="hidden" name="accion" value="renta">
-<input type="hidden" name="subaccion" value="prever">
-<input type="text" name="id_cliente" size=5>
+<form action=<?php echo "\"$_SERVER['PHP_SELF']\"" ?> method="post">
+Indique nÃºmero de cliente: 
+<input type="hidden" name="accion" value="renta" />
+<input type="hidden" name="subaccion" value="prever" />
+<input type="text" name="id_cliente" size="5" />
 </form>
 
-ó
+Ã³
 <br>
-<table border=0 cellpadding=10>
+<table border="0" cellpadding="10">
 <tr>
   <td><a href="cliente.php">Cliente nuevo</a></td>
   <td><a href="cliente.php?accion=consulta">Consulta de clientes</a></td>
@@ -41,22 +41,22 @@ Indique número de cliente:
 <?php
     if (!(count($ser) && empty($serie)) && (isset($subaccion) && $subaccion!="registrar")) {
 ?>
-<form action="<?php echo $PHP_SELF ?>" method="post" name="express">
+<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post" name="express">
 Serie del producto:
-<input type="text" name="serie" size=20>
-<input type="hidden" name="accion" value="renta">
-<input type="hidden" name="subaccion" value="prever">
-<input type="hidden" name="id_cliente" value="<?php echo $id_cliente ?>">
+<input type="text" name="serie" size="20" />
+<input type="hidden" name="accion" value="renta" />
+<input type="hidden" name="subaccion" value="prever" />
+<input type="hidden" name="id_cliente" value="<?php echo $id_cliente ?>" />
 <?php
     
 //      for ($i=0; $i < count($ser); $i++) {
       $i=0; $num_ser = count($ser);
       while ($i < $num_ser && $num_ser) {
-        printf("<input type=\"hidden\" name=\"ser[]\" value=\"%s\">\n", $ser[$i]);
+        printf("<input type=\"hidden\" name=\"ser[]\" value=\"%s\" />\n", $ser[$i]);
         $i++;
       }
       if (!$error && !empty($serie))
-        printf("<input type=\"hidden\" name=\"ser[]\" value=\"%s\">\n", $serie);
+        printf("<input type=\"hidden\" name=\"ser[]\" value=\"%s\" />\n", $serie);
 ?>
 </form>
 <small>Deje la casilla en blanco y presione <i>&lt;Intro&gt;</i> para finalizar</small>
@@ -76,7 +76,7 @@ Serie del producto:
 	die($mens);
       }
       if (!db_num_rows($db_res)) {
-	printf("<div class=\"error_nf\">No existen datos del número de serie %s </div><br>\n",
+	printf("<div class=\"error_nf\">No existen datos del nÃºmero de serie %s </div><br>\n",
 	       $serie);
 	$error++;
       }
@@ -106,7 +106,7 @@ Serie del producto:
 	$ren = db_fetch_object($db_res, 0);
 	printf("<div class=\"error_nf\">Error: El producto con serie %s ",
 	       $ren->serie);
-	printf("no ha sido devuelto de la operación %d.<br>\n", $ren->id);
+	printf("no ha sido devuelto de la operaciÃ³n %d.<br>\n", $ren->id);
 	printf("F. de entrega %s</div>\n", $ren->f_entrega);
 	$error++;
 	echo "<br>\n";

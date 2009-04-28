@@ -1,4 +1,4 @@
-<? /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- */ ?>
+<?php /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- */ ?>
 <!-- forms/invent_std_item.bdy -->
 <script type="text/javascript">
 var j_ex;
@@ -63,7 +63,7 @@ function deshacer(item, modificador) {
 
 </script>
 
-<form action="<? echo $PHP_SELF ?>" name="articulo" method="POST" enctype="multipart/form-data">
+<form action="<?php echo $_SERVER['PHP_SELF'] ?>" name="articulo" method="POST" enctype="multipart/form-data">
 <table width="100%" border=1>
 <colgroup>
 <col width="30%">
@@ -76,7 +76,7 @@ function deshacer(item, modificador) {
    <table width="100%">
      <tr>
       <td>C&oacute;digo</td>
-<?
+<?php
     if (isset($codigo)) {
       echo "<td>$codigo <input type=\"hidden\" name=\"codigo\" $val_cod></td>\n";
     }
@@ -85,7 +85,7 @@ function deshacer(item, modificador) {
     }
 ?>
      <td>Descripci&oacute;n</td>
-     <td colspan=3><?
+     <td colspan=3><?php
      if (isset($alm) && $alm>0)
        printf("%s\n", str_replace("\"", "", str_replace("value=", "", $val_desc)));
      else
@@ -93,12 +93,12 @@ function deshacer(item, modificador) {
      ?></td>
     </tr>
     <tr>
-     <td>Cód. alt.</td>
-     <td><?
+     <td>CÃ³d. alt.</td>
+     <td><?php
        printf("<input type=\"text\" name=\"codigo2\" maxlength=%d %s>", $MAXCOD, $val_cod2) ?>
-       <input type="hidden" name="search" value="<? echo $search ?>">
+       <input type="hidden" name="search" value="<?php echo $search ?>">
      </td>
-<?
+<?php
      if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
        echo "     <td>\n";
        echo "        C&oacute;d. prov.\n";
@@ -121,39 +121,39 @@ function deshacer(item, modificador) {
   <td>
    <table border=0 width="100%">
    <tr>
-     <td>P. público</td>
-     <td><input type="text" name="pu" size=10 <? echo $val_pu ?>></td>
+     <td>P. pÃºblico</td>
+     <td><input type="text" name="pu" size=10 <?php echo $val_pu ?>></td>
      <td>+<input tpye="text" name="mod_pu1" size=2>%</td>
     </tr>
-     <? if ($alm>0) { ?>
+     <?php if ($alm>0) { ?>
     <tr>
      <td>Precio 2</td>
-     <td><input type="text" name="precio2" size=10 <? echo $val_pu2 ?>></td>
+     <td><input type="text" name="precio2" size=10 <?php echo $val_pu2 ?>></td>
      <td>+<input tpye="text" name="mod_pu2" size=2>%</td>
     </tr>
     <tr>
      <td>Precio 3</td>
-     <td><input type="text" name="precio3" size=10 <? echo $val_pu3 ?>></td>
+     <td><input type="text" name="precio3" size=10 <?php echo $val_pu3 ?>></td>
      <td>+<input tpye="text" name="mod_pu3" size=2>%</td>
     </tr>
     <tr>
      <td>Precio 4</td>
-     <td><input type="text" name="precio4" size=10 <? echo $val_pu4 ?>></td>
+     <td><input type="text" name="precio4" size=10 <?php echo $val_pu4 ?>></td>
      <td>+<input tpye="text" name="mod_pu4" size=2>%</td>
     </tr>
     <tr>
      <td>Precio 5</td>
-     <td><input type="text" name="precio5" size=10 <? echo $val_pu5 ?>></td>
+     <td><input type="text" name="precio5" size=10 <?php echo $val_pu5 ?>></td>
      <td>+<input tpye="text" name="mod_pu5" size=2>%</td>
     </tr>
-<?
+<?php
   }
   if (puede_hacer($conn, $user->user, "invent_ver_pcosto") && !isset($alm)) {
  ?>
 
     <tr>
      <td>P. Costo</td>
-     <td><?
+     <td><?php
      if (isset($alm) && $alm>0)
        printf("%.2f\n", str_replace("value=", "", $val_p_costo));
      else 
@@ -172,7 +172,7 @@ function deshacer(item, modificador) {
      onclick="sincroniza_precios()">
      </td>
     </tr>
-<? } ?>
+<?php } ?>
     <tr>
      <td colspan=2 align="center">
      <input type="button" name="boton_recarga_pu" value="Deshacer"
@@ -185,61 +185,61 @@ function deshacer(item, modificador) {
    <table width=200>
     <tr>
      <td>Divisa</td>
-     <td colspan=3><input type="text" name="divisa" size=3 <? echo $val_divisa ?>></td>
+     <td colspan=3><input type="text" name="divisa" size=3 <?php echo $val_divisa ?>></td>
     </tr>
     <tr>
      <td>Descuento</td>
      <td><input type="text" name="descuento" size=5
-        <? echo $val_disc ?>>%</td>
+        <?php echo $val_disc ?>>%</td>
     </tr>
     <tr>
      <td>I.V.A.</td>
-     <td><input type="text" name="iva_porc" size=5 <? echo
+     <td><input type="text" name="iva_porc" size=5 <?php echo
      $val_iva_porc ?>>%</td>
     </tr>
     <tr>
      <td>Imp. suntuario</td>
-     <td><input type="text" name="imp_porc[0]" size=5 <? echo
+     <td><input type="text" name="imp_porc[0]" size=5 <?php echo
      $val_imp_porc[0] ?>>%</td>
     </tr>
-<?    for ($j=1; $j<$MAXTAX; $j++) { ?>
+<?php    for ($j=1; $j<$MAXTAX; $j++) { ?>
     <tr>
-     <td>Impuesto <? echo $j ?></td>
-     <td><input type="text" name="imp_porc[<? echo $j ?>]" size=5 <? echo
+     <td>Impuesto <?php echo $j ?></td>
+     <td><input type="text" name="imp_porc[<?php echo $j ?>]" size=5 <?php echo
      $val_imp_porc[$j] ?>>%</td>
     </tr>
-<? } ?>
+<?php } ?>
     </table>
    </td>
    <td valign="top">
     <table>
 	<tr>
 	  <td>Unidad de medida</td>
-	  <td><input type="text" name="u_medida" size=4 <? echo $val_u_medida ?>></td>
+	  <td><input type="text" name="u_medida" size=4 <?php echo $val_u_medida ?>></td>
 	</tr>
 	<tr>
 	  <td>Unidad de empaque</td>
-	  <td><input type="text" name="u_empaque" size=4 <? echo $val_u_empaque ?>></td>
+	  <td><input type="text" name="u_empaque" size=4 <?php echo $val_u_empaque ?>></td>
 	</tr>
-	<? if (isset($alm) && $alm>0) {
+	<?php if (isset($alm) && $alm>0) {
 	  if ($action!="agrega") { ?>
     <tr>
      <td>Existencia actual</td>
      <td>
-     <input type="hidden" name="ex" <? echo $val_ex ?>>
-     <? printf("%.2f", str_replace("value=", "", $val_ex)) ?>
+     <input type="hidden" name="ex" <?php echo $val_ex ?>>
+     <?php printf("%.2f", str_replace("value=", "", $val_ex)) ?>
      </td>
     </tr>
-     <? } ?>
+     <?php } ?>
     <tr>
      <td>Existencia min.</td>
-     <td><input type="text" size=4 name="ex_min" <? echo $val_min ?>></td>
+     <td><input type="text" size=4 name="ex_min" <?php echo $val_min ?>></td>
     </tr>
     <tr>
      <td>Existencia max.</td>
-     <td><input type="text" size=4 name="ex_max" <? echo $val_max ?>></td>
+     <td><input type="text" size=4 name="ex_max" <?php echo $val_max ?>></td>
     </tr>
-<?
+<?php
 }
  ?>
 
@@ -247,22 +247,22 @@ function deshacer(item, modificador) {
    </td>
    <td valign="top">
     <table>
-<?
+<?php
      if (puede_hacer($conn, $user->user, "invent_ver_prov")) {
 ?>
      <tr>
       <td>Proveedor 1</td>
-      <td><? lista_proveedores(FALSE, "id_prov1", $reng->id_prov1) ?></td>
+      <td><?php lista_proveedores(FALSE, "id_prov1", $reng->id_prov1) ?></td>
      </tr>
      <tr>
       <td>Proveedor 2</td>
-      <td><? lista_proveedores(FALSE, "id_prov2", $reng->id_prov2) ?></td>
+      <td><?php lista_proveedores(FALSE, "id_prov2", $reng->id_prov2) ?></td>
      </tr>
-<? } ?>
+<?php } ?>
      <tr>
-      <td>Depto./Línea</td>
+      <td>Depto./LÃ­nea</td>
       <td>
-  <?
+  <?php
     if (!isset($alm) || $alm==0) {
       echo "          <select name=depto>\n";
       for ($i=0; $i<$num_ren_depto; $i++) {
@@ -286,21 +286,21 @@ function deshacer(item, modificador) {
 
  <tr>
   <td colspan=4 align="right">
-  <input type="reset" value="Restaurar datos"><input type="submit" <? echo $val_submit ?>>
+  <input type="reset" value="Restaurar datos"><input type="submit" <?php echo $val_submit ?>>
 </td>
  </tr>
 </table>
 
 <table width="100%">
 <tr>
-  <td>Descripción ampliada del producto:</td><td>&nbsp;</td>
+  <td>DescripciÃ³n ampliada del producto:</td><td>&nbsp;</td>
 </tr>
 <tr>
   <td width="100%">
-  <textarea name="long_desc" cols=80 rows=8><? echo $long_desc ?></textarea>
+  <textarea name="long_desc" cols=80 rows=8><?php echo $long_desc ?></textarea>
   </td>
   <td>
-<? if ($action!="agrega")
+<?php if ($action!="agrega")
      printf("   <img src=\"%s/%s\">\n", $IMG_DIR, $img_location);
    else
 	 echo "&nbsp;\n";
@@ -308,9 +308,9 @@ function deshacer(item, modificador) {
   </td>
 </tr>
 <tr>
-  <td colspan=2>Ubicación de la imagen:
-  <input type="file" name="img_source" size=60 value="<? echo "$PWD_DIR/$IMG_DIR/$img_location" ?>">
-<?
+  <td colspan=2>UbicaciÃ³n de la imagen:
+  <input type="file" name="img_source" size=60 value="<?php echo "$PWD_DIR/$IMG_DIR/$img_location" ?>">
+<?php
   if (isset($debug) && $debug>0)
     echo "  <input type=\"hidden\" name=\"debug\" value=\"$debug\">\n"; 
   if (isset($alm) && $alm>0)
@@ -319,11 +319,11 @@ function deshacer(item, modificador) {
   </td>
 </tr>
 </table>
-<input type="hidden" name="order_by" value="<? echo $order_by ?>">
-<input type="hidden" name="offset" value="<? echo $offset ?>">
-<input type="hidden" name="order" value="<? echo $order ?>">
-<input type="hidden" name="mode" value="<? echo $mode ?>">
-<?
+<input type="hidden" name="order_by" value="<?php echo $order_by ?>">
+<input type="hidden" name="offset" value="<?php echo $offset ?>">
+<input type="hidden" name="order" value="<?php echo $order ?>">
+<input type="hidden" name="mode" value="<?php echo $mode ?>">
+<?php
 {
 if ($action=="agrega")
   echo "<input type=\"hidden\" name=\"action\" value=\"inserta\">\n";

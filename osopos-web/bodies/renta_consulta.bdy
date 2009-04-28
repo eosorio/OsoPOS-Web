@@ -24,7 +24,7 @@ else {
 ?>
   <tr height="40px" valign="top">
     <td class="serie"><?php
-	  printf("<a href=\"%s?accion=detalle_renta&id=%d\">%s</a>", $PHP_SELF, $ren->id, $ren->id);
+	  printf("<a href=\"%s?accion=detalle_renta&id=%d\">%s</a>", $_SERVER['PHP_SELF'], $ren->id, $ren->id);
  ?></td>
 	<td class="serie"><?php echo $ren->entrega ?></td> 
 	<td class="serie"><?php echo $ren->pedido ?></td>

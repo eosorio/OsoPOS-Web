@@ -4,7 +4,7 @@
 {
   if (empty($action) || $action="cabecera") {
 
-  /* Determinaci髇 de la fecha actual */
+  /* Determinaci贸n de la fecha actual */
 	if (!isset($dia))
 	  $dia = date("j");
 
@@ -18,7 +18,7 @@
 	  $anio = date("Y");
 
 	if(empty($id_prov)) {
-	  echo "<form action=\"$PHP_SELF\" method=\"post\">\n";
+	  echo "<form action=\"$_SERVER['PHP_SELF']\" method=\"post\">\n";
 ?>
 <table border=0 width=600> 
 <tr>
@@ -54,11 +54,11 @@
 ?>
 
 
-<form action="<?php echo $PHP_SELF ?>" method="post">
+<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
 <table border=0 width="100%">
 <tr>
   <?php if ($tipo_movimiento == $TIPO_RECEPCION) { ?>
-  <td>Recepci髇</td><td><input type="text" name=""></td>
+  <td>Recepci贸n</td><td><input type="text" name=""></td>
   <?php }
    else
 	 echo "  <td colspan=2>&nbsp;</td>\n";
@@ -77,7 +77,7 @@
 </tr>
 
 <tr>
-  <td>Direcci髇:</td>
+  <td>Direcci贸n:</td>
   <td colspan=5>
   <?php printf("%s. %s<br>\n%s, %s. C.P.%d<br>\n", 
 			   $prov->calle, $prov->colonia, $prov->ciudad, $prov->estado, $prov->cp) ?></td>
@@ -92,7 +92,7 @@
 <tr>
   <td rowspan=2>Entregar a:</td><td colspan=3 rowspan=2><textarea name="dom_entrega" cols=40 rows=3></textarea></td>
   <td>Ref. Prov.</td><td><input type="text" name=""></td>
-  <td>Fecha recepci髇</td>
+  <td>Fecha recepci贸n</td>
   <td><input type="text" name="rec_dia" size=2 maxlength=2 value="<? echo $rec_dia ?>">
 	 <select name="rec_mes">
       <?php
@@ -111,7 +111,7 @@
 
 
 <tr>
-  <td>Almac閚</td><td><?php  echo lista_almacen($conn, "muestra_alm", "Ninguno") ?></td>
+  <td>Almac茅n</td><td><?php  echo lista_almacen($conn, "muestra_alm", "Ninguno") ?></td>
 </tr>
 
 <tr>
@@ -154,7 +154,7 @@
   }
 else {
 ?>
-<form action="<?php echo $PHP_SELF ?>" method="post">
+<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
 <table border=0 width="100%">
 <tr>
   <th>Cant.</th><th>Producto</th><th>Unidad</th><th>Descuento</th>

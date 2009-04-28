@@ -30,10 +30,10 @@
     }
   }
   
-  /* Cargamos matriz de países */
+  /* Cargamos matriz de paÃ­ses */
   $query = "SELECT * FROM domicilio_paises ORDER BY id ASC";
   if (!$resultado = db_query($query, $conn)) {
-    $mens = "<div class=\"error_nf\">Error al consultar países</div>\n";
+    $mens = "<div class=\"error_nf\">Error al consultar paÃ­ses</div>\n";
   }
   else {
     $a_paises = array();
@@ -102,12 +102,12 @@
           }
  
         } /* fin de consulta de id domicilio principal */
-      }  /* fin de inserción de domicilio de cliente */
+      }  /* fin de inserciÃ³n de domicilio de cliente */
     }
   }
 }
 ?>
-<form action="<?php echo $PHP_SELF ?>" method="post">
+<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
 <table>
   <tbody>
     <tr>
@@ -141,16 +141,16 @@ while(list ($id_tipo, $valor) = each($a_clientes_tipo))
       <td>&nbsp;  </td>
     </tr>
     <tr>
-      <td>Página Web  </td>
+      <td>PÃ¡gina Web  </td>
       <td><input type="text" name="url" size=40>  </td>
       <td>email  </td>
       <td><input type="text" name="email">  </td>
 
     </tr>
     <tr>
-      <td>Teléfono 1  </td>
+      <td>TelÃ©fono 1  </td>
       <td><input type="text" name="telefono1"></td>
-      <td>Teléfono 2  </td>
+      <td>TelÃ©fono 2  </td>
       <td><input type="text" name="telefono2"></td>
     </tr>
     <tr>
@@ -178,15 +178,15 @@ Domicilio principal:<br>
   <td colspan=3><input type="text" name="dom_calle" size=60></td>
 </tr>
 <tr>
-  <td>Número exterior:</td>
+  <td>NÃºmero exterior:</td>
   <td><input type="text" name="dom_numero"></td>
-  <td>Número interior:</td>
+  <td>NÃºmero interior:</td>
   <td><input type="text" name="dom_inter"></td>
 </tr>
 <tr>
   <td>Colonia:</td>
   <td><input type="text" name="dom_col"></td>
-  <td>Municipio/delegación:</td>
+  <td>Municipio/delegaciÃ³n:</td>
   <td><input type="text" name="dom_mpo"></td>
 </tr>
 <tr>
@@ -207,7 +207,7 @@ Domicilio principal:<br>
 </tr>
 
 <tr>
-  <td>País:</td>
+  <td>PaÃ­s:</td>
   <td><select name="dom_pais_id">
 <?php
       while(list ($id_pais, $valor) = each($a_paises)) {
@@ -224,7 +224,7 @@ Domicilio principal:<br>
 </tr>
 
 <tr>
-  <td>Teléfono</td>
+  <td>TelÃ©fono</td>
   <td colspan=3><input type="text" name="dom_telefono"></td>
 </tr>
 </table>
