@@ -16,7 +16,10 @@ var MenuPrincipal = [
 		[null,'Alta de producto','invent_web.php?action=agrega','_self','Agregar al catálogo de productos']
 	],
 	[null,'Facturación',null,null,'Facturas y operaciones de caja',
-		[null,'Facturas','factur_web.php',null,'Emisión de facturas'],
+		[null,'Facturas',null,null,'Facturas',
+			[null,'Elaborar','factur_web.php',null,'Elaboración de facturas'],
+			[null,'Lista', 'factur_web_muestra.php', null, 'Listado de facturas']
+		],
 		[null,'Caja',null,null,'Operación de caja',
 			[null,'Modo express','caja_web.php?mode=express',null,'Operación para cobrar muchos productos en una sola venta'],
 		    [null,'Modo normal','caja_web.php',null,'Operación para cobrar pocos productos en una sola venta'],
