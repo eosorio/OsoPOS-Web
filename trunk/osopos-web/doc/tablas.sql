@@ -1,4 +1,8 @@
-SET client_encoding TO 'iso-8859-1';
+CREATE GROUP osopos;
+CREATE USER supervisor IN GROUP osopos;
+CREATE USER scaja IN GROUP osopos;
+
+CREATE USER osopos_p;
 
 CREATE TABLE articulos (
   codigo        varchar(20) PRIMARY KEY NOT NULL,
@@ -19,7 +23,8 @@ CREATE TABLE articulos (
   tax_4         real DEFAULT 0,
   tax_5         real DEFAULT 0,
   serie         boolean DEFAULT FALSE,
-  tangible      boolean DEFAULT TRUE
+  tangible      boolean DEFAULT TRUE,
+  granel        boolean DEFAULT FALSE
 );
 REVOKE ALL ON articulos FROM PUBLIC;
 GRANT SELECT ON articulos to GROUP osopos;
@@ -78,13 +83,23 @@ id_almacen int2 NOT NULL DEFAULT 1
 );
 
 CREATE TABLE "almacenes" (
-  "id"          SERIAL,
+  "id"          int2 DEFAULT nextval('almacenes_id_seq'::text) PRIMARY KEY NOT NULL,
   "nombre"      VARCHAR(30),
   "descripcion" VARCHAR(40)
 );
+
+CREATE SEQUENCE almacenes_id_seq
+    START 1
+    INCREMENT 1
+    MAXVALUE 1000
+    MINVALUE 1
+    CACHE 1;
+                                                                                
 REVOKE ALL ON almacenes FROM PUBLIC;
 GRANT SELECT ON almacenes to GROUP osopos;
 GRANT ALL ON almacenes TO scaja;
+
+INSERT INTO almacenes VALUES (1, 'Mostrador', 'Mostrador');
 
 CREATE TABLE almacen_1 (
   codigo        varchar(20) NOT NULL REFERENCES articulos,
@@ -212,6 +227,13 @@ CREATE INDEX ventas_detalle_bkey ON ventas_detalle USING BTREE(id_venta,codigo);
 REVOKE ALL ON ventas_detalle FROM PUBLIC;
 GRANT SELECT ON ventas_detalle to GROUP osopos;
 
+CREATE TABLE ventas_arts_series (
+    id              int4 NOT NULL REFERENCES ventas (numero),
+    codigo          varchar(20),
+    serie           varchar(128),
+    UNIQUE(id,codigo,serie)
+);
+
 CREATE TABLE facturas_ingresos (
   "id"              SERIAL PRIMARY KEY,
   "fecha"           DATE,
@@ -219,7 +241,7 @@ CREATE TABLE facturas_ingresos (
   "dom_calle"       character varying(30),
   "dom_numero"      character varying(15),
   "dom_inter"       character varying(3),
-  "dom_col"         character varying(20),
+  "dom_col"         character varying(64),
   "dom_ciudad"      character varying(30),
   "dom_edo"         character varying(20),
   "dom_cp"          int4,
@@ -295,12 +317,12 @@ CREATE TABLE telefonos_proveedor (
   "fax"          bool DEFAULT 'f'
 );
 REVOKE ALL ON telefonos_proveedor FROM PUBLIC;
-GRANT SELECT ON telefonos_proveedores TO GROUP osopos;
+GRANT SELECT ON telefonos_proveedor TO GROUP osopos;
 
 CREATE TABLE users (
   "id"           SERIAL PRIMARY KEY NOT NULL,
-  "user"         varchar(10) NOT NULL,
-  "passwd"       varchar(32) DEFAULT '',
+  "user"         varchar(32) NOT NULL,
+  "passwd"       varchar(512) DEFAULT '',
   "level"        int NOT NULL DEFAULT 0,
   "name"         varchar(254)
 );
@@ -314,6 +336,8 @@ CREATE TABLE divisas (
 );
 REVOKE ALL ON divisas FROM PUBLIC;
 GRANT SELECT ON divisas TO GROUP osopos;
+
+INSERT INTO divisas VALUES ('MXP', 'Moneda Nacional', 1);
 
 CREATE TABLE tipo_mov_inv (
   "id"           SERIAL PRIMARY KEY NOT NULL,
@@ -334,7 +358,7 @@ CREATE TABLE mov_inv (
   "id"          SERIAL PRIMARY KEY NOT NULL,
   "almacen"     int NOT NULL default 1,
   "tipo_mov"    int NOT NULL,
-  "usuario"     varchar(10) NOT NULL,
+  "usuario"     varchar(32) NOT NULL,
   "fecha_hora"  timestamp NOT NULL DEFAULT current_timestamp,
   "id_prov1"    int
 );
@@ -361,6 +385,18 @@ REVOKE ALL ON perfiles FROM PUBLIC;
 GRANT SELECT ON perfiles TO GROUP osopos;
 GRANT ALL ON perfiles TO "scaja";
 
+CREATE TABLE modulo_grupo (
+  id             SERIAL PRIMARY KEY,
+  nombre         varchar(60)
+);
+COPY modulo_grupo FROM stdin;
+1	Inventarios
+2	Movimientos al inventario
+3	Operacion de caja
+4	Catalogo de clientes
+5	Administracion de usuarios
+\.
+
 CREATE TABLE modulo_perfil (
   perfil       VARCHAR(30),
   nombre       VARCHAR(30)
@@ -368,37 +404,48 @@ CREATE TABLE modulo_perfil (
 CREATE INDEX modulo_perfil_bkey ON modulo_perfil USING BTREE(perfil);
 REVOKE ALL ON modulo_perfil FROM PUBLIC;
 GRANT SELECT ON modulo_perfil TO GROUP osopos;
-GRANT ALL ON modulo_perfil TO "scaja";
+GRANT ALL ON modulo_perfil TO "supervisor";
 
 CREATE TABLE modulo (
   "id"           SERIAL PRIMARY KEY,
   "nombre"       varchar(30) NOT NULL,
-  "desc"         varchar(60)
+  "desc"         varchar(60),
+  "grupo"        int2,
+  UNIQUE(id,nombre)
 );
 REVOKE ALL ON modulo FROM PUBLIC;
 GRANT SELECT ON modulo TO GROUP osopos;
 
-INSERT INTO modulo (nombre, "desc") VALUES ('invent_ver_pcosto', 'Inventarios. Ver precio de costo');
-INSERT INTO modulo (nombre, "desc") VALUES ('invent_ver_prov', 'Inventarios. Ver proveedores');
-INSERT INTO modulo (nombre, "desc") VALUES ('invent_borrar_item', 'Inventarios. Borrar item');
-INSERT INTO modulo (nombre, "desc") VALUES ('invent_cambiar_item', 'Inventarios. Modificar item');
-INSERT INTO modulo (nombre, "desc") VALUES ('invent_depto_renombrar', 'Inventarios. Renombrar departamento');
-INSERT INTO modulo (nombre, "desc") VALUES ('invent_general', 'Inventarios. Acceso general');
-INSERT INTO modulo (nombre, "desc") VALUES ('movinv_general', 'Mov. al inv. Acceso general');
-INSERT INTO modulo (nombre, "desc") VALUES ('movinv_compra', 'Mov. al inv. Registrar compras');
-INSERT INTO modulo (nombre, "desc") VALUES ('movinv_venta', 'Mov. al inv. Registrar ventas');
-INSERT INTO modulo (nombre, "desc") VALUES ('movinv_devventa', 'Mov. al inv. Registrar dev. de ventas');
-INSERT INTO modulo (nombre, "desc") VALUES ('movinv_devcompra', 'Mov. al inv. Registrar dev. compras');
-INSERT INTO modulo (nombre, "desc") VALUES ('movinv_merma', 'Mov. al inv. Registrar mermas');
-INSERT INTO modulo (nombre, "desc") VALUES ('movinv_tsalida', 'Mov. al inv. Registrar transferencia de salida');
-INSERT INTO modulo (nombre, "desc") VALUES ('movinv_tentrada', 'Mov. al inv. Registrar transferencia de entrada');
-INSERT INTO modulo (nombre, "desc") VALUES ('usuarios_general', 'Admin. de usuarios. Acceso general');
-INSERT INTO modulo (nombre, "desc") VALUES ('caja_cajon_manual', 'Operación de caja. Apertura manual de cajón de efectivo');
+INSERT INTO modulo (nombre, "desc", grupo) VALUES ('invent_ver_pcosto', 'Inventarios. Ver precio de costo', 1);
+INSERT INTO modulo (nombre, "desc", grupo) VALUES ('invent_ver_prov', 'Inventarios. Ver proveedores', 1);
+INSERT INTO modulo (nombre, "desc", grupo) VALUES ('invent_borrar_item', 'Inventarios. Borrar item', 1);
+INSERT INTO modulo (nombre, "desc", grupo) VALUES ('invent_cambiar_item', 'Inventarios. Modificar item', 1);
+INSERT INTO modulo (nombre, "desc", grupo) VALUES ('invent_depto_renombrar', 'Inventarios. Renombrar departamento', 1);
+INSERT INTO modulo (nombre, "desc", grupo) VALUES ('invent_general', 'Inventarios. Acceso general', 1);
+INSERT INTO modulo (nombre, "desc", grupo) VALUES ('invent_fisico', 'Modificación directa de existencias (Inv. físico) ', 1);
+INSERT INTO modulo (nombre, "desc", grupo) VALUES ('movinv_general', 'Mov. al inv. Acceso general', 2);
+INSERT INTO modulo (nombre, "desc", grupo) VALUES ('movinv_compra', 'Mov. al inv. Registrar compras', 2);
+INSERT INTO modulo (nombre, "desc", grupo) VALUES ('movinv_venta', 'Mov. al inv. Registrar ventas', 2);
+INSERT INTO modulo (nombre, "desc", grupo) VALUES ('movinv_devventa', 'Mov. al inv. Registrar dev. de ventas', 2);
+INSERT INTO modulo (nombre, "desc", grupo) VALUES ('movinv_devcompra', 'Mov. al inv. Registrar dev. compras', 2);
+INSERT INTO modulo (nombre, "desc", grupo) VALUES ('movinv_merma', 'Mov. al inv. Registrar mermas', 2);
+INSERT INTO modulo (nombre, "desc", grupo) VALUES ('movinv_tsalida', 'Mov. al inv. Registrar transferencia de salida', 2);
+INSERT INTO modulo (nombre, "desc", grupo) VALUES ('movinv_tentrada', 'Mov. al inv. Registrar transferencia de entrada', 2);
+INSERT INTO modulo (nombre, "desc", grupo) VALUES ('usuarios_general', 'Admin. de usuarios. Acceso general', 5);
+INSERT INTO modulo (nombre, "desc", grupo) VALUES ('caja_cajon_manual', 'Operación de caja. Apertura manual de cajón de efectivo', 3);
+INSERT INTO modulo (nombre, "desc", grupo) VALUES ('caja_descuento', 'Aplicar manualmente escala de precios', 3);
+INSERT INTO modulo (nombre, "desc", grupo) VALUES ('caja_descuento_manual', 'Modificacion directa de precio', 3);
+INSERT INTO modulo (nombre, "desc", grupo) VALUES ('clientes_consulta', 'Clientes. Consulta de clientes', 4);
+INSERT INTO modulo (nombre, "desc", grupo) VALUES ('clientes_agregar', 'Clientes. Agregar clientes', 4);
+INSERT INTO modulo (nombre, "desc", grupo) VALUES ('clientes_eliminar', 'Clientes. Eliminar clientes', 4);
+INSERT INTO modulo (nombre, "desc", grupo) VALUES ('clientes_modificar', 'Clientes. Modificar datos de clientes', 4);
 
 CREATE TABLE modulo_usuarios (
   id           int NOT NULL DEFAULT 0,
-  usuario      VARCHAR(10) NOT NULL
+  usuario      VARCHAR(32) NOT NULL,
+  UNIQUE(id,usuario)
 );
+CREATE INDEX modulo_usuarios_bkey ON modulo_usuarios USING BTREE(id,usuario);
 REVOKE ALL ON modulo_usuarios FROM PUBLIC;
 GRANT SELECT ON modulo_usuarios TO GROUP osopos;
 
@@ -467,7 +514,7 @@ CREATE TABLE cliente (
   dom_calle     	 varchar(45),
   dom_numero         varchar(15),
   dom_inter          varchar(10),
-  dom_col            varchar(20),
+  dom_col            varchar(64),
   dom_ciudad         varchar(30),
   dom_edo            varchar(20),
   dom_cp             int4,
@@ -493,7 +540,7 @@ CREATE TABLE cliente_trabajo (
   dom_calle   varchar(45),
   dom_inter   varchar(10),
   dom_numero  varchar(15),
-  dom_col     varchar(20),
+  dom_col     varchar(64),
   dom_ciudad  varchar(30),
   dom_edo     varchar(20),
   dom_cp      int4,
@@ -535,39 +582,11 @@ CREATE TABLE folios_notas_1 (
 
 
 CREATE TABLE carro_virtual (
-  usuario     varchar(10) NOT NULL,
+  usuario     varchar(32) NOT NULL,
   codigo      varchar(20) NOT NULL REFERENCES articulos,
   cant        int2 NOT NULL DEFAULT 1
 );
 CREATE INDEX carro_virtual_bkey ON carro_virtual USING BTREE(usuario);
-
--- Catálogo de compras y pedidos a proveedor (y posiblemente a clientes)
-CREATE TABLE pedido_cabecera (
-  id          SERIAL,
-  docto       varchar(20),
-  id_prov     int2 NOT NULL,
-  dom_entrega int4 NOT NULL REFERENCES domicilios,
-  subtotal    float NOT NULL,
-  descuento   float NOT NULL,
-  iva         float NOT NULL,
-  total       float NOT NULL,
-  observaciones varchar(256),
-  usuario     varchar(20) NOT NULL,
-  fecha       timestamp NOT NULL DEFAULT current_timestamp,
-  almacen     int2 NOT NULL DEFAULT 1, --Almacen en el que se recibe ó entrega
-  tipo        int2 NOT NULL DEFAULT 1,
-  fecha_pedido date NOT NULL
-);
-
-CREATE TABLE pedido_detalle(
-  id          int4 NOT NULL,
-  codigo      varchar(20) NOT NULL REFERENCES articulos,
-  cant        float NOT NULL DEFAULT 1,
-  pu          float NOT NULL,
-  descuento   float NOT NULL,
-  iva         float NOT NULL DEFAULT 15,
-  UNIQUE (id,codigo)
-);
 
 CREATE TABLE articulos_garantias (
   codigo   varchar(20) NOT NULL REFERENCES articulos,
@@ -576,49 +595,13 @@ CREATE TABLE articulos_garantias (
   UNIQUE(codigo)
 );
   
-CREATE SEQUENCE domicilio_paises_id_seq
-    START 1
-    INCREMENT 1
-    MAXVALUE 2147483647
-    MINVALUE 1
-    CACHE 1;
-
-CREATE TABLE domicilio_paises (
-  id     int2 DEFAULT nextval('domicilio_paises_id_seq'::text) PRIMARY KEY NOT NULL,
-  nombre varchar(32) NOT NULL
-);
-INSERT INTO domicilio_paises (nombre) VALUES ('México');
-
-CREATE TABLE domicilio_estados (
-  id     int2 PRIMARY KEY NOT NULL,
-  nombre varchar(32) NOT NULL
-);
-
-CREATE TABLE domicilios (
-  id            SERIAL PRIMARY KEY NOT NULL,
-  id_cliente    int4 NOT NULL REFERENCES clientes(id),
-  dom_nombre    varchar(32),
-  dom_calle     varchar(64),
-  dom_numero    varchar(15),
-  dom_inter     varchar(10),
-  dom_col       varchar(64),
-  dom_mpo       varchar(32),
-  dom_ciudad    varchar(30) NOT NULL,
-  dom_edo_id    int2 REFERENCES domicilio_estados(id),
-  dom_cp        int4,
-  dom_pais_id   int2 REFERENCES domicilio_paises(id),
-  dom_telefono  varchar(32),
-  dom_contacto  varchar(32),
-  dom_notas     varchar(64)
-);
-
+-- Clientes
 CREATE SEQUENCE cliente_tipo_id_seq
     START 1
     INCREMENT 1
     MAXVALUE 2147483647
     MINVALUE 1
     CACHE 1;
-                                                                                
 
 CREATE TABLE cliente_tipo (
   id    int2 DEFAULT nextval('cliente_tipo_id_seq'::text) PRIMARY KEY NOT NULL,
@@ -650,6 +633,106 @@ CREATE TABLE clientes (
   contacto     varchar(128),
   observaciones varchar(128)
 );
+
+-- Domicilios
+CREATE SEQUENCE domicilio_paises_id_seq
+    START 1
+    INCREMENT 1
+    MAXVALUE 2147483647
+    MINVALUE 1
+    CACHE 1;
+
+CREATE TABLE domicilio_paises (
+  id     int2 DEFAULT nextval('domicilio_paises_id_seq'::text) PRIMARY KEY NOT NULL,
+  nombre varchar(32) NOT NULL
+);
+INSERT INTO domicilio_paises (nombre) VALUES ('México');
+
+CREATE TABLE domicilio_estados (
+  id     int2 PRIMARY KEY NOT NULL,
+  nombre varchar(32) NOT NULL
+);
+
+CREATE TABLE domicilios (
+  id            SERIAL PRIMARY KEY NOT NULL,
+  id_cliente    int4 NOT NULL REFERENCES clientes(id),
+  dom_nombre    varchar(32),
+  dom_calle     varchar(64),
+  dom_numero    varchar(15),
+  dom_inter     varchar(25),
+  dom_col       varchar(64),
+  dom_mpo       varchar(32),
+  dom_ciudad    varchar(30) NOT NULL,
+  dom_edo_id    int2 REFERENCES domicilio_estados(id),
+  dom_cp        int4,
+  dom_pais_id   int2 REFERENCES domicilio_paises(id),
+  dom_telefono  varchar(32),
+  dom_contacto  varchar(32),
+  dom_notas     varchar(64)
+);
+
+-- Catálogo de compras y pedidos a proveedor (y posiblemente a clientes)
+CREATE TABLE pedido_p_cabecera (
+  id          SERIAL PRIMARY KEY,
+  docto       varchar(20),
+  id_prov     int2 NOT NULL,
+  dom_entrega int4 NOT NULL REFERENCES domicilios,
+  subtotal    float NOT NULL,
+  descuento   float NOT NULL,
+  iva         float NOT NULL DEFAULT 0,
+  total       float NOT NULL,
+  observaciones varchar(256),
+  id_usuario  int2 NOT NULL,
+  fecha       timestamp NOT NULL DEFAULT current_timestamp,
+  fecha_envio timestamp,
+  almacen     int2 NOT NULL DEFAULT 1, --Almacen en el que se recibe ó entrega
+  tipo        int2 NOT NULL DEFAULT 1,
+  fecha_pedido date NOT NULL,
+  tipo_pago   int2 NOT NULL DEFAULT 1 REFERENCES forma_pago(id),
+  estatus     char(1)
+);
+
+CREATE TABLE pedido_p_detalle(
+  id          int4 NOT NULL REFERENCES pedido_p_cabecera,
+  codigo      varchar(20) NOT NULL REFERENCES articulos,
+  cant        float NOT NULL DEFAULT 1,
+  pu          float NOT NULL,
+  descuento   float NOT NULL DEFAULT 0,
+  iva         float NOT NULL DEFAULT 15,
+  guia        varchar(64),
+  UNIQUE (id,codigo)
+);
+CREATE INDEX pedido_p_detalle_bkey ON pedido_p_detalle USING BTREE(id);
+
+CREATE TABLE pedido_c_cabecera (
+  id          SERIAL PRIMARY KEY,
+  docto       int4 NOT NULL DEFAULT 0,
+  id_cte      int2 NOT NULL,
+  dom_entrega int4 NOT NULL REFERENCES domicilios,
+  subtotal    float NOT NULL,
+  descuento   float NOT NULL DEFAULT 0,
+  iva         float NOT NULL DEFAULT 0,
+  total       float NOT NULL,
+  observaciones varchar(256),
+  id_usuario  int2 NOT NULL,
+  fecha       timestamp NOT NULL DEFAULT current_timestamp,
+  fecha_envio timestamp,
+  tipo        int2 NOT NULL DEFAULT 1,
+  fecha_pedido date NOT NULL,
+  tipo_pago   int2 NOT NULL DEFAULT 1 REFERENCES forma_pago (id),
+  estatus     char(1)
+);
+
+CREATE TABLE pedido_c_detalle(
+  id          int4 NOT NULL REFERENCES pedido_c_cabecera,
+  codigo      varchar(20) NOT NULL REFERENCES articulos,
+  cant        float NOT NULL DEFAULT 1,
+  pu          float NOT NULL,
+  descuento   float NOT NULL DEFAULT 0,
+  iva         float NOT NULL DEFAULT 15,
+  guia        varchar(64)
+);
+CREATE INDEX pedido_c_detalle_bkey ON pedido_c_detalle USING BTREE(id);
 
 CREATE TABLE arts_lineas (
   id       SERIAL PRIMARY KEY NOT NULL,
@@ -704,7 +787,7 @@ CREATE TABLE "configuracion_grupo" (
 );
 INSERT INTO configuracion_grupo VALUES (1, 'Directorios', 'Información de la ruta de los directorios que usa OsoPOS', 1, 1);
 INSERT INTO configuracion_grupo VALUES (2, 'Impresoras', 'Colas de impresión para emitir los diferentes documentos', 1, 1);
-INSERT INTO configuracion_grupo VALUES (3, 'Facturación', 'Parámetros del módulo de facturación' 1, 1);
+INSERT INTO configuracion_grupo VALUES (3, 'Facturación', 'Parámetros del módulo de facturación', 1, 1);
 
 CREATE TABLE configuracion (
   id SERIAL NOT NULL,
@@ -729,4 +812,52 @@ INSERT INTO configuracion (titulo, llave, valor, descripcion, id_grupo) VALUES (
 INSERT INTO configuracion (titulo, llave, valor, descripcion, id_grupo) VALUES ('Etiquetas', 'COLA_ETIQUETA', 'etiquetas', 'Cola de impresión para impresora térmica de etiquetas', 2);
 INSERT INTO configuracion (titulo, llave, valor, descripcion, id_grupo) VALUES ('Predeterminada', 'COLA_DEFAULT', 'facturas', 'Cola de impresión predeterminada', 2);
 INSERT INTO configuracion (titulo, llave, valor, descripcion, id_grupo) VALUES ('Comando de impresión', 'CMD_IMPRESION', 'lpr -l ', 'Comando de impresión', 2);
-INSERT into configuracion (titulo, llave, valor, descripcion, id_grupo) values ('Facturas. Observaciones', 'FACTUR_OBS_DEFAULT', '30 días de garantía', 'Observaciones por omisión en facturas', 3);
+INSERT into configuracion (titulo, llave, valor, descripcion, id_grupo) VALUES ('Facturas. Observaciones', 'FACTUR_OBS_DEFAULT', '30 días de garantía', 'Observaciones por omisión en facturas', 3);
+INSERT INTO configuracion (titulo, llave, valor, descripcion, id_grupo) VALUES ('Almacén por omisión', 'ALM_DEF', 1, 'Almacén por omisión', 3);
+
+CREATE TABLE configuracion_pos (
+  id_pos int4 NOT NULL default '0',
+  llave varchar(64) NOT NULL default '',
+  titulo varchar(64) NOT NULL default '',
+  valor varchar(255) NOT NULL default '',
+  fecha_modificado timestamp DEFAULT current_timestamp,
+  fecha_agregado timestamp NOT NULL default current_timestamp,
+  UNIQUE(llave, id_pos)
+);
+CREATE INDEX configuracion_pos_bkey ON configuracion_pos USING BTREE(id_pos, llave);
+
+INSERT INTO configuracion_pos (id_pos, llave, titulo, valor) VALUES (0, 'MINIIMPRESORA_TIPO', 'Tipo de emulación de miniprinter', 'EPSON');
+INSERT INTO configuracion_pos (id_pos, llave, titulo, valor) VALUES (0, 'IMPRESION_COMANDO', 'Comando del sistema para imprimir', 'lpr -P ');
+INSERT INTO configuracion_pos (id_pos, llave, titulo, valor) VALUES (0, 'MINIIMPRESORA_AUTOCUTTER', 'Se usará el corte automático?', '0');
+INSERT INTO configuracion_pos (id_pos, llave, titulo, valor) VALUES (0, 'ALMACEN', 'Número de almacén del que proviene la mercancía', '1');
+INSERT INTO configuracion_pos (id_pos, llave, titulo, valor) VALUES (0, 'SCANNER_PUERTOSERIE', 'En que puerto serial se encuentra el scanner?', '');
+INSERT INTO configuracion_pos (id_pos, llave, titulo, valor) VALUES (0, 'DIVISA', 'Divisa por omisión', 'MXP');
+INSERT INTO configuracion_pos (id_pos, llave, titulo, valor) VALUES (0, 'LISTAR_PRECIO_NETO', 'Se muestra en pantalla el precio con impuestos incluidos?', '1');
+INSERT INTO configuracion_pos (id_pos, llave, titulo, valor) VALUES (0, 'DESGLOSAR_DESCUENTO', '', '0');
+INSERT INTO configuracion_pos (id_pos, llave, titulo, valor) VALUES (0, 'CAPTURAR_SERIE', 'Captura de número de serie en lugar de id. de producto?', '0');
+INSERT INTO configuracion_pos (id_pos, llave, titulo, valor) VALUES (0, 'CONSULTA_CATALOGO', 'Consulta producto de memoria o de catálogo', '0');
+INSERT INTO configuracion_pos (id_pos, llave, titulo, valor) VALUES (0, 'MODO_RENTA', 'En lugar de vender, se renta?', '0');
+INSERT INTO configuracion_pos (id_pos, llave, titulo, valor) VALUES (0, 'REGISTRAR_VENDEDOR', 'Se lleva registro de vendedores?', '0');
+INSERT INTO configuracion_pos (id_pos, llave, titulo, valor) VALUES (0, 'COLA_TICKET', 'Cola de impresión de tickets', 'ticket');
+
+CREATE TABLE articulos_proveedor (
+	id_prov		int2,
+	codigo		varchar(64),
+	descrip		varchar(256),
+	pu1			real,
+	pu2			real,
+	pu3			real,
+	pu4			real,
+	pu5			real,
+	id_divisa	int2,
+	iva_porc	real,
+	ex			real,
+	linea		int2,
+	cod_osopos  varchar(64)
+);
+
+CREATE TABLE lineas_proveedor (
+	id			int2,
+	id_prov		int2,
+	descrip		varchar(64)
+);
