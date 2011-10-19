@@ -1,4 +1,4 @@
-<?  /* -*- mode: html; indent-tabs-mode: nil; c-basic-offset: 2 -*- 
+<?php  /* -*- mode: html; indent-tabs-mode: nil; c-basic-offset: 2 -*- 
  Ingresa artículo. Sub-Módulo de caja de OsoPOS Web.
 
         Copyright (C) 2000 Eduardo Israel Osorio Hernández
@@ -58,7 +58,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 <body bgcolor="white" background="imagenes/fondo.gif">
 
-<form action="<? echo $php_anterior ?>" method=post>
+<form action="<?php echo $php_anterior ?>" method=post>
 <table border=0 cellspacing=0 cellpadding=1 width="500">
 <tbody>
 <tr>
@@ -72,21 +72,21 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
  <th><font size=-1 face="helvetica,arial">% IVA</font>
 <tr>
  <td width="15%" align=center><font size=-1 face="helvetica,arial">
- <? echo $cod ?></font>
- <input type=hidden name=articulo_codigo[<? printf("%d", $i-1) ?>]
-  value="<? echo $cod ?>">
+ <?php echo $cod ?></font>
+ <input type=hidden name=articulo_codigo[<?php printf("%d", $i-1) ?>]
+  value="<?php echo $cod ?>">
  <td width="60%" align=center><font size=-1 face="helvetica,arial">
- <input type=text name=articulo_descripcion[<? printf("%d", $i-1) ?>]
-  size="<? echo $MAXDES ?>" maxlength="<? echo $MAXDES ?>"></font>
+ <input type=text name=articulo_descripcion[<?php printf("%d", $i-1) ?>]
+  size="<?php echo $MAXDES ?>" maxlength="<?php echo $MAXDES ?>"></font>
  <td width="15%" align=center><font size=-1 face="helvetica,arial">
- <input type=text name=articulo_pu[<? printf("%d", $i-1) ?>]
+ <input type=text name=articulo_pu[<?php printf("%d", $i-1) ?>]
   size=10></font>
  <td width="10%" align=center><font size=-1 face="helvetica,arial">
- <input type=text name=art_iva_porc[<? printf("%d", $i-1) ?>]
+ <input type=text name=art_iva_porc[<?php printf("%d", $i-1) ?>]
   size=2></font>
 <tr>
  <td colspan=4 align="right"><font face="helvetica,arial">
- <? printf("<input type=hidden name=i value=%d>\n", $i-1); ?>
+ <?php printf("<input type=\"hidden\" name=\"i\" value=\"%d\">\n", $i-1); ?>
  <input type=submit value="Ingresar"></font>
 </tbody>
 </table>
@@ -95,7 +95,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 </body>
 </html>
 
-<?
+<?php
 	}
   }
 }

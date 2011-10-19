@@ -1004,7 +1004,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 </table>
 
 <hr/>
-<?
+<?php
     }
 
     if ($PROGRAMA=="web") {
