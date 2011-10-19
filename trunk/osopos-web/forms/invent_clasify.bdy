@@ -2,20 +2,20 @@
 <!-- forms/invent_clasify.bdy -->
 
   <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post" name="selecciones">
-  <table border=0 width="100%" id="superior">
+  <table border="0" width="100%" id="superior">
   <tr>
    <td>
     <input type="hidden" name="order_by" value="<?php echo $order_by ?>">
     <input type="hidden" name="order" value="<?php echo $order ?>">
-    <input type="hidden" name="offset" value=0>
+    <input type="hidden" name="offset" value="0">
 <?php if (isset($alm)) printf("<input type=\"hidden\" name=\"alm\" value=%d>", $alm); ?>
     <small>
 Normal <input type="radio" name="mode" value="normal"
-<? if (empty($mode) || $mode=="normal") echo "checked" ?>>&nbsp;
+<?php if (empty($mode) || $mode=="normal") echo "checked" ?>>&nbsp;
 Express <input type="radio" name="mode" value="express"
-<? if ($mode=="express") echo "checked" ?>>&nbsp;
+<?php if ($mode=="express") echo "checked" ?>>&nbsp;
 Baja ex. <input type="radio" name="mode" value="baja_ex"
-<? if ($mode=="baja_ex") echo "checked" ?>>
+<?php if ($mode=="baja_ex") echo "checked" ?>>
 </small>
    </td>
 <?php
@@ -32,7 +32,7 @@ Baja ex. <input type="radio" name="mode" value="baja_ex"
   echo ">Todos\n";
 
   while (list($i, $nombre) = each($nm_depto)) {
-    printf("   <option value=%d", $i);
+    printf("   <option value=\"%d\"", $i);
     if ($id_dept == $i)
       echo " selected";
     echo ">$nombre\n";
@@ -48,7 +48,7 @@ else if ($PROGRAMA=="video") {
    <td>
     Género.:
     <select name="depto">
-<?
+<?php
   $d_selected =0;
   for ($i=0; $i<count($nm_depto); $i++) {
     echo "   <option";
@@ -82,7 +82,7 @@ else if ($PROGRAMA=="video") {
  </td>
  </tr>
  </table>
-  <? if ($debug)
+  <?php if ($debug)
 	 echo "<input type=\"hidden\" name=\"debug\" value=$debug>\n";
   ?>
   </form>
