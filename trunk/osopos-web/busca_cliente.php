@@ -143,7 +143,7 @@ Seleccione uno de los registros siguientes:<br>
  <th>C.U.R.P.</th>
  <tbody>
 
-<?
+<?php
   for ($i=0; $i<db_num_rows($result); $i++) {
 	$renglon = db_fetch_object($result, $renglon);
 	echo "<tr>\n";
@@ -161,7 +161,7 @@ Seleccione uno de los registros siguientes:<br>
 </table>
 
 
-<?
+<?php
 	}
 ?>
 

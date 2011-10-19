@@ -25,7 +25,7 @@
 <body background="imagenes/fondo.gif">
 <a href="osopos.php">Regresar al menú principal</a><br><br>
 <pre>
-<?
+<?php
 include("LICENCIA");
 ?>
 </pre>

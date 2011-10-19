@@ -58,7 +58,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <body>
 
 
-<?
+<?php
   include("menu/menu_principal.bdy");
   echo "<br>\n";
   if ($accion == "cambia" && puede_hacer($conn, $user->user, "invent_depto_renombrar")) {

@@ -1,4 +1,4 @@
-<?  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- 
+<?php  /* -*- mode: php; indent-tabs-mode: nil; c-basic-offset: 2 -*- 
  Caja Web 0.7-1. Módulo de caja de OsoPOS Web.
 
         Copyright (C) 2000,2001,2003 Eduardo Israel Osorio Hernández
@@ -78,16 +78,16 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
    <meta name="Author" content="E. Israel Osorio Hernández">
-   <title>OsoPOS - CajaWeb v. <? echo $caja_web_vers ?></title>
+   <title>OsoPOS - CajaWeb v. <?php echo $caja_web_vers ?></title>
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/cuerpo.css">
    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/numerico.css">
    <style type="text/css">
-    td.bg1 { background: <? echo $bg_color1 ?> }
-    td.bg1_center {text-align: center; background: <? echo $bg_color1 ?> }
-    td.bg1_right {text-align: right; background: <? echo $bg_color1 ?>}
-    td.bg2 { background: <? echo $bg_color2 ?> }
-    td.bg2_center {text-align: center; background: <? echo $bg_color2 ?> }
-    td.bg2_right {text-align: right; background: <? echo $bg_color2 ?> }
+    td.bg1 { background: <?php echo $bg_color1 ?> }
+    td.bg1_center {text-align: center; background: <?php echo $bg_color1 ?> }
+    td.bg1_right {text-align: right; background: <?php echo $bg_color1 ?>}
+    td.bg2 { background: <?php echo $bg_color2 ?> }
+    td.bg2_center {text-align: center; background: <?php echo $bg_color2 ?> }
+    td.bg2_right {text-align: right; background: <?php echo $bg_color2 ?> }
     td.bg0 { }
     td.bg0_center {text-align: center }
     td.bg0_right {text-align: right }
@@ -97,7 +97,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 </head>
 
-<?
+<?php
 
   if ($mode == "express" && empty($codigo) && empty($num_arts)) {
     if ($bandera==0) {
@@ -107,7 +107,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
  jpu  = new Array();
  jdesc = new Array();
  jiva_porc = new Array();
-<?
+<?php
     /* Cargamos la tabla de articulos en variables de javascript */
    $query = "SELECT DISTINCT ar.codigo, ar.descripcion, al.pu, ar.iva_porc ";
    $query.= sprintf("FROM articulos ar, almacen_%d al ORDER BY codigo ", $alm);
@@ -138,7 +138,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   }
 
   function find_code(codigo) {
-    for (var i=0; i<<? echo $num_ren ?> && codigo!=jcod[i]; i++);
+    for (var i=0; i<<?php echo $num_ren ?> && codigo!=jcod[i]; i++);
     return(jdesc[i]);
   }
 
@@ -149,20 +149,20 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     if (document.forma_articulo.cod.value=="") {
       return(true);
     }
-    //    for (var i=0; i<<? echo $num_ren ?> && code!=jcod[i]; i++);
-    i = shell_search(code, 0, <? echo $num_ren ?>);
-    if (i == <? printf("%d", $num_ren) ?>) {
+    //    for (var i=0; i<<?php echo $num_ren ?> && code!=jcod[i]; i++);
+    i = shell_search(code, 0, <?php echo $num_ren ?>);
+    if (i == <?php printf("%d", $num_ren) ?>) {
       alert("Artículo " + code + " no encontrado, introdúzcalo manualmente");
       return(false);
     }
     s = jcod[i];
-    if (s.length > <? echo $MAXLEN_COD ?>)
-        s.length =  <? echo $MAXLEN_COD ?>;
-    for (var j=0; j<<? echo $MAXLEN_COD ?>-jcod[i].length-1; s = s + " ", j++);
+    if (s.length > <?php echo $MAXLEN_COD ?>)
+        s.length =  <?php echo $MAXLEN_COD ?>;
+    for (var j=0; j<<?php echo $MAXLEN_COD ?>-jcod[i].length-1; s = s + " ", j++);
     s = s + "|" + jdesc[i];
-    if (s.length > <? printf("%d", $MAXLEN_DESC + $MAXLEN_COD) ?>)
-      s.length =  <? printf("%d", $MAXLEN_DESC + $MAXLEN_COD)  ?>;
-    for (j=0; j<<? echo $MAXLEN_DESC ?>-jdesc[i].length; s = s + " ", j++);
+    if (s.length > <?php printf("%d", $MAXLEN_DESC + $MAXLEN_COD) ?>)
+      s.length =  <?php printf("%d", $MAXLEN_DESC + $MAXLEN_COD)  ?>;
+    for (j=0; j<<?php echo $MAXLEN_DESC ?>-jdesc[i].length; s = s + " ", j++);
     s = s + "|";
     t = "" + jpu[i]; /* Aqui se pretende que se interprete como un string */
     for (j=0; j<15-t.length; s = s + " ", j++);
@@ -175,15 +175,15 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   }
 
 </script>
-<?
+<?php
   }
 ?>
 
-<? if (strlen($cod)!=0  || !isset($num_arts)) { ?>
+<?php if (strlen($cod)!=0  || !isset($num_arts)) { ?>
 
 <body onload="document.forma_articulo.cod.focus()">
 
-<?
+<?php
   if ($imprime_cabecera == 1) {
     include("include/minegocio.inc");
     switch(print_ticket_header()) {
@@ -200,7 +200,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
   }    
 ?>
 
-<form action="<?php echo $PHP_SELF ?>" method="POST" name="forma_articulo"<?
+<form action="<?php echo $PHP_SELF ?>" method="POST" name="forma_articulo"<?php
    if ($mode == "express")
      echo " onsubmit=\"muestra_articulo(document.forma_articulo.cod.value)\">\n";
    else
@@ -229,11 +229,11 @@ C&oacute;digo, cantidad o descripci&oacute;n:
 
 <td align="right">
 <input type="button" name="ingresa" value="Ingresa articulo"
-<?
+<?php
     if ($mode=="express") {
 ?>
 onClick="muestra_articulo(forma_articulo.cod.value)"
-<?
+<?php
     }
 ?>
 >
@@ -247,22 +247,22 @@ onClick="muestra_articulo(forma_articulo.cod.value)"
 <a href="carro.php"><img src="imagenes/carrito.png" border=0></a>
 </td>
 
-<?
+<?php
     if ($mode=="express") {
 ?>
 <td align="right">
 <input type="text" size=0>
 </td>
-<?
+<?php
     }
 ?>
 
 </tr>
 </table>
 
-<? }  /* fin de if(!isset$cod).... */ ?>
+<?php }  /* fin de if(!isset$cod).... */ ?>
 
-<?
+<?php
 
   if ($bandera != 1) {
     include("bodies/caja_lista_arts.bdy");

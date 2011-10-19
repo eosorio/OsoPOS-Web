@@ -504,7 +504,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 
 
 
-<?
+<?php
           }
   }
   else if ($accion=="lista") {
