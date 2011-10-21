@@ -61,6 +61,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
 {
   include("menu/menu_principal.bdy");
 
+  echo "<h1>Modulos de operacion a OsoPOS</h1>\n<br />";
 
   if (empty($action) || $action == "list" ) {
 
@@ -74,14 +75,18 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA02139, USA.
     if (db_num_rows($db_res) == 0)
       echo "<div class=\"error_nf\">No se cuenta con módulos en el catálogo</div>\n";
 
-    echo "<table border=\"0\" cellpadding=\"3\">\n";
-    echo "<tr>\n  <th>Id</th><th>Nombre</th><th>Descripción</th>\n</tr>\n";
+    echo "<table class=\"t580px-1\" cellspacing=\"0\" summary=\Lista de modulos\">\n";
+    echo "<tr>\n";
+    echo "  <td class=\"t580px-1-header\" width=\"10%\">Id</td>\n";
+    echo "  <td class=\"t580px-1-header\" width=\"25%\">Nombre</td>\n";
+    echo "  <td class=\"t580px-1-header\" width=\"70%\">Descripción</td>\n";
+    echo "</tr>\n";
 
     for ($i=0; $i < $num_modulos; $i++) {
       $modulo = db_fetch_object($db_res, $i);
 
       echo "<tr>\n";
-      printf("  <td class=\"serie\">%3d</td><td>%s</td><td>%s</td>\n", $modulo->id, $modulo->nombre, $modulo->desc);
+      printf("  <td class=\"t580px-1-row\">%3d</td><td class=\"t580px-1-row\">%s</td><td class=\"t580px-1-row\">%s</td>\n", $modulo->id, $modulo->nombre, $modulo->desc);
       echo "</tr>\n";
     }
 
