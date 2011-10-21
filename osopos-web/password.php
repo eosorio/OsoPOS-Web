@@ -61,9 +61,9 @@ include("include/pos.inc");
     include("bodies/usuarios.bdy");
   }
   else {
-    echo "<form action=\"$_SERVER['PHP_SELF']\" method=\"post\">\n";
+    printf("<form action=\"%s\" method=\"post\">\n", $_SERVER['PHP_SELF']);
     echo "  <input type=\"hidden\" name=\"action\" value=\"listar\">\n";
-    echo "  <input type=\"image\" src=\"imagenes/lupa.png\">\n";
+    echo "  <input type=\"image\" src=\"imagenes/lupa.png\" value=\"Submit\">\n";
     echo "Ver usuarios<br>\n";
     echo "</form>\n";
     //    echo "<a href=\"$_SERVER['PHP_SELF']?action=listar\">Ver usuarios</a><br>\n";
@@ -105,6 +105,8 @@ include("include/pos.inc");
         include("bodies/password.bdy");
       //    echo md5("mi_password") . "<br>\n";
     }
+    else
+      echo "<div class=\"mens_inf\">Usted no tiene permisos para acceder a este modulo</div>";
   }
   db_close($conn);
 
